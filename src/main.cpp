@@ -145,7 +145,7 @@ int main() {
 
     mesh_compiler::compilationInfo ci;
     ci.name = "test/out";
-    ci.format_file = "test/.format";
+    ci.format_file = "test/.format.bin";
     ci.debug_messages = true;
     ReadFile("test/test.obj", std::bind(mesh_compiler::compile, std::placeholders::_1, ci));
 
