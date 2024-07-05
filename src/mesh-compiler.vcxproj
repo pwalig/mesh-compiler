@@ -130,13 +130,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="formatCompiler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshCompiler.cpp" />
     <ClCompile Include="meshFileReader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="formatCompiler.h" />
     <ClInclude Include="meshCompiler.h" />
     <ClInclude Include="meshFileReader.h" />
   </ItemGroup>
