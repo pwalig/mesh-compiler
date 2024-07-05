@@ -4,23 +4,23 @@
 
 namespace mesh_reader {
 	template <typename T, typename U>
-	void readBuffer(std::ifstream& file, std::vector<T>& buffer); // assumes unsigned int at front
+	void readBuffer(std::ifstream& file, std::vector<T>& buffer); // assumes count of type T values at front as type U value
 
 	template <typename T, typename U>
-	void readBuffer(std::ifstream& file, std::vector<T>& buffer, const U& size);
+	void readBuffer(std::ifstream& file, std::vector<T>& buffer, const U& count);
 }
 
 template<typename T, typename U>
 void mesh_reader::readBuffer(std::ifstream& file, std::vector<T>& buffer)
 {
-	U size;
-	file.read((char*)&size, sizeof(U));
-	readBuffer<T, U>(file, buffer, size);
+	U count;
+	file.read((char*)&count, sizeof(U));
+	readBuffer<T, U>(file, buffer, count);
 }
 
 template<typename T, typename U>
-void mesh_reader::readBuffer(std::ifstream& file, std::vector<T>& buffer, const U& size)
+void mesh_reader::readBuffer(std::ifstream& file, std::vector<T>& buffer, const U& count)
 {
-	buffer.resize(size);
-	file.read((char*)(buffer.data()), size * sizeof(T));
+	buffer.resize(count);
+	file.read((char*)(buffer.data()), count * sizeof(T));
 }

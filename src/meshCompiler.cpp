@@ -228,10 +228,42 @@ char mesh_compiler::obtainCompileConfig(compileConfig& config, const compilation
             if (arg.empty()) continue;
             else { // process word
                 if (arg.size() >= 4 && argsMap.find(arg.substr(0, arg.size()-3)) != argsMap.end()) { // argument
+                    if (arg[arg.size() - 2] != '_') {
+                        std::string correct = arg;
+                        correct[correct.size() - 2] = '_';
+                        std::cout << "format compilation error: unknown statement: " << arg << " in line 1. did you mean: " << correct << "?\n";
+                        return 2;
+                    }
+                    if (arg[arg.size() - 4] != 's') {
+                        std::cout << "format compilation error: given byte base in count type: " << arg << " in line 1.\n";
+                        return 6;
+                    }
                     char varg = argsMap[arg.substr(0, arg.size() - 3)];
-                    char size = sizeMap[arg[arg.size() - 3]];
-                    char base = baseMap[arg[arg.size() - 1]];
+                    char size = arg[arg.size() - 3];
+                    char base = arg[arg.size() - 1];
+                    if (sizeMap.find(size) == sizeMap.end() || baseMap.find(base) == baseMap.end()) {
+                        std::cout << "format compilation error: unknown statement: " << arg << " in line 1.\n";
+                        return 2;
+                    }
+                    size = sizeMap[size];
+                    base = baseMap[base];
                     config.preambule.info_format.push_back(varg | size | base);
+                    arg = "";
+                }
+                else if (arg.size() >= 2 && argsMap.find(arg.substr(0, arg.size() - 1)) != argsMap.end()) {
+                    char varg = argsMap[arg.substr(0, arg.size() - 1)];
+                    char size = arg[arg.size() - 1];
+                    if (sizeMap.find(size) == sizeMap.end()) {
+                        std::cout << "format compilation error: unknown statement: " << arg << " in line 1.\n";
+                        return 2;
+                    }
+                    size = sizeMap[size];
+                    config.preambule.info_format.push_back(varg | size | mc_x_4);
+                    arg = "";
+                }
+                else if (argsMap.find(arg) != argsMap.end()) {
+                    char varg = argsMap[arg];
+                    config.preambule.info_format.push_back(varg | mc_4_4);
                     arg = "";
                 }
                 else if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end() || arg.size() <= 2) { // field
@@ -248,7 +280,7 @@ char mesh_compiler::obtainCompileConfig(compileConfig& config, const compilation
     }
 
     // buffers
-    int line_num = 1;
+    int line_num = 2;
     bool fields = false;
     while (std::getline(formatFile, line)) {
         line += ' ';
@@ -259,10 +291,42 @@ char mesh_compiler::obtainCompileConfig(compileConfig& config, const compilation
                 if (arg.empty()) continue;
                 else { // process word
                     if (arg.size() >= 4 && argsMap.find(arg.substr(0, arg.size() - 3)) != argsMap.end()) { // argument
+                        if (arg[arg.size() - 2] != '_') {
+                            std::string correct = arg;
+                            correct[correct.size() - 2] = '_';
+                            std::cout << "format compilation error: unknown statement: " << arg << " in line " << line_num << ". did you mean: " << correct << "?\n";
+                            return 2;
+                        }
+                        if (arg[arg.size() - 4] != 's') {
+                            std::cout << "format compilation error: given byte base in count type: " << arg << " in line " << line_num << ".\n";
+                            return 6;
+                        }
                         char varg = argsMap[arg.substr(0, arg.size() - 3)];
-                        char size = sizeMap[arg[arg.size() - 3]];
-                        char base = baseMap[arg[arg.size() - 1]];
+                        char size = arg[arg.size() - 3];
+                        char base = arg[arg.size() - 1];
+                        if (sizeMap.find(size) == sizeMap.end() || baseMap.find(base) == baseMap.end()) {
+                            std::cout << "format compilation error: unknown statement: " << arg << " in line " << line_num << ".\n";
+                            return 2;
+                        }
+                        size = sizeMap[size];
+                        base = baseMap[base];
                         buffer.info_format.push_back(varg | size | base);
+                        arg = "";
+                    }
+                    else if (arg.size() >= 2 && argsMap.find(arg.substr(0, arg.size() - 1)) != argsMap.end()) {
+                        char varg = argsMap[arg.substr(0, arg.size() - 1)];
+                        char size = arg[arg.size() - 1];
+                        if (sizeMap.find(size) == sizeMap.end()) {
+                            std::cout << "format compilation error: unknown statement: " << arg << " in line " << line_num << ".\n";
+                            return 2;
+                        }
+                        size = sizeMap[size];
+                        buffer.info_format.push_back(varg | size | mc_x_4);
+                        arg = "";
+                    }
+                    else if (argsMap.find(arg) != argsMap.end()) {
+                        char varg = argsMap[arg];
+                        buffer.info_format.push_back(varg | mc_4_4);
                         arg = "";
                     }
                     else if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end()) { // field
@@ -506,7 +570,29 @@ void mesh_compiler::compileMesh(const aiMesh* m, const compilationInfo& ci)
                     fout.write((char*)&(m->mNormals[j][ind]), sizeof(float));
                     break;
                 case mc_texture_coordinate:
+                case mc_uv0:
                     fout.write((char*)&(m->mTextureCoords[0][j][ind]), sizeof(float));
+                    break;
+                case mc_uv1:
+                    fout.write((char*)&(m->mTextureCoords[1][j][ind]), sizeof(float));
+                    break;
+                case mc_uv2:
+                    fout.write((char*)&(m->mTextureCoords[2][j][ind]), sizeof(float));
+                    break;
+                case mc_uv3:
+                    fout.write((char*)&(m->mTextureCoords[3][j][ind]), sizeof(float));
+                    break;
+                case mc_uv4:
+                    fout.write((char*)&(m->mTextureCoords[4][j][ind]), sizeof(float));
+                    break;
+                case mc_uv5:
+                    fout.write((char*)&(m->mTextureCoords[5][j][ind]), sizeof(float));
+                    break;
+                case mc_uv6:
+                    fout.write((char*)&(m->mTextureCoords[6][j][ind]), sizeof(float));
+                    break;
+                case mc_uv7:
+                    fout.write((char*)&(m->mTextureCoords[7][j][ind]), sizeof(float));
                     break;
                 case mc_tangent:
                     fout.write((char*)&(m->mTangents[j][ind]), sizeof(float));

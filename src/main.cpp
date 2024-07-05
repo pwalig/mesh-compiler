@@ -23,47 +23,32 @@ struct mesh {
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";
     for (const unsigned int& indi : m.indices) std::cout << indi << " ";
-    std::cout << "\nverts: ";
+    std::cout << "\n verts: ";
     for (const float& vert : m.verts) std::cout << vert << " ";
-    std::cout << "\nnormals: ";
+    std::cout << "\n normals: ";
     for (const float& vert : m.normals) std::cout << vert << " ";
-    std::cout << "\nuvs: ";
+    std::cout << "\n uvs: ";
     for (const float& vert : m.uvs) std::cout << vert << " ";
-    std::cout << "\ntangents: ";
+    std::cout << "\n tangents: ";
     for (const float& vert : m.tangents) std::cout << vert << " ";
-    std::cout << "\nbitangents: ";
+    std::cout << "\n bitangents: ";
     for (const float& vert : m.bitangents) std::cout << vert << " ";
     std::cout << std::endl;
 }
 
 void ReadMeshFile(const std::string& filepath, mesh& me) {
-    std::cout << "Read Info:\n";
     std::ifstream fin(filepath, std::ios::out | std::ios::binary);
     if (!fin) {
         std::cout << "Cannot open file!" << std::endl;
         exit(1);
     }
-
-    unsigned short int buffs = 0;
-    fin.read((char*)&buffs, sizeof(unsigned short int));
-    std::cout << " buffs: " << buffs << std::endl;
-
-    std::vector<unsigned int> sizes;
-    sizes.resize(buffs);
-    fin.read((char*)(sizes.data()), sizes.size() * sizeof(unsigned int));
-    std::cout << " indices: " << sizes[0] / 3 << std::endl;
-    std::cout << " verts: " << sizes[1] / 3 << std::endl;
-    std::cout << " normals: " << sizes[2] / 3 << std::endl;
-    std::cout << " uvs: " << sizes[3] / 3 << std::endl;
-    std::cout << " tangents: " << sizes[4] / 3 << std::endl;
-    std::cout << " bitangents: " << sizes[5] / 3 << std::endl;
-
-    mesh_reader::readBuffer(fin, me.indices, sizes[0]);
-    mesh_reader::readBuffer(fin, me.verts, sizes[1]);
-    mesh_reader::readBuffer(fin, me.normals, sizes[2]);
-    mesh_reader::readBuffer(fin, me.uvs, sizes[3]);
-    mesh_reader::readBuffer(fin, me.tangents, sizes[4]);
-    mesh_reader::readBuffer(fin, me.bitangents, sizes[5]);
+    
+    mesh_reader::readBuffer<unsigned int, unsigned int>(fin, me.indices);
+    mesh_reader::readBuffer<float, unsigned int>(fin, me.verts);
+    mesh_reader::readBuffer<float, unsigned int>(fin, me.normals);
+    mesh_reader::readBuffer<float, unsigned int>(fin, me.uvs);
+    mesh_reader::readBuffer<float, unsigned int>(fin, me.tangents);
+    mesh_reader::readBuffer<float, unsigned int>(fin, me.bitangents);
 
     fin.close();
 }
