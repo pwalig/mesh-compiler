@@ -14,7 +14,4 @@ namespace mesh_compiler
 
 	void compile(const aiScene* scene, const compilationInfo& ci);
     void compileMesh(const aiMesh* m, const compilationInfo& ci);
-
-	void compile_old(const aiScene* scene, const compilationInfo& ci);
-    void compileMesh_old(const aiMesh* m, const compilationInfo& ci);
 }
