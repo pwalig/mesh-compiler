@@ -9,6 +9,7 @@
 #include <assimp/postprocess.h>
 
 #include "meshCompiler.h"
+#include "meshReader.h"
 
 struct mesh {
     std::vector<unsigned int> indices;
@@ -57,18 +58,12 @@ void ReadMeshFile(const std::string& filepath, mesh& me) {
     std::cout << " tangents: " << sizes[4] / 3 << std::endl;
     std::cout << " bitangents: " << sizes[5] / 3 << std::endl;
 
-    me.indices.resize(sizes[0]);
-    me.verts.resize(sizes[1]);
-    me.normals.resize(sizes[2]);
-    me.uvs.resize(sizes[3]);
-    me.tangents.resize(sizes[4]);
-    me.bitangents.resize(sizes[5]);
-    fin.read((char*)(me.indices.data()), sizes[0] * sizeof(int));
-    fin.read((char*)(me.verts.data()), sizes[1] * sizeof(float));
-    fin.read((char*)(me.normals.data()), sizes[2] * sizeof(float));
-    fin.read((char*)(me.uvs.data()), sizes[3] * sizeof(float));
-    fin.read((char*)(me.tangents.data()), sizes[3] * sizeof(float));
-    fin.read((char*)(me.bitangents.data()), sizes[3] * sizeof(float));
+    mesh_reader::readBuffer(fin, me.indices, sizes[0]);
+    mesh_reader::readBuffer(fin, me.verts, sizes[1]);
+    mesh_reader::readBuffer(fin, me.normals, sizes[2]);
+    mesh_reader::readBuffer(fin, me.uvs, sizes[3]);
+    mesh_reader::readBuffer(fin, me.tangents, sizes[4]);
+    mesh_reader::readBuffer(fin, me.bitangents, sizes[5]);
 
     fin.close();
 }

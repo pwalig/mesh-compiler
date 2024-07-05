@@ -21,12 +21,9 @@
     <ClCompile Include="meshCompiler.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="meshFileReader.cpp">
-      <Filter>Pliki źródłowe</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="meshFileReader.h">
+    <ClInclude Include="meshReader.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="meshCompiler.h">

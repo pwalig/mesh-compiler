@@ -132,11 +132,10 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshCompiler.cpp" />
-    <ClCompile Include="meshFileReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="meshCompiler.h" />
-    <ClInclude Include="meshFileReader.h" />
+    <ClInclude Include="meshReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
