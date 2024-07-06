@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <assimpReader.h>
 
 // defines for compileField::type
 #define mc_unsigned_int 'u'
@@ -102,7 +103,12 @@ namespace mesh_compiler {
         void print(const int& indent = 0) const;
     };
 
-    char obtainCompileConfig(compileConfig& config, const compilationInfo& ci);
+    char obtainCompileConfig(compilationInfo& ci);
+
+    compilationInfo::~compilationInfo()
+    {
+        if (this->config) delete this->config;
+    }
 }
 
 unsigned int mesh_compiler::compileField::get_size(unsigned short byte_base) const
@@ -210,13 +216,20 @@ std::map<char, int> suffixesMap = {
     {'u', 0}, {'v', 1}, {'w', 2}
 };
 
-char mesh_compiler::obtainCompileConfig(compileConfig& config, const compilationInfo& ci)
+char mesh_compiler::obtainCompileConfig(compilationInfo& ci)
 {
     std::ifstream formatFile(ci.format_file, std::ios::in);
     if (!formatFile) {
         std::cout << "format compilation error: cannot open file: " << ci.format_file << std::endl;
         return 1;
     }
+
+    if (ci.config != nullptr) {
+        std::cout << "runtime error: compileConfig already obtained" << std::endl;
+        return 25;
+    }
+
+    ci.config = new compileConfig();
 
     std::string line, arg = "";
 
@@ -247,7 +260,7 @@ char mesh_compiler::obtainCompileConfig(compileConfig& config, const compilation
                     }
                     size = sizeMap[size];
                     base = baseMap[base];
-                    config.preambule.info_format.push_back(varg | size | base);
+                    ci.config->preambule.info_format.push_back(varg | size | base);
                     arg = "";
                 }
                 else if (arg.size() >= 2 && argsMap.find(arg.substr(0, arg.size() - 1)) != argsMap.end()) {
@@ -258,12 +271,12 @@ char mesh_compiler::obtainCompileConfig(compileConfig& config, const compilation
                         return 2;
                     }
                     size = sizeMap[size];
-                    config.preambule.info_format.push_back(varg | size | mc_x_4);
+                    ci.config->preambule.info_format.push_back(varg | size | mc_x_4);
                     arg = "";
                 }
                 else if (argsMap.find(arg) != argsMap.end()) {
                     char varg = argsMap[arg];
-                    config.preambule.info_format.push_back(varg | mc_4_4);
+                    ci.config->preambule.info_format.push_back(varg | mc_4_4);
                     arg = "";
                 }
                 else if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end() || arg.size() <= 2) { // field
@@ -378,27 +391,50 @@ char mesh_compiler::obtainCompileConfig(compileConfig& config, const compilation
             std::cout << "format compilation error: detected buffer of only constants - unknown buffer size in line " << line_num << ".\n";
             return 10;
         }
-        config.buffers.push_back(buffer);
+        ci.config->buffers.push_back(buffer);
         ++line_num;
     }
 
-    if (ci.debug_messages) config.print();
+    if (ci.debug_messages) ci.config->print();
 
     formatFile.close();
+    std::cout << "format file compilation succeded\n";
     return 0;
 }
 
-void mesh_compiler::compile(const aiScene* scene, const compilationInfo& ci)
+void mesh_compiler::compileFile(const std::string& filename, compilationInfo& ci)
 {
+    assimp::readFile(filename, std::bind(compileScene, std::placeholders::_1, std::ref(ci)));
+}
+
+void mesh_compiler::compileScene(const aiScene* scene, compilationInfo& ci)
+{
+    // obtain compile configuration
+    if (ci.config == nullptr) {
+        if (obtainCompileConfig(ci) != 0) {
+            std::cout << "format file compilation ended with errors could not compile scene\n";
+            return;
+        }
+    }
+
     if (scene->mNumMeshes == 1) {
         compileMesh(scene->mMeshes[0], ci);
+        std::cout << "scene compilation succeded\n";
         return;
     }
+
+    // find name and extension
+    std::string name = ci.output_file, extension = ".mesh";
+    size_t found = ci.output_file.find_last_of('.');
+    if (found == std::string::npos)  extension = "";
+    else name = ci.output_file.substr(0, found);
+
     for (int i = 0; i < scene->mNumMeshes; ++i) {
-        compilationInfo cii = ci;
-        cii.name = ci.name + std::to_string(i);
-        compileMesh(scene->mMeshes[i], cii);
+        ci.output_file = name + std::to_string(i) + extension;
+        compileMesh(scene->mMeshes[i], ci);
     }
+
+    std::cout << "scene compilation succeded\n";
 }
 
 template <typename T>
@@ -415,17 +451,18 @@ void writeConst(std::ofstream& file, const T& value, const char& type) {
     else if ((type & mc_mask_x) == mc_8_x) writeConst<unsigned long>(file, value);
 }
 
-void mesh_compiler::compileMesh(const aiMesh* m, const compilationInfo& ci)
+void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
 {
     // obtain compile configuration
-    compileConfig config;
-    if (obtainCompileConfig(config, ci) != 0) {
-        std::cout << "format file compilation ended with errors could not compile mesh\n";
-        return;
+    if (ci.config == nullptr) {
+        if (obtainCompileConfig(ci) != 0) {
+            std::cout << "format file compilation ended with errors could not compile mesh\n";
+            return;
+        }
     }
 
     // fill counts
-    for (compileBuffer& buffer : config.buffers) {
+    for (compileBuffer& buffer : ci.config->buffers) {
         char type = 'f';
         for (const compileField& cf : buffer.fields) {
             if (cf.type != type && type != 'f' && cf.type != 'f') {
@@ -443,14 +480,14 @@ void mesh_compiler::compileMesh(const aiMesh* m, const compilationInfo& ci)
     }
 
     // output file creation
-    std::ofstream fout(ci.name + ci.extension, std::ios::out | std::ios::binary);
+    std::ofstream fout(ci.output_file, std::ios::out | std::ios::binary);
     if (!fout) {
-        std::cout << "compilation error: cannot open file: " << ci.name + ci.extension << std::endl;
+        std::cout << "compilation error: cannot open file: " << ci.output_file << std::endl;
         return;
     }
 
     // preambule
-    for (const char& c : config.preambule.info_format) {
+    for (const char& c : ci.config->preambule.info_format) {
 
         // base
         unsigned short base = 1;
@@ -462,45 +499,45 @@ void mesh_compiler::compileMesh(const aiMesh* m, const compilationInfo& ci)
         switch (c & mc_mask)
         {
         case mc_buffer:
-            for (const compileBuffer& cb : config.buffers) {
+            for (const compileBuffer& cb : ci.config->buffers) {
                 writeConst(fout, cb.get_size(base), c);
             }
             break;
         case mc_buffers_count:
-            writeConst(fout, config.buffers.size(), c);
+            writeConst(fout, ci.config->buffers.size(), c);
             break;
         case mc_entry:
-            for (const compileBuffer& cb : config.buffers) {
+            for (const compileBuffer& cb : ci.config->buffers) {
                 writeConst(fout, cb.get_entry_size(base), c);
             }
             break;
         case mc_entries_count:
-            for (const compileBuffer& cb : config.buffers) {
+            for (const compileBuffer& cb : ci.config->buffers) {
                 writeConst(fout, cb.count, c);
             }
             break;
         case mc_buffers_x_entries:
-            writeConst(fout, config.get_entries_count(), c);
+            writeConst(fout, ci.config->get_entries_count(), c);
             break;
         case mc_field:
-            for (const compileBuffer& cb : config.buffers) {
+            for (const compileBuffer& cb : ci.config->buffers) {
                 for (const compileField& cf : cb.fields) {
                     writeConst(fout, cf.get_size(base), c);
                 }
             }
             break;
         case mc_fields_count:
-            for (const compileBuffer& cb : config.buffers) {
+            for (const compileBuffer& cb : ci.config->buffers) {
                 writeConst(fout, cb.fields.size(), c);
             }
             break;
         case mc_entries_x_fields:
-            for (const compileBuffer& cb : config.buffers) {
+            for (const compileBuffer& cb : ci.config->buffers) {
                 writeConst(fout, cb.fields.size() * cb.count, c);
             }
             break;
         case mc_buffers_x_entries_x_fields:
-            writeConst(fout, config.get_fields_count(), c);
+            writeConst(fout, ci.config->get_fields_count(), c);
             break;
         default:
             printf("compilation warning: unknown buffer info flag: %c skipping the flag\n", c);
@@ -509,7 +546,7 @@ void mesh_compiler::compileMesh(const aiMesh* m, const compilationInfo& ci)
     }
 
     // buffers
-    for (const compileBuffer& cb : config.buffers) {
+    for (const compileBuffer& cb : ci.config->buffers) {
 
         // format info
         for (const char& c : cb.info_format) {
@@ -608,4 +645,5 @@ void mesh_compiler::compileMesh(const aiMesh* m, const compilationInfo& ci)
     }
 
     fout.close();
+    std::cout << "mesh compilation succeded\n";
 }
