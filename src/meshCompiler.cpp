@@ -214,6 +214,35 @@ std::map<char, char> baseMap = {
 
 std::vector<char> fieldsVec = { 'i', 'v', 'n', 't', 'b', 'c', '0', '1', '2', '3', '4', '5', '6', '7' };
 std::vector<char> typesVec = { 'f' };
+
+char getFieldCount(char fieldType) {
+    switch (fieldType)
+    {
+    case 'v':
+    case 'n':
+    case 't':
+    case 'b':
+    case 'c':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+        return 'v';
+    case 'i':
+        return 'i';
+    case 'u':
+    case 'f':
+        return 0;
+    default:
+        return 128;
+        break;
+    }
+}
+
 std::map<char, int> suffixesMap = {
     {'0', 0}, {'1', 1}, {'2', 2}, {'3', 3},
     {'x', 0}, {'y', 1}, {'z', 2},
@@ -303,7 +332,7 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
     while (std::getline(formatFile, line)) {
         line += ' ';
         compileBuffer buffer;
-        char type = 'f';
+        char field_count = 0;
         for (const char& c : line) {
             if ((c >= 9 && c <= 13) || c == ' ') { // whitespace character
                 if (arg.empty()) continue;
@@ -355,11 +384,14 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
                         else if (suffixesMap.find(arg[1]) != suffixesMap.end()) {
                             compileField field;
                             field.type = arg[0];
-                            if (field.type != type && type != 'f' && field.type != 'f') {
-                                std::cout << "format compilation error: confilcting types detected in single buffer in line " << line_num << ".\n";
-                                return mc_err_conflicting_fields;
+                            char ffc = getFieldCount(field.type);
+                            if (ffc != 0) {
+                                if (ffc != field_count && field_count != 0) {
+                                    std::cout << "format compilation error: confilcting types detected in single buffer in line " << line_num << " conflicting types: " << field.type << " and " << field_count << ".\n";
+                                    return mc_err_conflicting_fields;
+                                }
+                                field_count = ffc;
                             }
-                            if (field.type != 'f') type = field.type;
                             memcpy(field.data, &suffixesMap[arg[1]], sizeof(int));
                             buffer.fields.push_back(field);
                             arg = "";
@@ -392,7 +424,7 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
             }
             else arg += c;
         }
-        if (type == 'f') {
+        if (field_count == 0) {
             std::cout << "format compilation error: detected buffer of only constants - unknown buffer size in line " << line_num << ".\n";
             return mc_err_constants_only;
         }
@@ -458,8 +490,10 @@ int mesh_compiler::compile(const std::vector<std::string>& args)
                 std::cout << "error: output file: -o <output file path>\n";
                 return 2;
             }
-            ci.format_file = args[i];
+            ci.output_file = args[i];
         }
+        else if (i == 1) ci.format_file = args[i];
+        else if (i == 2) ci.output_file = args[i];
     }
 
     return compileFile(args[0], ci);
@@ -508,7 +542,7 @@ int mesh_compiler::compileScene(const aiScene* scene, compilationInfo& ci)
 
     if (errors != 0) {
         std::cout << "scene compilation ended with errors\n";
-        printf("compiled %d out of %d meshes\n", errors, scene->mNumMeshes);
+        printf("compiled %d out of %d meshes\n", scene->mNumMeshes - errors, scene->mNumMeshes);
         return 2;
     }
     std::cout << "scene compilation ended with success\n";
@@ -541,20 +575,27 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
 
     // fill counts
     for (compileBuffer& buffer : ci.config->buffers) {
-        char type = 'f';
+        char field_count = 0;
         for (const compileField& cf : buffer.fields) {
-            if (cf.type != type && type != 'f' && cf.type != 'f') {
-                printf("format error: confilcting types detected in single buffer: conflicting types: %c and %c\n", cf.type, type);
-                return mc_err_conflicting_fields;
+            char ffc = getFieldCount(cf.type);
+            if (ffc != 0) {
+                if (ffc != field_count && field_count != 0) {
+                    printf("format error: confilcting types detected in single buffer: conflicting types: %c and %c\n", cf.type, field_count);
+                    return mc_err_conflicting_fields;
+                }
+                field_count = ffc;
             }
-            if (cf.type != 'f') type = cf.type;
         }
-        if (type == 'f') {
+        if (field_count == 0) {
             std::cout << "format error: detected buffer of only constants: unknown buffer size\n";
             return mc_err_constants_only;
         }
-        else if (type == 'i') buffer.count = m->mNumFaces;
-        else buffer.count = m->mNumVertices;
+        else if (field_count == 'i') buffer.count = m->mNumFaces;
+        else if (field_count == 'v') buffer.count = m->mNumVertices;
+        else {
+            std::cout << "format error: unknown field type count\n";
+            return 35;
+        }
     }
 
     // output file creation
