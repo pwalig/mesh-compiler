@@ -17,7 +17,8 @@ namespace mesh_compiler
         ~compilationInfo();
     };
 
-	void compileFile(const std::string& filename, compilationInfo& ci);
-	void compileScene(const aiScene* scene, compilationInfo& ci);
-    void compileMesh(const aiMesh* m, compilationInfo& ci);
+	void compile(int argc, char** argv);
+	int compileFile(const std::string& filename, compilationInfo& ci);
+	int compileScene(const aiScene* scene, compilationInfo& ci);
+    int compileMesh(const aiMesh* m, compilationInfo& ci);
 }

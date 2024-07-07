@@ -66,6 +66,11 @@
 #define mc_buffers_x_entries 0b11100000 // amount of all entries in the file
 #define mc_buffers_x_entries_x_fields 0b11110000 // amount of all fields in the file
 
+// error defines
+#define mc_err_cannot_open_file 1
+#define mc_err_conflicting_fields 9
+#define mc_err_constants_only 10
+
 namespace mesh_compiler {
     struct compileField {
     public:
@@ -103,7 +108,7 @@ namespace mesh_compiler {
         void print(const int& indent = 0) const;
     };
 
-    char obtainCompileConfig(compilationInfo& ci);
+    int obtainCompileConfig(compilationInfo& ci);
 
     compilationInfo::~compilationInfo()
     {
@@ -216,12 +221,12 @@ std::map<char, int> suffixesMap = {
     {'u', 0}, {'v', 1}, {'w', 2}
 };
 
-char mesh_compiler::obtainCompileConfig(compilationInfo& ci)
+int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
 {
     std::ifstream formatFile(ci.format_file, std::ios::in);
     if (!formatFile) {
         std::cout << "format compilation error: cannot open file: " << ci.format_file << std::endl;
-        return 1;
+        return mc_err_cannot_open_file;
     }
 
     if (ci.config != nullptr) {
@@ -352,7 +357,7 @@ char mesh_compiler::obtainCompileConfig(compilationInfo& ci)
                             field.type = arg[0];
                             if (field.type != type && type != 'f' && field.type != 'f') {
                                 std::cout << "format compilation error: confilcting types detected in single buffer in line " << line_num << ".\n";
-                                return 9;
+                                return mc_err_conflicting_fields;
                             }
                             if (field.type != 'f') type = field.type;
                             memcpy(field.data, &suffixesMap[arg[1]], sizeof(int));
@@ -389,7 +394,7 @@ char mesh_compiler::obtainCompileConfig(compilationInfo& ci)
         }
         if (type == 'f') {
             std::cout << "format compilation error: detected buffer of only constants - unknown buffer size in line " << line_num << ".\n";
-            return 10;
+            return mc_err_constants_only;
         }
         ci.config->buffers.push_back(buffer);
         ++line_num;
@@ -402,39 +407,62 @@ char mesh_compiler::obtainCompileConfig(compilationInfo& ci)
     return 0;
 }
 
-void mesh_compiler::compileFile(const std::string& filename, compilationInfo& ci)
+void mesh_compiler::compile(int argc, char** argv)
 {
-    assimp::readFile(filename, std::bind(compileScene, std::placeholders::_1, std::ref(ci)));
+    compilationInfo ci;
+    if (argc < 3) {
+        std::cout << "error: not enough arguments: expected at least 2 got: " << argc - 1 << ".\n";
+        return;
+    }
+    ci.format_file = std::string(argv[2]);
+
+
+    if (argc >= 4)
+        ci.output_file = std::string(argv[3]);
+
+    compileFile(argv[1], ci);
 }
 
-void mesh_compiler::compileScene(const aiScene* scene, compilationInfo& ci)
+int mesh_compiler::compileFile(const std::string& filename, compilationInfo& ci)
+{
+    assimp::readFile(filename, std::bind(compileScene, std::placeholders::_1, std::ref(ci)));
+    return 0;
+}
+
+int mesh_compiler::compileScene(const aiScene* scene, compilationInfo& ci)
 {
     // obtain compile configuration
     if (ci.config == nullptr) {
         if (obtainCompileConfig(ci) != 0) {
             std::cout << "format file compilation ended with errors could not compile scene\n";
-            return;
+            return mc_err_cannot_open_file;
         }
     }
 
-    if (scene->mNumMeshes == 1) {
-        compileMesh(scene->mMeshes[0], ci);
-        std::cout << "scene compilation succeded\n";
-        return;
-    }
+    // replace {scene} with scene name in output file name
+    size_t found = ci.output_file.find("{scene}");
+    if (found != std::string::npos) ci.output_file.replace(found, 7, scene->mName.C_Str());
 
     // find name and extension
-    std::string name = ci.output_file, extension = ".mesh";
-    size_t found = ci.output_file.find_last_of('.');
-    if (found == std::string::npos)  extension = "";
-    else name = ci.output_file.substr(0, found);
-
+    std::string orig_name = ci.output_file;
+    int errors = 0;
     for (int i = 0; i < scene->mNumMeshes; ++i) {
-        ci.output_file = name + std::to_string(i) + extension;
-        compileMesh(scene->mMeshes[i], ci);
+        size_t found = ci.output_file.find("{mesh}");
+        if (found != std::string::npos) ci.output_file.replace(found, 6, scene->mMeshes[i]->mName.C_Str());
+        if (compileMesh(scene->mMeshes[i], ci) != 0) {
+            std::cout << "compilation of mesh: " << scene->mMeshes[i]->mName.C_Str() << " ended up with errors.\n";
+            errors = true;
+        }
+        ci.output_file = orig_name; // go back to original name
     }
 
-    std::cout << "scene compilation succeded\n";
+    if (errors != 0) {
+        std::cout << "scene compilation ended with errors\n";
+        printf("compiled %d out of %d meshes\n", errors, scene->mNumMeshes);
+        return 2;
+    }
+    std::cout << "scene compilation ended with success\n";
+    return 0;
 }
 
 template <typename T>
@@ -451,13 +479,13 @@ void writeConst(std::ofstream& file, const T& value, const char& type) {
     else if ((type & mc_mask_x) == mc_8_x) writeConst<unsigned long>(file, value);
 }
 
-void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
+int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
 {
     // obtain compile configuration
     if (ci.config == nullptr) {
         if (obtainCompileConfig(ci) != 0) {
             std::cout << "format file compilation ended with errors could not compile mesh\n";
-            return;
+            return 2;
         }
     }
 
@@ -467,13 +495,13 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
         for (const compileField& cf : buffer.fields) {
             if (cf.type != type && type != 'f' && cf.type != 'f') {
                 printf("format error: confilcting types detected in single buffer: conflicting types: %c and %c\n", cf.type, type);
-                return;
+                return mc_err_conflicting_fields;
             }
             if (cf.type != 'f') type = cf.type;
         }
         if (type == 'f') {
             std::cout << "format error: detected buffer of only constants: unknown buffer size\n";
-            return;
+            return mc_err_constants_only;
         }
         else if (type == 'i') buffer.count = m->mNumFaces;
         else buffer.count = m->mNumVertices;
@@ -483,7 +511,7 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
     std::ofstream fout(ci.output_file, std::ios::out | std::ios::binary);
     if (!fout) {
         std::cout << "compilation error: cannot open file: " << ci.output_file << std::endl;
-        return;
+        return mc_err_cannot_open_file;
     }
 
     // preambule
@@ -646,4 +674,5 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
 
     fout.close();
     std::cout << "mesh compilation succeded\n";
+    return 0;
 }
