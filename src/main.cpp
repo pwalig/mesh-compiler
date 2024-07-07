@@ -6,7 +6,7 @@ int main(int argc, char** argv) {
 #ifdef tests_included
     mainTest();
 #else
-    mesh_compiler::compile(argc, argv);
+    mesh_compiler::run(argc, argv);
 #endif // tests_included
 
     return 0;

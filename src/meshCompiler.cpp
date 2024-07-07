@@ -1,7 +1,7 @@
 #include "meshCompiler.h"
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <sstream>
 #include <map>
 #include <assimpReader.h>
 
@@ -407,24 +407,74 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
     return 0;
 }
 
-void mesh_compiler::compile(int argc, char** argv)
+void mesh_compiler::run(int argc, char** argv)
 {
-    compilationInfo ci;
-    if (argc < 3) {
-        std::cout << "error: not enough arguments: expected at least 2 got: " << argc - 1 << ".\n";
-        return;
+    if (argc == 1) {
+        std::string line = "";
+        while (1) {
+            std::cout << "> ";
+            std::getline(std::cin, line);
+            if (line == "q") return;
+            std::vector<std::string> args;
+            std::stringstream ss(line);
+            while (ss) {
+                args.push_back(std::string());
+                ss >> args.back();
+            }
+            compile(args);
+        }
     }
-    ci.format_file = std::string(argv[2]);
+    else {
+        std::vector<std::string> args;
+        for (int i = 1; i < argc; ++i) {
+            args.push_back(argv[i]);
+        }
+        compile(args);
+    }
+}
 
+int mesh_compiler::compile(const std::vector<std::string>& args)
+{
+    int siz = args.size();
+    if (siz == 0) {
+        std::cout << "error: source file not specified.\n";
+        return 2;
+    }
 
-    if (argc >= 4)
-        ci.output_file = std::string(argv[3]);
+    compilationInfo ci;
 
-    compileFile(argv[1], ci);
+    for (int i = 1; i < siz; ++i) {
+        if (args[i] == "-f") {
+            ++i;
+            if (i == siz) {
+                std::cout << "error: unspecified format file: -f <format file path>\n";
+                return 2;
+            }
+            ci.format_file = args[i];
+        }
+        else if (args[i] == "-o") {
+            ++i;
+            if (i == siz) {
+                std::cout << "error: output file: -o <output file path>\n";
+                return 2;
+            }
+            ci.format_file = args[i];
+        }
+    }
+
+    return compileFile(args[0], ci);
 }
 
 int mesh_compiler::compileFile(const std::string& filename, compilationInfo& ci)
 {
+    // replace {file} with file name in output file name
+    size_t found = ci.output_file.find("{file}");
+    if (found != std::string::npos) {
+        std::string base_filename = filename.substr(filename.find_last_of("/\\") + 1);
+        size_t const p(base_filename.find_last_of('.'));
+        ci.output_file.replace(found, 6, base_filename.substr(0, p));
+    }
+
     assimp::readFile(filename, std::bind(compileScene, std::placeholders::_1, std::ref(ci)));
     return 0;
 }
