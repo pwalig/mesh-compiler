@@ -99,7 +99,7 @@ void mainTest() {
     const auto end1{ std::chrono::steady_clock::now() };
     const std::chrono::duration<double> elapsed_seconds1{ end1 - start1 };
 
-    std::cout << "Vert Count: " << me1.verts.size() / 3 << '\n';
+    std::cout << "Vert Count: " << me1.verts.size() / 4 << '\n';
     std::cout << "Indices Count: " << me1.indices.size() / 3 << '\n';
     printMesh(me1);
     std::cout << "Binary read time: " << elapsed_seconds1.count() << '\n';

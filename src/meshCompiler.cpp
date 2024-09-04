@@ -55,7 +55,8 @@
 #define mc_mask_x mc_8_x
 #define mc_mask_mask (mc_mask_x | mc_x_mask)
 
-// defines for compileBuffer::info_format[] and compilePreambule::info_format[]
+// defines for compileBuffer::info_format[] and compilePreamble::info_format[]
+#define mc_constant 0b00000000 // constant value of any type
 #define mc_buffer 0b01000000 // size of the entire buffer
 #define mc_entry 0b00100000 // size of the entire entry (sum of field sizes)
 #define mc_field 0b00010000 // print sizes of all fields one after another
@@ -81,9 +82,16 @@ namespace mesh_compiler {
         void print(const int& indent = 0) const;
     };
 
+    struct compilePreamble {
+        std::vector<char> info_format;
+        std::vector<char> data;
+
+        void print(const int& indent = 0) const;
+    };
+
     struct compileBuffer {
     public:
-        std::vector<char> info_format;
+        compilePreamble preamble;
         size_t count = 0;
         std::vector<compileField> fields;
 
@@ -92,14 +100,8 @@ namespace mesh_compiler {
         void print(const int& indent = 0) const;
     };
 
-    struct compilePreambule {
-        std::vector<char> info_format;
-
-        void print(const int& indent = 0) const;
-    };
-
     struct compileConfig {
-        compilePreambule preambule;
+        compilePreamble preamble;
         std::vector<compileBuffer> buffers;
 
         unsigned int get_size(unsigned short byte_base = 1);
@@ -143,18 +145,19 @@ unsigned int mesh_compiler::compileBuffer::get_size(unsigned short byte_base) co
 void mesh_compiler::compileBuffer::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "buffer info: info format: ";
-    for (const char& c : info_format) std::cout << c;
+    std::cout << "buffer info: ";
+    this->preamble.print(0);
     std::cout << ", count: " << count << ", fields: \n";
     for (const compileField& f : fields) f.print(indent + 1);
 }
 
-void mesh_compiler::compilePreambule::print(const int& indent) const
+void mesh_compiler::compilePreamble::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "preambule info: info format: ";
+    std::cout << "info format: ";
     for (const char& c : info_format) std::cout << c;
-    std::cout << std::endl;
+    std::cout << ", data: ";
+    for (const char& c : data) std::cout << c;
 }
 
 unsigned int mesh_compiler::compileConfig::get_size(unsigned short byte_base)
@@ -182,7 +185,9 @@ void mesh_compiler::compileConfig::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
     std::cout << "config info:\n";
-    preambule.print(indent + 1);
+    std::cout << " preamble info: ";
+    preamble.print(0);
+    std::cout << "\n";
     for (const compileBuffer& b : buffers) b.print(indent + 1);
 }
 
@@ -267,7 +272,7 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
 
     std::string line, arg = "";
 
-    // preambule
+    // preamble
     std::getline(formatFile, line);
     line += ' ';
     for (const char& c : line) {
@@ -294,7 +299,7 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
                     }
                     size = sizeMap[size];
                     base = baseMap[base];
-                    ci.config->preambule.info_format.push_back(varg | size | base);
+                    ci.config->preamble.info_format.push_back(varg | size | base);
                     arg = "";
                 }
                 else if (arg.size() >= 2 && argsMap.find(arg.substr(0, arg.size() - 1)) != argsMap.end()) {
@@ -305,16 +310,16 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
                         return 2;
                     }
                     size = sizeMap[size];
-                    ci.config->preambule.info_format.push_back(varg | size | mc_x_4);
+                    ci.config->preamble.info_format.push_back(varg | size | mc_x_4);
                     arg = "";
                 }
                 else if (argsMap.find(arg) != argsMap.end()) {
                     char varg = argsMap[arg];
-                    ci.config->preambule.info_format.push_back(varg | mc_4_4);
+                    ci.config->preamble.info_format.push_back(varg | mc_4_4);
                     arg = "";
                 }
                 else if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end() || arg.size() <= 2) { // field
-                    std::cout << "format compilation error: attempted field specification in preambule in line 1.\n";
+                    std::cout << "format compilation error: attempted field specification in preamble in line 1.\n";
                     return 5;
                 }
                 else {
@@ -357,7 +362,7 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
                         }
                         size = sizeMap[size];
                         base = baseMap[base];
-                        buffer.info_format.push_back(varg | size | base);
+                        buffer.preamble.info_format.push_back(varg | size | base);
                         arg = "";
                     }
                     else if (arg.size() >= 2 && argsMap.find(arg.substr(0, arg.size() - 1)) != argsMap.end()) {
@@ -368,12 +373,12 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
                             return 2;
                         }
                         size = sizeMap[size];
-                        buffer.info_format.push_back(varg | size | mc_x_4);
+                        buffer.preamble.info_format.push_back(varg | size | mc_x_4);
                         arg = "";
                     }
                     else if (argsMap.find(arg) != argsMap.end()) {
                         char varg = argsMap[arg];
-                        buffer.info_format.push_back(varg | mc_4_4);
+                        buffer.preamble.info_format.push_back(varg | mc_4_4);
                         arg = "";
                     }
                     else if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end()) { // field
@@ -605,8 +610,8 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
         return mc_err_cannot_open_file;
     }
 
-    // preambule
-    for (const char& c : ci.config->preambule.info_format) {
+    // preamble
+    for (const char& c : ci.config->preamble.info_format) {
 
         // base
         unsigned short base = 1;
@@ -668,7 +673,7 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
     for (const compileBuffer& cb : ci.config->buffers) {
 
         // format info
-        for (const char& c : cb.info_format) {
+        for (const char& c : cb.preamble.info_format) {
 
             // base
             unsigned short base = 1;
