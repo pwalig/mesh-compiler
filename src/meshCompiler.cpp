@@ -5,6 +5,8 @@
 #include <map>
 #include <assimpReader.h>
 
+// ========== DEFINES AND MAPS ==========
+
 // defines for compileField::type
 #define mc_unsigned_int 'u'
 #define mc_float 'f'
@@ -72,125 +74,6 @@
 #define mc_err_conflicting_fields 9
 #define mc_err_constants_only 10
 
-namespace mesh_compiler {
-    struct compileField {
-    public:
-        char type;
-        char data[4];
-
-        unsigned int get_size(unsigned short byte_base = 1) const;
-        void print(const int& indent = 0) const;
-    };
-
-    struct compilePreamble {
-        std::vector<char> info_format;
-        std::vector<char> data;
-
-        void print(const int& indent = 0) const;
-    };
-
-    struct compileBuffer {
-    public:
-        compilePreamble preamble;
-        size_t count = 0;
-        std::vector<compileField> fields;
-
-        unsigned int get_entry_size(unsigned short byte_base = 1) const;
-        unsigned int get_size(unsigned short byte_base = 1) const;
-        void print(const int& indent = 0) const;
-    };
-
-    struct compileConfig {
-        compilePreamble preamble;
-        std::vector<compileBuffer> buffers;
-
-        unsigned int get_size(unsigned short byte_base = 1);
-        unsigned int get_entries_count();
-        unsigned int get_fields_count();
-        void print(const int& indent = 0) const;
-    };
-
-    int obtainCompileConfig(compilationInfo& ci);
-
-    compilationInfo::~compilationInfo()
-    {
-        if (this->config) delete this->config;
-    }
-}
-
-unsigned int mesh_compiler::compileField::get_size(unsigned short byte_base) const
-{
-    return 4 / byte_base;
-}
-
-void mesh_compiler::compileField::print(const int& indent) const
-{
-    for (int i = 0; i < indent; ++i) printf(" ");
-    printf("field info: type: %c, data: %c%c%c%c\n", type, data[0], data[1], data[2], data[3]);
-}
-
-unsigned int mesh_compiler::compileBuffer::get_entry_size(unsigned short byte_base) const
-{
-    unsigned int siz = 0;
-    for (const compileField& cf : fields)
-        siz += cf.get_size();
-    return siz / byte_base;
-}
-
-unsigned int mesh_compiler::compileBuffer::get_size(unsigned short byte_base) const
-{
-    return get_entry_size() * count / byte_base;
-}
-
-void mesh_compiler::compileBuffer::print(const int& indent) const
-{
-    for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "buffer info: ";
-    this->preamble.print(0);
-    std::cout << ", count: " << count << ", fields: \n";
-    for (const compileField& f : fields) f.print(indent + 1);
-}
-
-void mesh_compiler::compilePreamble::print(const int& indent) const
-{
-    for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "info format: ";
-    for (const char& c : info_format) std::cout << c;
-    std::cout << ", data: ";
-    for (const char& c : data) std::cout << c;
-}
-
-unsigned int mesh_compiler::compileConfig::get_size(unsigned short byte_base)
-{
-    unsigned int siz = 0;
-    for (const compileBuffer& cb : buffers) siz += cb.get_size();
-    return siz;
-}
-
-unsigned int mesh_compiler::compileConfig::get_entries_count()
-{
-    unsigned int siz = 0;
-    for (const compileBuffer& cb : buffers) siz += cb.count;
-    return siz;
-}
-
-unsigned int mesh_compiler::compileConfig::get_fields_count()
-{
-    unsigned int siz = 0;
-    for (const compileBuffer& cb : buffers) siz += cb.fields.size();
-    return siz;
-}
-
-void mesh_compiler::compileConfig::print(const int& indent) const
-{
-    for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "config info:\n";
-    std::cout << " preamble info: ";
-    preamble.print(0);
-    std::cout << "\n";
-    for (const compileBuffer& b : buffers) b.print(indent + 1);
-}
-
 std::map<std::string, char> argsMap = {
     {"buffc", mc_buffers_count },
     {"buffs", mc_buffer },
@@ -255,20 +138,94 @@ std::map<char, int> suffixesMap = {
     {'u', 0}, {'v', 1}, {'w', 2}
 };
 
-int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
+// ========== METHODS DEFINITIONS ==========
+
+unsigned int mesh_compiler::compileField::get_size(unsigned short byte_base) const
 {
-    std::ifstream formatFile(ci.format_file, std::ios::in);
+    return 4 / byte_base;
+}
+
+void mesh_compiler::compileField::print(const int& indent) const
+{
+    for (int i = 0; i < indent; ++i) printf(" ");
+    printf("field info: type: %c, data: %c%c%c%c\n", type, data[0], data[1], data[2], data[3]);
+}
+
+void mesh_compiler::compilePreamble::print(const int& indent) const
+{
+    for (int i = 0; i < indent; ++i) printf(" ");
+    std::cout << "info format: ";
+    for (const char& c : info_format) std::cout << c;
+    std::cout << ", data: ";
+    for (const char& c : data) std::cout << c;
+}
+
+unsigned int mesh_compiler::compileBuffer::get_entry_size(unsigned short byte_base) const
+{
+    unsigned int siz = 0;
+    for (const compileField& cf : fields)
+        siz += cf.get_size();
+    return siz / byte_base;
+}
+
+unsigned int mesh_compiler::compileBuffer::get_size(unsigned short byte_base) const
+{
+    return get_entry_size() * count / byte_base;
+}
+
+void mesh_compiler::compileBuffer::print(const int& indent) const
+{
+    for (int i = 0; i < indent; ++i) printf(" ");
+    std::cout << "buffer info: ";
+    this->preamble.print(0);
+    std::cout << ", count: " << count << ", fields: \n";
+    for (const compileField& f : fields) f.print(indent + 1);
+}
+
+unsigned int mesh_compiler::compileConfig::get_size(unsigned short byte_base)
+{
+    unsigned int siz = 0;
+    for (const compileBuffer& cb : buffers) siz += cb.get_size();
+    return siz;
+}
+
+unsigned int mesh_compiler::compileConfig::get_entries_count()
+{
+    unsigned int siz = 0;
+    for (const compileBuffer& cb : buffers) siz += cb.count;
+    return siz;
+}
+
+unsigned int mesh_compiler::compileConfig::get_fields_count()
+{
+    unsigned int siz = 0;
+    for (const compileBuffer& cb : buffers) siz += cb.fields.size();
+    return siz;
+}
+
+void mesh_compiler::compileConfig::print(const int& indent) const
+{
+    for (int i = 0; i < indent; ++i) printf(" ");
+    std::cout << "config info:\n";
+    std::cout << " preamble info: ";
+    preamble.print(0);
+    std::cout << "\n";
+    for (const compileBuffer& b : buffers) b.print(indent + 1);
+}
+
+int mesh_compiler::compilationInfo::updateCompileConfig()
+{
+    std::ifstream formatFile(this->format_file, std::ios::in);
     if (!formatFile) {
-        std::cout << "format compilation error: cannot open file: " << ci.format_file << std::endl;
+        std::cout << "format compilation error: cannot open file: " << this->format_file << std::endl;
         return mc_err_cannot_open_file;
     }
 
-    if (ci.config != nullptr) {
-        std::cout << "runtime error: compileConfig already obtained" << std::endl;
-        return 25;
+    if (this->config != nullptr) {
+        delete this->config;
     }
 
-    ci.config = new compileConfig();
+    this->config = new compileConfig();
 
     std::string line, arg = "";
 
@@ -299,7 +256,7 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
                     }
                     size = sizeMap[size];
                     base = baseMap[base];
-                    ci.config->preamble.info_format.push_back(varg | size | base);
+                    this->config->preamble.info_format.push_back(varg | size | base);
                     arg = "";
                 }
                 else if (arg.size() >= 2 && argsMap.find(arg.substr(0, arg.size() - 1)) != argsMap.end()) {
@@ -310,12 +267,12 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
                         return 2;
                     }
                     size = sizeMap[size];
-                    ci.config->preamble.info_format.push_back(varg | size | mc_x_4);
+                    this->config->preamble.info_format.push_back(varg | size | mc_x_4);
                     arg = "";
                 }
                 else if (argsMap.find(arg) != argsMap.end()) {
                     char varg = argsMap[arg];
-                    ci.config->preamble.info_format.push_back(varg | mc_4_4);
+                    this->config->preamble.info_format.push_back(varg | mc_4_4);
                     arg = "";
                 }
                 else if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end() || arg.size() <= 2) { // field
@@ -433,16 +390,23 @@ int mesh_compiler::obtainCompileConfig(compilationInfo& ci)
             std::cout << "format compilation error: detected buffer of only constants - unknown buffer size in line " << line_num << ".\n";
             return mc_err_constants_only;
         }
-        ci.config->buffers.push_back(buffer);
+        this->config->buffers.push_back(buffer);
         ++line_num;
     }
 
-    if (ci.debug_messages) ci.config->print();
+    if (this->debug_messages) this->config->print();
 
     formatFile.close();
     std::cout << "format file compilation succeded\n";
     return 0;
 }
+
+mesh_compiler::compilationInfo::~compilationInfo()
+{
+    if (this->config) delete this->config;
+}
+
+// ========== COMPILER FUNCTION DEFINITIONS ==========
 
 void mesh_compiler::run(int argc, char** argv)
 {
@@ -522,7 +486,7 @@ int mesh_compiler::compileScene(const aiScene* scene, compilationInfo& ci)
 {
     // obtain compile configuration
     if (ci.config == nullptr) {
-        if (obtainCompileConfig(ci) != 0) {
+        if (ci.updateCompileConfig() != 0) {
             std::cout << "format file compilation ended with errors could not compile scene\n";
             return mc_err_cannot_open_file;
         }
@@ -572,7 +536,7 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
 {
     // obtain compile configuration
     if (ci.config == nullptr) {
-        if (obtainCompileConfig(ci) != 0) {
+        if (ci.updateCompileConfig() != 0) {
             std::cout << "format file compilation ended with errors could not compile mesh\n";
             return 2;
         }
