@@ -88,7 +88,7 @@ void mainTest() {
     std::cout << "Assimp read time: " << elapsed_seconds.count() << '\n';
 
     mesh_compiler::compilationInfo ci;
-    ci.output_file = "test/{scene}_{mesh}.mesh";
+    ci.output_file = "test/out.mesh";
     ci.format_file = "test/.format";
     ci.debug_messages = true;
     mesh_compiler::compileFile("test/test.obj", ci);

@@ -8,8 +8,18 @@
 // ========== DEFINES AND MAPS ==========
 
 // defines for compileField::type
-#define mc_unsigned_int 'u'
+// constant types
+#define mc_char 'J'
+#define mc_short 'S'
+#define mc_int 'I'
+#define mc_long 'L'
+#define mc_unsigned_short 'T'
+#define mc_unsigned_int 'U'
+#define mc_unsigned_long 'M'
 #define mc_float 'f'
+#define mc_double 'd'
+#define mc_long_double 'l'
+// variable types
 #define mc_indice 'i'
 #define mc_vertex 'v'
 #define mc_normal 'n'
@@ -78,6 +88,7 @@
 #define mc_err_no_const_value 5
 #define mc_err_byte_base_in_count_type 6
 #define mc_err_field_spec_in_preamble 7
+#define mc_err_unsupported_type 8
 #define mc_err_conflicting_fields 9
 #define mc_err_constants_only 10
 
@@ -92,6 +103,7 @@ std::map<int, std::string> errorMessageMap = {
     {mc_err_no_const_value, "constant value not provided"},
     {mc_err_byte_base_in_count_type, "given byte base in count type"},
     {mc_err_field_spec_in_preamble, "attempted field specification in preamble"},
+    {mc_err_unsupported_type, "unsupported type"},
     {mc_err_conflicting_fields, "confilcting types detected in single buffer"},
     {mc_err_constants_only, "detected buffer of only constants - unknown buffer size"}
 };
@@ -123,7 +135,19 @@ std::map<char, char> baseMap = {
 };
 
 std::vector<char> fieldsVec = { 'i', 'v', 'n', 't', 'b', 'c', '0', '1', '2', '3', '4', '5', '6', '7' };
-std::vector<char> typesVec = { 'f' };
+
+std::map<char, unsigned short> typeSizesMap = {
+    {mc_char, sizeof(char)},
+    {mc_short, sizeof(short)},
+    {mc_int, sizeof(int)},
+    {mc_long, sizeof(long)},
+    {mc_unsigned_short, sizeof(unsigned short)},
+    {mc_unsigned_int, sizeof(unsigned int)},
+    {mc_unsigned_long, sizeof(unsigned long)},
+    {mc_float, sizeof(float)},
+    {mc_double, sizeof(double)},
+    {mc_long_double, sizeof(long double)}
+};
 
 char getFieldCount(char fieldType) {
     switch (fieldType)
@@ -144,10 +168,8 @@ char getFieldCount(char fieldType) {
         return 'v';
     case 'i':
         return 'i';
-    case 'u':
-    case 'f':
-        return 0;
     default:
+        if (typeSizesMap.find(fieldType) != typeSizesMap.end()) return 0;
         return 128;
         break;
     }
@@ -159,6 +181,48 @@ std::map<char, int> suffixesMap = {
     {'r', 0}, {'g', 1}, {'b', 2}, {'a', 3},
     {'u', 0}, {'v', 1}, {'w', 2}
 };
+
+void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
+    if (type == mc_char) {
+        memcpy(dst, &val[0], typeSizesMap[type]);
+    }
+    else if (type == mc_short) {
+        short value = std::stoi(val);
+        memcpy(dst, &value, typeSizesMap[type]);
+    }
+    else if (type == mc_int) {
+        int value = std::stoi(val);
+        memcpy(dst, &value, typeSizesMap[type]);
+    }
+    else if (type == mc_long) {
+        long value = std::stol(val);
+        memcpy(dst, &value, typeSizesMap[type]);
+    }
+    else if (type == mc_unsigned_short) {
+        unsigned short value = std::stoi(val);
+        memcpy(dst, &value, typeSizesMap[type]);
+    }
+    else if (type == mc_unsigned_int) {
+        unsigned int value = std::stoi(val);
+        memcpy(dst, &value, typeSizesMap[type]);
+    }
+    else if (type == mc_unsigned_long) {
+        unsigned long value = std::stol(val);
+        memcpy(dst, &value, typeSizesMap[type]);
+    }
+    else if (type == mc_float) {
+        float value = std::stof(val);
+        memcpy(dst, &value, typeSizesMap[type]);
+    }
+    else if (type == mc_double) {
+        double value = std::stod(val);
+        memcpy(dst, &value, typeSizesMap[type]);
+    }
+    else if (type == mc_long_double) {
+        long double value = std::stold(val);
+        memcpy(dst, &value, typeSizesMap[type]);
+    }
+}
 
 // ========== METHODS DEFINITIONS ==========
 
@@ -333,35 +397,38 @@ int mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<co
 
 int mesh_compiler::compileConfig::isType(const std::string& arg, compilePreamble& preamble)
 {
-    /*if (std::find(typesVec.begin(), typesVec.end(), arg[0]) != typesVec.end()) { // constant
+    if (typeSizesMap.find(arg[0]) != typeSizesMap.end()) { // constant
         if (arg.size() == 1) {
             return mc_err_no_const_value;
         }
         else {
-            char type = mc_constant;
-            preamble.info_format.push_back(type);
+            int siz = typeSizesMap[arg[0]];
+            preamble.info_format.push_back((char)siz);
 
-            char siz = (type & mc_mask_mask);
-            char* data = new char[(int)siz + 1];
-            float value = std::stof(arg.substr(1, arg.size() - 1));
-            memcpy(field.data, &value, sizeof(float));
+            preamble.data.resize(preamble.data.size() + siz);
+
+            copyConstantToMemory(&(preamble.data[preamble.data.size() - siz]), arg[0], arg.substr(1, arg.size() - 1));
+
             return mc_fit;
         }
-    }*/
+    }
     return mc_no_fit;
 }
 
 int mesh_compiler::compileConfig::isType(const std::string& arg, std::vector<compileField>& fields)
 {
-    if (std::find(typesVec.begin(), typesVec.end(), arg[0]) != typesVec.end()) { // constant
+    if (typeSizesMap.find(arg[0]) != typeSizesMap.end()) { // constant
         if (arg.size() == 1) {
             return mc_err_no_const_value;
         }
         else {
             compileField field;
             field.type = arg[0];
-            float value = std::stof(arg.substr(1, arg.size() - 1));
-            memcpy(field.data, &value, sizeof(float));
+            if (typeSizesMap[arg[0]] != sizeof(float)) {
+                this->error_message = " only 4 byte types are supported in field definitions.";
+                return mc_err_unsupported_type;
+            }
+            copyConstantToMemory(field.data, arg[0], arg.substr(1, arg.size() - 1));
             fields.push_back(field);
             return mc_fit;
         }
@@ -388,6 +455,14 @@ int mesh_compiler::compileConfig::compile(const std::string& filename)
             else { // process word
 
                 int res = isArgument(arg, this->preamble);
+                if (res == mc_fit) { arg = ""; continue; }
+
+                if (res != mc_no_fit) { // compilation error
+                    logCompilationError(res, arg, 1);
+                    return res;
+                }
+
+                res = isType(arg, this->preamble);
                 if (res == mc_fit) { arg = ""; continue; }
 
                 if (res != mc_no_fit) { // compilation error
@@ -424,6 +499,14 @@ int mesh_compiler::compileConfig::compile(const std::string& filename)
                         }
 
                         res = isField(arg, buffer.fields, field_count);
+                        if (res == mc_fit) { arg = ""; continue; }
+
+                        if (res != mc_no_fit) { // compilation error
+                            logCompilationError(res, arg, line_num);
+                            return res;
+                        }
+
+                        res = isType(arg, buffer.preamble);
                         if (res == mc_fit) { arg = ""; continue; }
 
                         if (res != mc_no_fit) { // compilation error
@@ -663,6 +746,7 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
         return mc_err_cannot_open_file;
     }
 
+    size_t data_pointer = 0;
     // preamble
     for (const char& c : ci.config->preamble.info_format) {
 
@@ -675,6 +759,10 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
         // size
         switch (c & mc_mask)
         {
+        case mc_constant:
+            fout.write(&(ci.config->preamble.data[data_pointer]), c & mc_mask_mask);
+            data_pointer += c & mc_mask_mask;
+            break;
         case mc_buffer:
             for (const compileBuffer& cb : ci.config->buffers) {
                 writeConst(fout, cb.get_size(base), c);
@@ -726,6 +814,7 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
     for (const compileBuffer& cb : ci.config->buffers) {
 
         // format info
+        data_pointer = 0;
         for (const char& c : cb.preamble.info_format) {
 
             // base
@@ -737,6 +826,10 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
             // size
             switch (c & mc_mask)
             {
+            case mc_constant:
+                fout.write(&(cb.preamble.data[data_pointer]), c & mc_mask_mask);
+                data_pointer += c & mc_mask_mask;
+                break;
             case mc_buffer:
                 writeConst(fout, cb.get_size(base), c);
                 break;
@@ -770,6 +863,7 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
                 memcpy((char*)&ind, cf.data, sizeof(unsigned int));
                 switch (cf.type)
                 {
+                case mc_int:
                 case mc_unsigned_int:
                 case mc_float:
                     fout.write(cf.data, sizeof(float));
