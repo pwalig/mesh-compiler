@@ -9,16 +9,16 @@
 
 // defines for compileField::type
 // constant types
-#define mc_char 'J'
-#define mc_short 'S'
-#define mc_int 'I'
-#define mc_long 'L'
-#define mc_unsigned_short 'T'
-#define mc_unsigned_int 'U'
-#define mc_unsigned_long 'M'
-#define mc_float 'f'
-#define mc_double 'd'
-#define mc_long_double 'l'
+#define mc_char 0
+#define mc_short 1
+#define mc_int 2
+#define mc_long 3
+#define mc_unsigned_short 4
+#define mc_unsigned_int 5
+#define mc_unsigned_long 6
+#define mc_float 7
+#define mc_double 8
+#define mc_long_double 9
 // variable types
 #define mc_indice 'i'
 #define mc_vertex 'v'
@@ -142,29 +142,62 @@ std::map<char, char> baseMap = {
     {'8', mc_x_8 }
 };
 
-std::vector<char> fieldsVec = {
-    mc_indice,
-    mc_vertex,
-    mc_normal,
-    mc_texture_coordinate,
-    mc_uv0,
-    mc_uv1,
-    mc_uv2,
-    mc_uv3,
-    mc_uv4,
-    mc_uv5,
-    mc_uv6,
-    mc_uv7,
-    mc_tangent,
-    mc_bitangent,
-    mc_vertex_color0,
-    mc_vertex_color1,
-    mc_vertex_color2,
-    mc_vertex_color3,
-    mc_vertex_color4,
-    mc_vertex_color5,
-    mc_vertex_color6,
-    mc_vertex_color7
+std::map<std::string, char> fieldsMap = {
+    { "i", mc_indice},
+    { "indice", mc_indice},
+    { "v", mc_vertex},
+    { "vertex", mc_vertex},
+    { "n", mc_normal},
+    { "normal", mc_normal},
+    { "tc", mc_texture_coordinate},
+    { "tex_coord", mc_texture_coordinate},
+    { "texture_coordinate", mc_texture_coordinate},
+    { "uv0", mc_uv0 },
+    { "uv1", mc_uv1 },
+    { "uv2", mc_uv2 },
+    { "uv3", mc_uv3 },
+    { "uv4", mc_uv4 },
+    { "uv5", mc_uv5 },
+    { "uv6", mc_uv6 },
+    { "uv7", mc_uv7 },
+    { "t", mc_tangent },
+    { "tangent", mc_tangent },
+    { "b", mc_bitangent },
+    { "bitangent", mc_bitangent},
+    { "vertex_color0", mc_vertex_color0 },
+    { "vertex_color1", mc_vertex_color1 },
+    { "vertex_color2", mc_vertex_color2 },
+    { "vertex_color3", mc_vertex_color3 },
+    { "vertex_color4", mc_vertex_color4 },
+    { "vertex_color5", mc_vertex_color5 },
+    { "vertex_color6", mc_vertex_color6 },
+    { "vertex_color7", mc_vertex_color7 }
+};
+
+std::map<std::string, char> typesMap = {
+    {"char", mc_char},
+    {"short", mc_short},
+    {"int", mc_int},
+    {"long", mc_long},
+    {"int2", mc_short},
+    {"int4", mc_int},
+    {"int8", mc_long},
+    {"unsigned_short", mc_unsigned_short},
+    {"unsigned_int", mc_unsigned_int},
+    {"unsigned_long", mc_unsigned_long},
+    {"unsigned_int2", mc_unsigned_short},
+    {"unsigned_int4", mc_unsigned_int},
+    {"unsigned_int8", mc_unsigned_long},
+    {"ushort", mc_unsigned_short},
+    {"uint", mc_unsigned_int},
+    {"ulong", mc_unsigned_long},
+    {"uint2", mc_unsigned_short},
+    {"uint4", mc_unsigned_int},
+    {"uint8", mc_unsigned_long},
+    {"f", mc_float},
+    {"float", mc_float},
+    {"double", mc_double},
+    {"long_double", mc_long_double}
 };
 
 std::map<char, unsigned short> typeSizesMap = {
@@ -396,13 +429,12 @@ int mesh_compiler::compileConfig::isArgument(const std::string& arg, compilePrea
 
 int mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<compileField>& fields, char& field_count)
 {
-    if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end()) { // field
-        if (arg.size() == 1) {
-            return mc_err_no_suffix;
-        }
-        else if (suffixesMap.find(arg[1]) != suffixesMap.end()) {
+    std::string type = arg.substr(0, arg.size() - 1);
+    char suffix = arg[arg.size() - 1];
+    if (fieldsMap.find(type) != fieldsMap.end()) { // field
+        if (suffixesMap.find(suffix) != suffixesMap.end()) {
             compileField field;
-            field.type = arg[0];
+            field.type = fieldsMap[type];
             char ffc = getFieldCount(field.type);
             if (ffc != 0) {
                 if (ffc != field_count && field_count != 0) {
@@ -415,7 +447,7 @@ int mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<co
                 }
                 field_count = ffc;
             }
-            memcpy(field.data, &suffixesMap[arg[1]], sizeof(int));
+            memcpy(field.data, &suffixesMap[suffix], sizeof(int));
             fields.push_back(field);
             return mc_fit;
         }
@@ -423,46 +455,50 @@ int mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<co
             return mc_err_invalid_suffix;
         }
     }
+    else if (fieldsMap.find(arg) != fieldsMap.end()) { // field
+        return mc_err_no_suffix;
+    }
     return mc_no_fit;
 }
 
 int mesh_compiler::compileConfig::isType(const std::string& arg, compilePreamble& preamble)
 {
-    if (typeSizesMap.find(arg[0]) != typeSizesMap.end()) { // constant
-        if (arg.size() == 1) {
-            return mc_err_no_const_value;
-        }
-        else {
-            int siz = typeSizesMap[arg[0]];
-            preamble.info_format.push_back((char)siz);
+    size_t pos = arg.find(':');
+    std::string type = arg.substr(0, pos);
+    if (typesMap.find(type) != typesMap.end()) { // constant
+        char ctype = typesMap[type];
+        int siz = typeSizesMap[ctype];
+        preamble.info_format.push_back((char)siz);
 
-            preamble.data.resize(preamble.data.size() + siz);
+        preamble.data.resize(preamble.data.size() + siz);
 
-            copyConstantToMemory(&(preamble.data[preamble.data.size() - siz]), arg[0], arg.substr(1, arg.size() - 1));
+        copyConstantToMemory(&(preamble.data[preamble.data.size() - siz]), ctype, arg.substr(pos + 1, arg.size() - pos - 1));
 
-            return mc_fit;
-        }
+        return mc_fit;
+    }
+    if (typesMap.find(arg) != typesMap.end()) {
+        return mc_err_no_const_value;
     }
     return mc_no_fit;
 }
 
 int mesh_compiler::compileConfig::isType(const std::string& arg, std::vector<compileField>& fields)
 {
-    if (typeSizesMap.find(arg[0]) != typeSizesMap.end()) { // constant
-        if (arg.size() == 1) {
-            return mc_err_no_const_value;
+    size_t pos = arg.find(':');
+    std::string type = arg.substr(0, pos);
+    if (typesMap.find(type) != typesMap.end()) { // constant
+        compileField field;
+        field.type = typesMap[type];
+        if (typeSizesMap[field.type] != sizeof(float)) {
+            this->error_message = " only 4 byte types are supported in field definitions.";
+            return mc_err_unsupported_type;
         }
-        else {
-            compileField field;
-            field.type = arg[0];
-            if (typeSizesMap[arg[0]] != sizeof(float)) {
-                this->error_message = " only 4 byte types are supported in field definitions.";
-                return mc_err_unsupported_type;
-            }
-            copyConstantToMemory(field.data, arg[0], arg.substr(1, arg.size() - 1));
-            fields.push_back(field);
-            return mc_fit;
-        }
+        copyConstantToMemory(field.data, field.type, arg.substr(pos + 1, arg.size() - pos - 1));
+        fields.push_back(field);
+        return mc_fit;
+    }
+    if (typesMap.find(arg) != typesMap.end()) {
+        return mc_err_no_const_value;
     }
     return mc_no_fit;
 }
