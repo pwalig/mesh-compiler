@@ -20,6 +20,7 @@ namespace mesh_compiler
         std::vector<char> data;
 
         void print(const int& indent = 0) const;
+        void clear();
     };
 
     class compileBuffer {
@@ -31,6 +32,7 @@ namespace mesh_compiler
         unsigned int get_entry_size(unsigned short byte_base = 1) const;
         unsigned int get_size(unsigned short byte_base = 1) const;
         void print(const int& indent = 0) const;
+        void clear();
     };
 
     class compileConfig {
@@ -38,10 +40,21 @@ namespace mesh_compiler
         compilePreamble preamble;
         std::vector<compileBuffer> buffers;
 
+        int compile(const std::string& filename);
+
         unsigned int get_size(unsigned short byte_base = 1);
         unsigned int get_entries_count();
         unsigned int get_fields_count();
         void print(const int& indent = 0) const;
+        void clear();
+
+    private:
+        std::string error_message = "";
+        void logCompilationError(const int& err_code, const std::string& arg, const int& line_num);
+        int isArgument(const std::string& arg, compilePreamble& preamble);
+        int isField(const std::string& arg, std::vector<compileField>& fields, char& field_count);
+        int isType(const std::string& arg, compilePreamble& preamble);
+        int isType(const std::string& arg, std::vector<compileField>& fields);
     };
 
     class compilationInfo {
@@ -51,6 +64,7 @@ namespace mesh_compiler
         std::string format_file = ".format";
         std::string output_file = "{file}_{mesh}.mesh";
 
+    public:
         int updateCompileConfig();
         compileConfig* config = nullptr;
 

@@ -70,9 +70,31 @@
 #define mc_buffers_x_entries_x_fields 0b11110000 // amount of all fields in the file
 
 // error defines
+#define mc_no_err 0
 #define mc_err_cannot_open_file 1
+#define mc_err_unknown_statement 2
+#define mc_err_no_suffix 3
+#define mc_err_invalid_suffix 4
+#define mc_err_no_const_value 5
+#define mc_err_byte_base_in_count_type 6
+#define mc_err_field_spec_in_preamble 7
 #define mc_err_conflicting_fields 9
 #define mc_err_constants_only 10
+
+#define mc_fit 0
+#define mc_no_fit 255
+
+std::map<int, std::string> errorMessageMap = {
+    {mc_err_cannot_open_file, "could not open file"},
+    {mc_err_unknown_statement, "unknown statement"},
+    {mc_err_no_suffix, "field suffix not provided"},
+    {mc_err_invalid_suffix, "invalid field suffix"},
+    {mc_err_no_const_value, "constant value not provided"},
+    {mc_err_byte_base_in_count_type, "given byte base in count type"},
+    {mc_err_field_spec_in_preamble, "attempted field specification in preamble"},
+    {mc_err_conflicting_fields, "confilcting types detected in single buffer"},
+    {mc_err_constants_only, "detected buffer of only constants - unknown buffer size"}
+};
 
 std::map<std::string, char> argsMap = {
     {"buffc", mc_buffers_count },
@@ -160,6 +182,12 @@ void mesh_compiler::compilePreamble::print(const int& indent) const
     for (const char& c : data) std::cout << c;
 }
 
+void mesh_compiler::compilePreamble::clear()
+{
+    this->info_format.clear();
+    this->data.clear();
+}
+
 unsigned int mesh_compiler::compileBuffer::get_entry_size(unsigned short byte_base) const
 {
     unsigned int siz = 0;
@@ -180,6 +208,12 @@ void mesh_compiler::compileBuffer::print(const int& indent) const
     this->preamble.print(0);
     std::cout << ", count: " << count << ", fields: \n";
     for (const compileField& f : fields) f.print(indent + 1);
+}
+
+void mesh_compiler::compileBuffer::clear()
+{
+    this->preamble.clear();
+    this->fields.clear();
 }
 
 unsigned int mesh_compiler::compileConfig::get_size(unsigned short byte_base)
@@ -213,19 +247,135 @@ void mesh_compiler::compileConfig::print(const int& indent) const
     for (const compileBuffer& b : buffers) b.print(indent + 1);
 }
 
-int mesh_compiler::compilationInfo::updateCompileConfig()
+void mesh_compiler::compileConfig::clear()
 {
-    std::ifstream formatFile(this->format_file, std::ios::in);
+    this->preamble.clear();
+    this->buffers.clear();
+}
+
+void mesh_compiler::compileConfig::logCompilationError(const int& err_code, const std::string& arg, const int& line_num)
+{
+    std::cout << "format compilation error: " << errorMessageMap[err_code] << ": " << arg << " in line " << line_num << "." << this->error_message << "\n";
+}
+
+int mesh_compiler::compileConfig::isArgument(const std::string& arg, compilePreamble& preamble)
+{
+    if (arg.size() >= 4 && argsMap.find(arg.substr(0, arg.size() - 3)) != argsMap.end()) { // argument
+        if (arg[arg.size() - 2] != '_') {
+            std::string correct = arg;
+            correct[correct.size() - 2] = '_';
+            this->error_message = " did you mean: " + correct + "?";
+            return mc_err_unknown_statement;
+        }
+        if (arg[arg.size() - 4] != 's') {
+            return mc_err_byte_base_in_count_type;
+        }
+        char varg = argsMap[arg.substr(0, arg.size() - 3)];
+        char size = arg[arg.size() - 3];
+        char base = arg[arg.size() - 1];
+        if (sizeMap.find(size) == sizeMap.end() || baseMap.find(base) == baseMap.end()) {
+            return mc_err_unknown_statement;
+        }
+        size = sizeMap[size];
+        base = baseMap[base];
+        preamble.info_format.push_back(varg | size | base);
+        return mc_fit;
+    }
+    else if (arg.size() >= 2 && argsMap.find(arg.substr(0, arg.size() - 1)) != argsMap.end()) {
+        char varg = argsMap[arg.substr(0, arg.size() - 1)];
+        char size = arg[arg.size() - 1];
+        if (sizeMap.find(size) == sizeMap.end()) {
+            return mc_err_unknown_statement;
+        }
+        size = sizeMap[size];
+        preamble.info_format.push_back(varg | size | mc_x_4);
+        return mc_fit;
+    }
+    else if (argsMap.find(arg) != argsMap.end()) {
+        char varg = argsMap[arg];
+        preamble.info_format.push_back(varg | mc_4_4);
+        return mc_fit;
+    }
+    return mc_no_fit;
+}
+
+int mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<compileField>& fields, char& field_count)
+{
+    if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end()) { // field
+        if (arg.size() == 1) {
+            return mc_err_no_suffix;
+        }
+        else if (suffixesMap.find(arg[1]) != suffixesMap.end()) {
+            compileField field;
+            field.type = arg[0];
+            char ffc = getFieldCount(field.type);
+            if (ffc != 0) {
+                if (ffc != field_count && field_count != 0) {
+                    this->error_message = " conflicting types: ";
+                    this->error_message.push_back(field.type);
+                    this->error_message += " and ";
+                    this->error_message.push_back(field_count);
+                    this->error_message += ".";
+                    return mc_err_conflicting_fields;
+                }
+                field_count = ffc;
+            }
+            memcpy(field.data, &suffixesMap[arg[1]], sizeof(int));
+            fields.push_back(field);
+            return mc_fit;
+        }
+        else {
+            return mc_err_invalid_suffix;
+        }
+    }
+    return mc_no_fit;
+}
+
+int mesh_compiler::compileConfig::isType(const std::string& arg, compilePreamble& preamble)
+{
+    /*if (std::find(typesVec.begin(), typesVec.end(), arg[0]) != typesVec.end()) { // constant
+        if (arg.size() == 1) {
+            return mc_err_no_const_value;
+        }
+        else {
+            char type = mc_constant;
+            preamble.info_format.push_back(type);
+
+            char siz = (type & mc_mask_mask);
+            char* data = new char[(int)siz + 1];
+            float value = std::stof(arg.substr(1, arg.size() - 1));
+            memcpy(field.data, &value, sizeof(float));
+            return mc_fit;
+        }
+    }*/
+    return mc_no_fit;
+}
+
+int mesh_compiler::compileConfig::isType(const std::string& arg, std::vector<compileField>& fields)
+{
+    if (std::find(typesVec.begin(), typesVec.end(), arg[0]) != typesVec.end()) { // constant
+        if (arg.size() == 1) {
+            return mc_err_no_const_value;
+        }
+        else {
+            compileField field;
+            field.type = arg[0];
+            float value = std::stof(arg.substr(1, arg.size() - 1));
+            memcpy(field.data, &value, sizeof(float));
+            fields.push_back(field);
+            return mc_fit;
+        }
+    }
+    return mc_no_fit;
+}
+
+int mesh_compiler::compileConfig::compile(const std::string& filename)
+{
+    std::ifstream formatFile(filename, std::ios::in);
     if (!formatFile) {
-        std::cout << "format compilation error: cannot open file: " << this->format_file << std::endl;
+        std::cout << "format compilation error: cannot open file: " << filename << std::endl;
         return mc_err_cannot_open_file;
     }
-
-    if (this->config != nullptr) {
-        delete this->config;
-    }
-
-    this->config = new compileConfig();
 
     std::string line, arg = "";
 
@@ -236,53 +386,17 @@ int mesh_compiler::compilationInfo::updateCompileConfig()
         if ((c >= 9 && c <= 13) || c == ' ') {
             if (arg.empty()) continue;
             else { // process word
-                if (arg.size() >= 4 && argsMap.find(arg.substr(0, arg.size()-3)) != argsMap.end()) { // argument
-                    if (arg[arg.size() - 2] != '_') {
-                        std::string correct = arg;
-                        correct[correct.size() - 2] = '_';
-                        std::cout << "format compilation error: unknown statement: " << arg << " in line 1. did you mean: " << correct << "?\n";
-                        return 2;
-                    }
-                    if (arg[arg.size() - 4] != 's') {
-                        std::cout << "format compilation error: given byte base in count type: " << arg << " in line 1.\n";
-                        return 6;
-                    }
-                    char varg = argsMap[arg.substr(0, arg.size() - 3)];
-                    char size = arg[arg.size() - 3];
-                    char base = arg[arg.size() - 1];
-                    if (sizeMap.find(size) == sizeMap.end() || baseMap.find(base) == baseMap.end()) {
-                        std::cout << "format compilation error: unknown statement: " << arg << " in line 1.\n";
-                        return 2;
-                    }
-                    size = sizeMap[size];
-                    base = baseMap[base];
-                    this->config->preamble.info_format.push_back(varg | size | base);
-                    arg = "";
+
+                int res = isArgument(arg, this->preamble);
+                if (res == mc_fit) { arg = ""; continue; }
+
+                if (res != mc_no_fit) { // compilation error
+                    logCompilationError(res, arg, 1);
+                    return res;
                 }
-                else if (arg.size() >= 2 && argsMap.find(arg.substr(0, arg.size() - 1)) != argsMap.end()) {
-                    char varg = argsMap[arg.substr(0, arg.size() - 1)];
-                    char size = arg[arg.size() - 1];
-                    if (sizeMap.find(size) == sizeMap.end()) {
-                        std::cout << "format compilation error: unknown statement: " << arg << " in line 1.\n";
-                        return 2;
-                    }
-                    size = sizeMap[size];
-                    this->config->preamble.info_format.push_back(varg | size | mc_x_4);
-                    arg = "";
-                }
-                else if (argsMap.find(arg) != argsMap.end()) {
-                    char varg = argsMap[arg];
-                    this->config->preamble.info_format.push_back(varg | mc_4_4);
-                    arg = "";
-                }
-                else if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end() || arg.size() <= 2) { // field
-                    std::cout << "format compilation error: attempted field specification in preamble in line 1.\n";
-                    return 5;
-                }
-                else {
-                    std::cout << "format compilation error: unknown statement: " << arg << " in line 1.\n";
-                    return 2;
-                }
+
+                logCompilationError(mc_err_unknown_statement, arg, 1);
+                return mc_err_unknown_statement;
             }
         }
         else arg += c;
@@ -290,7 +404,6 @@ int mesh_compiler::compilationInfo::updateCompileConfig()
 
     // buffers
     int line_num = 2;
-    bool fields = false;
     while (std::getline(formatFile, line)) {
         line += ' ';
         compileBuffer buffer;
@@ -299,106 +412,82 @@ int mesh_compiler::compilationInfo::updateCompileConfig()
             if ((c >= 9 && c <= 13) || c == ' ') { // whitespace character
                 if (arg.empty()) continue;
                 else { // process word
-                    if (arg.size() >= 4 && argsMap.find(arg.substr(0, arg.size() - 3)) != argsMap.end()) { // argument
-                        if (arg[arg.size() - 2] != '_') {
-                            std::string correct = arg;
-                            correct[correct.size() - 2] = '_';
-                            std::cout << "format compilation error: unknown statement: " << arg << " in line " << line_num << ". did you mean: " << correct << "?\n";
-                            return 2;
-                        }
-                        if (arg[arg.size() - 4] != 's') {
-                            std::cout << "format compilation error: given byte base in count type: " << arg << " in line " << line_num << ".\n";
-                            return 6;
-                        }
-                        char varg = argsMap[arg.substr(0, arg.size() - 3)];
-                        char size = arg[arg.size() - 3];
-                        char base = arg[arg.size() - 1];
-                        if (sizeMap.find(size) == sizeMap.end() || baseMap.find(base) == baseMap.end()) {
-                            std::cout << "format compilation error: unknown statement: " << arg << " in line " << line_num << ".\n";
-                            return 2;
-                        }
-                        size = sizeMap[size];
-                        base = baseMap[base];
-                        buffer.preamble.info_format.push_back(varg | size | base);
-                        arg = "";
-                    }
-                    else if (arg.size() >= 2 && argsMap.find(arg.substr(0, arg.size() - 1)) != argsMap.end()) {
-                        char varg = argsMap[arg.substr(0, arg.size() - 1)];
-                        char size = arg[arg.size() - 1];
-                        if (sizeMap.find(size) == sizeMap.end()) {
-                            std::cout << "format compilation error: unknown statement: " << arg << " in line " << line_num << ".\n";
-                            return 2;
-                        }
-                        size = sizeMap[size];
-                        buffer.preamble.info_format.push_back(varg | size | mc_x_4);
-                        arg = "";
-                    }
-                    else if (argsMap.find(arg) != argsMap.end()) {
-                        char varg = argsMap[arg];
-                        buffer.preamble.info_format.push_back(varg | mc_4_4);
-                        arg = "";
-                    }
-                    else if (std::find(fieldsVec.begin(), fieldsVec.end(), arg[0]) != fieldsVec.end()) { // field
-                        if (arg.size() == 1) {
-                            std::cout << "format compilation error: field suffix not provided: " << arg << "? in line " << line_num << ".\n";
-                            return 3;
-                        }
-                        else if (suffixesMap.find(arg[1]) != suffixesMap.end()) {
-                            compileField field;
-                            field.type = arg[0];
-                            char ffc = getFieldCount(field.type);
-                            if (ffc != 0) {
-                                if (ffc != field_count && field_count != 0) {
-                                    std::cout << "format compilation error: confilcting types detected in single buffer in line " << line_num << " conflicting types: " << field.type << " and " << field_count << ".\n";
-                                    return mc_err_conflicting_fields;
-                                }
-                                field_count = ffc;
-                            }
-                            memcpy(field.data, &suffixesMap[arg[1]], sizeof(int));
-                            buffer.fields.push_back(field);
-                            arg = "";
-                        }
-                        else {
-                            std::cout << "format compilation error: invalid field suffix: " << arg[1] << " in line " << line_num << ".\n";
-                            return 4;
-                        }
-                    }
-                    else if (std::find(typesVec.begin(), typesVec.end(), arg[0]) != typesVec.end()) { // constant
-                        if (arg.size() == 1) {
-                            std::cout << "format compilation error: constant value not provided: " << arg << "? in line " << line_num << ".\n";
-                            return 3;
-                        }
-                        else {
-                            compileField field;
-                            field.type = arg[0];
-                            float value = std::stof(arg.substr(1, arg.size() - 1));
-                            memcpy(field.data, &value, sizeof(float));
-                            buffer.fields.push_back(field);
-                            arg = "";
+
+                    if (field_count == 0) { // preamble
+
+                        int res = isArgument(arg, buffer.preamble);
+                        if (res == mc_fit) { arg = ""; continue; }
+
+                        if (res != mc_no_fit) { // compilation error
+                            logCompilationError(res, arg, line_num);
+                            return res;
                         }
 
+                        res = isField(arg, buffer.fields, field_count);
+                        if (res == mc_fit) { arg = ""; continue; }
+
+                        if (res != mc_no_fit) { // compilation error
+                            logCompilationError(res, arg, line_num);
+                            return res;
+                        }
+
+                        logCompilationError(mc_err_unknown_statement, arg, line_num);
+                        return mc_err_unknown_statement;
                     }
-                    else {
-                        std::cout << "format compilation error: unknown statement: " << arg << " in line " << line_num << ".\n";
-                        return 2;
+
+                    else { // fields
+
+                        int res = isField(arg, buffer.fields, field_count);
+                        if (res == mc_fit) { arg = ""; continue; }
+
+                        if (res != mc_no_fit) { // compilation error
+                            logCompilationError(res, arg, line_num);
+                            return res;
+                        }
+
+                        res = isType(arg, buffer.fields);
+                        if (res == mc_fit) { arg = ""; continue; }
+
+                        if (res != mc_no_fit) { // compilation error
+                            logCompilationError(res, arg, line_num);
+                            return res;
+                        }
+
+                        logCompilationError(mc_err_unknown_statement, arg, line_num);
+                        return mc_err_unknown_statement;
                     }
                 }
             }
             else arg += c;
         }
         if (field_count == 0) {
-            std::cout << "format compilation error: detected buffer of only constants - unknown buffer size in line " << line_num << ".\n";
+            logCompilationError(mc_err_constants_only, "", line_num);
             return mc_err_constants_only;
         }
-        this->config->buffers.push_back(buffer);
+        this->buffers.push_back(buffer);
         ++line_num;
     }
 
-    if (this->debug_messages) this->config->print();
-
     formatFile.close();
     std::cout << "format file compilation succeded\n";
-    return 0;
+    this->error_message = "";
+    return mc_no_err;
+}
+
+int mesh_compiler::compilationInfo::updateCompileConfig()
+{
+
+    if (this->config != nullptr) {
+        delete this->config;
+    }
+
+    this->config = new compileConfig();
+    int res = this->config->compile(this->format_file);
+    if (res != 0) return res;
+
+    if (this->debug_messages) this->config->print();
+
+    return res;
 }
 
 mesh_compiler::compilationInfo::~compilationInfo()
