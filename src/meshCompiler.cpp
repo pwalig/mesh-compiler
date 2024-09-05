@@ -34,6 +34,14 @@
 #define mc_uv7 '7'
 #define mc_tangent 't'
 #define mc_bitangent 'b'
+#define mc_vertex_color0 'A'
+#define mc_vertex_color1 'B'
+#define mc_vertex_color2 'C'
+#define mc_vertex_color3 'D'
+#define mc_vertex_color4 'E'
+#define mc_vertex_color5 'F'
+#define mc_vertex_color6 'G'
+#define mc_vertex_color7 'H'
 
 // defines for compiler sub types (specifies type size and base)
 #define mc_x_1 0b00000000
@@ -872,41 +880,65 @@ int mesh_compiler::compileMesh(const aiMesh* m, compilationInfo& ci)
                     fout.write((char*)&(m->mFaces[j].mIndices[ind]), sizeof(unsigned int));
                     break;
                 case mc_vertex:
-                    fout.write((char*)&(m->mVertices[j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mVertices[j][ind]), sizeof(ai_real));
                     break;
                 case mc_normal:
-                    fout.write((char*)&(m->mNormals[j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mNormals[j][ind]), sizeof(ai_real));
                     break;
                 case mc_texture_coordinate:
                 case mc_uv0:
-                    fout.write((char*)&(m->mTextureCoords[0][j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mTextureCoords[0][j][ind]), sizeof(ai_real));
                     break;
                 case mc_uv1:
-                    fout.write((char*)&(m->mTextureCoords[1][j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mTextureCoords[1][j][ind]), sizeof(ai_real));
                     break;
                 case mc_uv2:
-                    fout.write((char*)&(m->mTextureCoords[2][j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mTextureCoords[2][j][ind]), sizeof(ai_real));
                     break;
                 case mc_uv3:
-                    fout.write((char*)&(m->mTextureCoords[3][j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mTextureCoords[3][j][ind]), sizeof(ai_real));
                     break;
                 case mc_uv4:
-                    fout.write((char*)&(m->mTextureCoords[4][j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mTextureCoords[4][j][ind]), sizeof(ai_real));
                     break;
                 case mc_uv5:
-                    fout.write((char*)&(m->mTextureCoords[5][j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mTextureCoords[5][j][ind]), sizeof(ai_real));
                     break;
                 case mc_uv6:
-                    fout.write((char*)&(m->mTextureCoords[6][j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mTextureCoords[6][j][ind]), sizeof(ai_real));
                     break;
                 case mc_uv7:
-                    fout.write((char*)&(m->mTextureCoords[7][j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mTextureCoords[7][j][ind]), sizeof(ai_real));
                     break;
                 case mc_tangent:
-                    fout.write((char*)&(m->mTangents[j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mTangents[j][ind]), sizeof(ai_real));
                     break;
                 case mc_bitangent:
-                    fout.write((char*)&(m->mBitangents[j][ind]), sizeof(float));
+                    fout.write((char*)&(m->mBitangents[j][ind]), sizeof(ai_real));
+                    break;
+                case mc_vertex_color0:
+                    fout.write((char*)&(m->mColors[0][j][ind]), sizeof(ai_real));
+                    break;
+                case mc_vertex_color1:
+                    fout.write((char*)&(m->mColors[1][j][ind]), sizeof(ai_real));
+                    break;
+                case mc_vertex_color2:
+                    fout.write((char*)&(m->mColors[2][j][ind]), sizeof(ai_real));
+                    break;
+                case mc_vertex_color3:
+                    fout.write((char*)&(m->mColors[3][j][ind]), sizeof(ai_real));
+                    break;
+                case mc_vertex_color4:
+                    fout.write((char*)&(m->mColors[4][j][ind]), sizeof(ai_real));
+                    break;
+                case mc_vertex_color5:
+                    fout.write((char*)&(m->mColors[5][j][ind]), sizeof(ai_real));
+                    break;
+                case mc_vertex_color6:
+                    fout.write((char*)&(m->mColors[6][j][ind]), sizeof(ai_real));
+                    break;
+                case mc_vertex_color7:
+                    fout.write((char*)&(m->mColors[7][j][ind]), sizeof(ai_real));
                     break;
                 default:
                     break;
