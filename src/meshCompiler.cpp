@@ -142,7 +142,30 @@ std::map<char, char> baseMap = {
     {'8', mc_x_8 }
 };
 
-std::vector<char> fieldsVec = { 'i', 'v', 'n', 't', 'b', 'c', '0', '1', '2', '3', '4', '5', '6', '7' };
+std::vector<char> fieldsVec = {
+    mc_indice,
+    mc_vertex,
+    mc_normal,
+    mc_texture_coordinate,
+    mc_uv0,
+    mc_uv1,
+    mc_uv2,
+    mc_uv3,
+    mc_uv4,
+    mc_uv5,
+    mc_uv6,
+    mc_uv7,
+    mc_tangent,
+    mc_bitangent,
+    mc_vertex_color0,
+    mc_vertex_color1,
+    mc_vertex_color2,
+    mc_vertex_color3,
+    mc_vertex_color4,
+    mc_vertex_color5,
+    mc_vertex_color6,
+    mc_vertex_color7
+};
 
 std::map<char, unsigned short> typeSizesMap = {
     {mc_char, sizeof(char)},
@@ -684,7 +707,7 @@ int mesh_compiler::compileScene(const aiScene* scene, compilationInfo& ci)
         if (found != std::string::npos) ci.output_file.replace(found, 6, scene->mMeshes[i]->mName.C_Str());
         if (compileMesh(scene->mMeshes[i], ci) != 0) {
             std::cout << "compilation of mesh: " << scene->mMeshes[i]->mName.C_Str() << " ended up with errors.\n";
-            errors = true;
+            errors += 1;
         }
         ci.output_file = orig_name; // go back to original name
     }
@@ -695,7 +718,7 @@ int mesh_compiler::compileScene(const aiScene* scene, compilationInfo& ci)
         return 2;
     }
     std::cout << "scene compilation ended with success\n";
-    return 0;
+    return mc_no_err;
 }
 
 template <typename T>
