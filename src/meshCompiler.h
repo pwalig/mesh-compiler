@@ -1,10 +1,31 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <map>
 #include <assimp/scene.h>
 
 namespace mesh_compiler
 {
+    class formatInterpreterException : public std::exception {
+    public:
+        formatInterpreterException(const int& error_code, const std::string& message = "");
+        void fillInfo(const unsigned int& line_number, const std::string& processed_word);
+        virtual const char* what() throw();
+    protected:
+        int type;
+        std::string msg = "";
+    private:
+        static std::map<int, std::string> errorMessagesMap;
+    };
+    
+    class meshCompilerException : public std::exception {
+    public:
+        meshCompilerException(const std::string& message = "");
+        virtual const char* what() throw();
+    protected:
+        std::string msg = "";
+    };
+
     class compileField {
     public:
         char type;
@@ -40,7 +61,7 @@ namespace mesh_compiler
         compilePreamble preamble;
         std::vector<compileBuffer> buffers;
 
-        int compile(const std::string& filename);
+        void compile(const std::string& filename);
 
         unsigned int get_size(unsigned short byte_base = 1);
         unsigned int get_entries_count();
@@ -49,12 +70,10 @@ namespace mesh_compiler
         void clear();
 
     private:
-        std::string error_message = "";
-        void logCompilationError(const int& err_code, const std::string& arg, const int& line_num);
-        int isArgument(const std::string& arg, compilePreamble& preamble);
-        int isField(const std::string& arg, std::vector<compileField>& fields, char& field_count);
-        int isType(const std::string& arg, compilePreamble& preamble);
-        int isType(const std::string& arg, std::vector<compileField>& fields);
+        bool isArgument(const std::string& arg, compilePreamble& preamble);
+        bool isField(const std::string& arg, std::vector<compileField>& fields, char& field_count);
+        bool isType(const std::string& arg, compilePreamble& preamble);
+        bool isType(const std::string& arg, std::vector<compileField>& fields);
     };
 
     class compilationInfo {
@@ -65,15 +84,15 @@ namespace mesh_compiler
         std::string output_file = "{file}_{mesh}.mesh";
 
     public:
-        int updateCompileConfig();
+        void updateCompileConfig();
         compileConfig* config = nullptr;
 
         ~compilationInfo();
     };
 
 	void run(int argc, char** argv);
-	int compile(const std::vector<std::string>& args);
-	int compileFile(const std::string& filename, compilationInfo& ci);
-	int compileScene(const aiScene* scene, compilationInfo& ci);
-    int compileMesh(const aiMesh* m, compilationInfo& ci);
+	void compile(const std::vector<std::string>& args);
+    void compileFile(const std::string& filename, compilationInfo& ci);
+    void compileScene(const aiScene* scene, compilationInfo& ci);
+    void compileMesh(const aiMesh* m, compilationInfo& ci);
 }

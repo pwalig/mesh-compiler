@@ -91,7 +91,15 @@ void mainTest() {
     ci.output_file = "test/out.mesh";
     ci.format_file = "test/.format";
     ci.debug_messages = true;
-    mesh_compiler::compileFile("test/test.obj", ci);
+    try {
+        mesh_compiler::compileFile("test/test.obj", ci);
+    }
+    catch (mesh_compiler::meshCompilerException& e) {
+        std::cout << e.what() << std::endl;
+    }
+    catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
 
     mesh me1;
     const auto start1{ std::chrono::steady_clock::now() };
