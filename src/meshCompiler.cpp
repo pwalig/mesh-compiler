@@ -429,7 +429,11 @@ int mesh_compiler::compileConfig::isArgument(const std::string& arg, compilePrea
 
 int mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<compileField>& fields, char& field_count)
 {
-    std::string type = arg.substr(0, arg.size() - 1);
+    size_t pos = arg.find('.');
+    if (pos != arg.size() - 2) {
+        return mc_no_fit;
+    }
+    std::string type = arg.substr(0, pos);
     char suffix = arg[arg.size() - 1];
     if (fieldsMap.find(type) != fieldsMap.end()) { // field
         if (suffixesMap.find(suffix) != suffixesMap.end()) {
@@ -464,6 +468,9 @@ int mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<co
 int mesh_compiler::compileConfig::isType(const std::string& arg, compilePreamble& preamble)
 {
     size_t pos = arg.find(':');
+    if (pos == std::string::npos) {
+        return mc_no_fit;
+    }
     std::string type = arg.substr(0, pos);
     if (typesMap.find(type) != typesMap.end()) { // constant
         char ctype = typesMap[type];
@@ -485,6 +492,9 @@ int mesh_compiler::compileConfig::isType(const std::string& arg, compilePreamble
 int mesh_compiler::compileConfig::isType(const std::string& arg, std::vector<compileField>& fields)
 {
     size_t pos = arg.find(':');
+    if (pos == std::string::npos) {
+        return mc_no_fit;
+    }
     std::string type = arg.substr(0, pos);
     if (typesMap.find(type) != typesMap.end()) { // constant
         compileField field;
