@@ -9,16 +9,16 @@
 
 // defines for compileField::type
 // constant types
-#define mc_char 0
-#define mc_short 1
-#define mc_int 2
-#define mc_long 3
-#define mc_unsigned_short 4
-#define mc_unsigned_int 5
-#define mc_unsigned_long 6
-#define mc_float 7
-#define mc_double 8
-#define mc_long_double 9
+#define mc_char 'Q'
+#define mc_short 'R'
+#define mc_int 'S'
+#define mc_long 'T'
+#define mc_unsigned_short 'U'
+#define mc_unsigned_int 'V'
+#define mc_unsigned_long 'W'
+#define mc_float 'X'
+#define mc_double 'Y'
+#define mc_long_double 'Z'
 // variable types
 #define mc_indice 'i'
 #define mc_vertex 'v'
@@ -560,12 +560,19 @@ int mesh_compiler::compileConfig::compile(const std::string& filename)
         line += ' ';
         compileBuffer buffer;
         char field_count = 0;
+        bool fields_def = false;
         for (const char& c : line) {
             if ((c >= 9 && c <= 13) || c == ' ') { // whitespace character
                 if (arg.empty()) continue;
                 else { // process word
 
-                    if (field_count == 0) { // preamble
+                    if (!fields_def) { // preamble
+
+                        if (arg.size() == 1 && arg[0] == ';') {
+                            fields_def = true;
+                            arg = "";
+                            continue;
+                        }
 
                         int res = isArgument(arg, buffer.preamble);
                         if (res == mc_fit) { arg = ""; continue; }
@@ -576,7 +583,11 @@ int mesh_compiler::compileConfig::compile(const std::string& filename)
                         }
 
                         res = isField(arg, buffer.fields, field_count);
-                        if (res == mc_fit) { arg = ""; continue; }
+                        if (res == mc_fit) {
+                            fields_def = true;
+                            arg = "";
+                            continue;
+                        }
 
                         if (res != mc_no_fit) { // compilation error
                             logCompilationError(res, arg, line_num);
@@ -598,7 +609,10 @@ int mesh_compiler::compileConfig::compile(const std::string& filename)
                     else { // fields
 
                         int res = isField(arg, buffer.fields, field_count);
-                        if (res == mc_fit) { arg = ""; continue; }
+                        if (res == mc_fit) {
+                            arg = "";
+                            continue;
+                        }
 
                         if (res != mc_no_fit) { // compilation error
                             logCompilationError(res, arg, line_num);
@@ -606,7 +620,10 @@ int mesh_compiler::compileConfig::compile(const std::string& filename)
                         }
 
                         res = isType(arg, buffer.fields);
-                        if (res == mc_fit) { arg = ""; continue; }
+                        if (res == mc_fit) {
+                            arg = "";
+                            continue;
+                        }
 
                         if (res != mc_no_fit) { // compilation error
                             logCompilationError(res, arg, line_num);
