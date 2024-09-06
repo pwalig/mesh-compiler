@@ -685,8 +685,9 @@ void mesh_compiler::run(int argc, char** argv)
             std::vector<std::string> args;
             std::stringstream ss(line);
             while (ss) {
-                args.push_back(std::string());
-                ss >> args.back();
+                std::string a;
+                ss >> a;
+                if (!a.empty()) args.push_back(a);
             }
             compile(args);
         }
