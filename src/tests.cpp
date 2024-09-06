@@ -81,11 +81,17 @@ void readMesh(const aiScene* scene, mesh& me) {
             }
         }
         if (m->HasBones()) {
-            assimp::meshWeights<int, float, MAX_BONE_INFLUENCE> mw = assimp::getMeshWeights<int, float, MAX_BONE_INFLUENCE>(m);
+            assimp::meshWeights<int, float, MAX_BONE_INFLUENCE> mw(m);
             for (int i = 0; i < m->mNumVertices; ++i) {
                 me.bone_indexes.push_back(mw.vertices[i].bone_ids);
                 me.bone_weights.push_back(mw.vertices[i].weights);
             }
+            assimp::skeleton skeleton(m);
+            std::cout << "skeleton: ";
+            for (const assimp::skeleton::bone& b : skeleton.bones) {
+                std::cout << b.position.x << " " << b.position.y << " " << b.position.z << " | ";
+            }
+            std::cout << "\n";
         }
     }
 }
@@ -94,7 +100,7 @@ void mainTest() {
     std::function<void(const aiScene* scene)> nothing = [](const aiScene* scene) {};
     mesh me;
     const auto start{ std::chrono::steady_clock::now() };
-    assimp::readFile("test/bones.fbx", std::bind(readMesh, std::placeholders::_1, std::ref(me)));
+    assimp::readFile("test/bones2.fbx", std::bind(readMesh, std::placeholders::_1, std::ref(me)));
     //ReadFile("Ghost2.glb", nothing);
     const auto end{ std::chrono::steady_clock::now() };
     const std::chrono::duration<double> elapsed_seconds{ end - start };

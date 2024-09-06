@@ -1,7 +1,7 @@
 #ifndef tests_included
 #define tests_included
 
-#define MAX_BONE_INFLUENCE 2
+#define MAX_BONE_INFLUENCE 4
 
 #include <vector>
 #include <array>

@@ -25,12 +25,25 @@ namespace assimp {
         private:
             void setData(const T& bone_id, const U& weight, const unsigned int& index);
         };
-
+        meshWeights(const aiMesh* mesh);
         std::vector<vertex> vertices;
     };
 
-    template <typename T, typename U, unsigned int MAX>
-    inline meshWeights<T, U, MAX> getMeshWeights(const aiMesh* mesh);
+    class skeleton {
+    public:
+        class bone {
+        public:
+            bone();
+            bone(const aiMatrix4x4 offset_matrix);
+            aiMatrix4x4 offset_matrix;
+            aiVector3D position;
+            aiVector3D rotation;
+            aiVector3D scale;
+            void setData(const aiMatrix4x4 offset_matrix);
+        };
+        skeleton(const aiMesh* mesh);
+        std::vector<bone> bones;
+    };
 
 	bool readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags =
         aiProcess_CalcTangentSpace |
@@ -80,11 +93,9 @@ namespace assimp {
     }
 
     template<typename T, typename U, unsigned int MAX>
-    inline meshWeights<T, U, MAX> getMeshWeights(const aiMesh* mesh)
+    inline meshWeights<T, U, MAX>::meshWeights(const aiMesh* mesh)
     {
-        meshWeights<T, U, MAX> out;
-
-        out.vertices.resize(mesh->mNumVertices);
+        this->vertices.resize(mesh->mNumVertices);
 
         for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
         {
@@ -95,10 +106,31 @@ namespace assimp {
                 int vertexId = mesh->mBones[boneIndex]->mWeights[weightIndex].mVertexId;
                 U weight = mesh->mBones[boneIndex]->mWeights[weightIndex].mWeight;
 
-                out.vertices[vertexId].setData(boneIndex, weight);
+                this->vertices[vertexId].setData(boneIndex, weight);
             }
         }
+    }
 
-        return out;
+    inline skeleton::bone::bone()
+    {}
+
+    inline skeleton::bone::bone(const aiMatrix4x4 offset_matrix)
+    {
+        this->setData(offset_matrix);
+    }
+
+    inline void skeleton::bone::setData(const aiMatrix4x4 offset_matrix)
+    {
+        this->offset_matrix = offset_matrix;
+        this->offset_matrix.Decompose(this->scale, this->rotation, this->position);
+    }
+
+    inline skeleton::skeleton(const aiMesh* mesh)
+    {
+        for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+        {
+            bone b(mesh->mBones[boneIndex]->mOffsetMatrix);
+            bones.push_back(b);
+        }
     }
 }
