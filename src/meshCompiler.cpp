@@ -168,7 +168,9 @@ std::map<std::string, char> typesMap = {
     {"f", mc_float},
     {"float", mc_float},
     {"double", mc_double},
-    {"long_double", mc_long_double}
+    {"float8", mc_double},
+    {"long_double", mc_long_double},
+    {"float16", mc_long_double}
 };
 
 std::map<char, unsigned short> typeSizesMap = {
@@ -413,7 +415,7 @@ bool mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<c
         return false;
     }
     std::string type = arg.substr(0, pos);
-    char suffix = arg[arg.size() - 1];
+    char suffix = arg[pos+1];
     if (fieldsMap.find(type) != fieldsMap.end()) { // field
         if (suffixesMap.find(suffix) != suffixesMap.end()) {
             compileField field;
