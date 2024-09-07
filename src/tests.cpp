@@ -87,17 +87,14 @@ void mainTest() {
     printMesh(me);
     std::cout << "Assimp read time: " << elapsed_seconds.count() << '\n';
 
+    std::vector<std::string> args;
+    args.push_back("test/test.obj");
+    args.push_back("test/.format");
+    args.push_back("test/out.mesh");
+    args.push_back("-d");
+
     try {
-        try {
-            mesh_compiler::compileFile("test/test.obj", mesh_compiler::compilationInfo("test/.format", "test/out.mesh", true));
-        }
-        catch (mesh_compiler::formatInterpreterException& e) {
-            std::cout << e.what() << std::endl;
-            throw mesh_compiler::meshCompilerException("format file compilation ended with errors could not compile file");
-        }
-    }
-    catch (mesh_compiler::meshCompilerException& e) {
-        std::cout << e.what() << std::endl;
+        mesh_compiler::runOnce(args);
     }
     catch (std::exception& e) {
         std::cout << e.what() << std::endl;

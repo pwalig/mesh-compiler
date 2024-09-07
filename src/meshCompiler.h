@@ -86,6 +86,7 @@ namespace mesh_compiler
     };
 
 	void run(int argc, char** argv);
+	void runOnce(const std::vector<std::string>& args);
 	void compile(const std::vector<std::string>& args);
     void compileFile(const std::string& filename, compilationInfo ci);
     void compileScene(const aiScene* scene, compilationInfo ci);
