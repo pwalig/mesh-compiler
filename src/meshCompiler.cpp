@@ -698,7 +698,7 @@ mesh_compiler::compileConfig::compileConfig(const std::string& filename)
     std::cout << "format file compilation succeded\n";
 }
 
-mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, const std::string& output_file, const bool& debug_messages) : output_file(output_file), config(format_file)
+mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, const std::string& output_file, const bool& debug_messages) : output_file(output_file), config(format_file), debug_messages(true)
 {
     if (this->debug_messages) this->config.print();
 }
@@ -931,7 +931,7 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
             writeConst(fout, ci.config.get_fields_count(), c);
             break;
         default:
-            printf("compilation warning: unknown buffer info flag: %c skipping the flag\n", c);
+            throw meshCompilerException("compilation error: unknown buffer info flag: " + std::string(1, c));
             break;
         }
     }
@@ -977,7 +977,7 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
                 writeConst(fout, cb.fields.size() * cb.count, c);
                 break;
             default:
-                printf("compilation warning: unknown buffer info flag: %c skipping the flag\n", c);
+                throw meshCompilerException("compilation error: unknown buffer info flag: " + std::string(1, c));
                 break;
             }
         }
