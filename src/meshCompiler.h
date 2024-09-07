@@ -29,7 +29,7 @@ namespace mesh_compiler
     class compileField {
     public:
         char type;
-        char data[4];
+        std::vector<char> data;
 
         unsigned int get_size(unsigned short byte_base = 1) const;
         void print(const int& indent = 0) const;

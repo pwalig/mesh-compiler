@@ -213,7 +213,7 @@ char getFieldCount(char fieldType) {
     }
 }
 
-std::map<char, int> suffixesMap = {
+std::map<char, unsigned short> suffixesMap = {
     {'0', 0}, {'1', 1}, {'2', 2}, {'3', 3},
     {'x', 0}, {'y', 1}, {'z', 2},
     {'r', 0}, {'g', 1}, {'b', 2}, {'a', 3},
@@ -286,7 +286,9 @@ unsigned int mesh_compiler::compileField::get_size(unsigned short byte_base) con
 void mesh_compiler::compileField::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
-    printf("field info: type: %c, data: %c%c%c%c\n", type, data[0], data[1], data[2], data[3]);
+    printf("field info: type: %c, data: ", type);
+    for (const char& c : data) std::cout << c;
+    std::cout << std::endl;
 }
 
 void mesh_compiler::compilePreamble::print(const int& indent) const
@@ -433,7 +435,8 @@ bool mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<c
                 }
                 field_count = ffc;
             }
-            memcpy(field.data, &suffixesMap[suffix], sizeof(int));
+            field.data.resize(sizeof(unsigned short));
+            memcpy(field.data.data(), &suffixesMap[suffix], sizeof(unsigned short));
             fields.push_back(field);
             return true;
         }
@@ -450,6 +453,7 @@ bool mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<c
 void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
     union data_union {
         char c;
+        short s;
         int i;
         long l;
         float f;
@@ -468,6 +472,13 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
         break;
     case mc_short:
     case mc_unsigned_short:
+        try {
+            data.s = std::stoi(val);
+        }
+        catch (std::exception& e) {
+            throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value);
+        }
+        break;
     case mc_int:
     case mc_unsigned_int:
         try {
@@ -480,7 +491,7 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
     case mc_long:
     case mc_unsigned_long:
         try {
-            data.l = std::stoi(val);
+            data.l = std::stol(val);
         }
         catch (std::exception& e) {
             throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value);
@@ -517,6 +528,8 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
 
     switch (type) {
     case mc_unsigned_short:
+        if (data.s < 0) throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value, "negative value passed as unsigned type");
+        break;
     case mc_unsigned_int:
         if (data.i < 0) throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value, "negative value passed as unsigned type");
         break;
@@ -572,10 +585,8 @@ bool mesh_compiler::compileConfig::isType(const std::string& arg, std::vector<co
     if (typesMap.find(type) != typesMap.end()) { // constant
         compileField field;
         field.type = typesMap[type];
-        if (typeSizesMap[field.type] != sizeof(float)) {
-            throw formatInterpreterException(mc_err_unsupported_type, "only 4 byte types are supported in field definitions.");
-        }
-        copyConstantToMemory(field.data, field.type, arg.substr(pos + 1, arg.size() - pos - 1));
+        field.data.resize(typeSizesMap[field.type]);
+        copyConstantToMemory(field.data.data(), field.type, arg.substr(pos + 1, arg.size() - pos - 1));
         fields.push_back(field);
         return true;
     }
@@ -1000,14 +1011,21 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
         // data buffers
         for (unsigned int j = 0; j < cb.count; ++j) {
             for (const compileField& cf : cb.fields) {
-                unsigned int ind = 0;
-                memcpy((char*)&ind, cf.data, sizeof(unsigned int));
+                unsigned short ind = 0;
+                memcpy((char*)&ind, cf.data.data(), sizeof(unsigned short));
                 switch (cf.type)
                 {
+                case mc_char:
+                case mc_short:
                 case mc_int:
+                case mc_long:
+                case mc_unsigned_short:
                 case mc_unsigned_int:
+                case mc_unsigned_long:
                 case mc_float:
-                    fout.write(cf.data, sizeof(float));
+                case mc_double:
+                case mc_long_double:
+                    fout.write(cf.data.data(), typeSizesMap[cf.type]);
                     break;
                 case mc_indice:
                     fout.write((char*)&(m->mFaces[j].mIndices[ind]), sizeof(unsigned int));
