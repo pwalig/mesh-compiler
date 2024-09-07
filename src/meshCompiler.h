@@ -61,7 +61,7 @@ namespace mesh_compiler
         compilePreamble preamble;
         std::vector<compileBuffer> buffers;
 
-        void compile(const std::string& filename);
+        compileConfig(const std::string& filename);
 
         unsigned int get_size(unsigned short byte_base = 1);
         unsigned int get_entries_count();
@@ -78,21 +78,16 @@ namespace mesh_compiler
 
     class compilationInfo {
     public:
-        bool indices = true;
-        bool debug_messages = false;
-        std::string format_file = ".format";
-        std::string output_file = "{file}_{mesh}.mesh";
+        bool debug_messages;
+        std::string output_file;
+        compileConfig config;
 
-    public:
-        void updateCompileConfig();
-        compileConfig* config = nullptr;
-
-        ~compilationInfo();
+        compilationInfo(const std::string& format_file, const std::string& output_file = "{file}_{mesh}.mesh", const bool& debug_messages = false);
     };
 
 	void run(int argc, char** argv);
 	void compile(const std::vector<std::string>& args);
-    void compileFile(const std::string& filename, compilationInfo& ci);
-    void compileScene(const aiScene* scene, compilationInfo& ci);
-    void compileMesh(const aiMesh* m, compilationInfo& ci);
+    void compileFile(const std::string& filename, compilationInfo ci);
+    void compileScene(const aiScene* scene, compilationInfo ci);
+    void compileMesh(const aiMesh* m, compilationInfo ci);
 }
