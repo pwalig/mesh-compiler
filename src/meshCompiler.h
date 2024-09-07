@@ -13,11 +13,25 @@ public:
 private:
     class formatInterpreterException : public std::exception {
     public:
-        formatInterpreterException(const int& error_code, const std::string& message = "");
+        enum error_code {
+            mc_err_cannot_open_file,
+            mc_err_unknown_statement,
+            mc_err_no_suffix,
+            mc_err_invalid_suffix,
+            mc_err_no_const_value,
+            mc_err_invalid_const_value,
+            mc_err_byte_base_in_count_type,
+            mc_err_field_spec_in_preamble,
+            mc_err_unsupported_type,
+            mc_err_conflicting_fields,
+            mc_err_constants_only,
+            mc_err_unknown
+        };
+        formatInterpreterException(const error_code& error_code, const std::string& message = "");
         void fillInfo(const unsigned int& line_number, const std::string& processed_word);
         virtual const char* what() throw();
     protected:
-        int type;
+        error_code type;
         std::string msg = "";
     private:
         static std::map<int, std::string> errorMessagesMap;
@@ -44,11 +58,22 @@ private:
         mc_tangent,
         mc_bitangent,
         mc_uv,
-        mc_vertex_color
+        mc_vertex_color,
+        mc_file_size,
+        mc_buffer_size,
+        mc_buffers_per_unit,
+        mc_entry_size,
+        mc_entries_per_unit,
+        mc_entries_per_buffer,
+        mc_field_size,
+        mc_fields_per_unit,
+        mc_fields_per_entry,
+        mc_fields_per_buffer,
     };
     static char getFieldCount(const type& t);
     static void copyConstantToMemory(void* dst, const type& type, const std::string& val);
 
+    static std::map<std::string, type> preambleMap;
     static std::map<std::string, type> fieldsMap;
     static std::map<std::string, type> constsMap;
     static std::map<type, unsigned short> typeSizesMap;
