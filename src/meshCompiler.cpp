@@ -8,42 +8,6 @@
 // ========== DEFINES AND MAPS ==========
 #define mc_version "v1.1.1"
 
-// defines for compileField::type
-// constant types
-#define mc_char 'Q'
-#define mc_short 'R'
-#define mc_int 'S'
-#define mc_long 'T'
-#define mc_unsigned_short 'U'
-#define mc_unsigned_int 'V'
-#define mc_unsigned_long 'W'
-#define mc_float 'X'
-#define mc_double 'Y'
-#define mc_long_double 'Z'
-// variable types
-#define mc_indice 'i'
-#define mc_vertex 'v'
-#define mc_normal 'n'
-#define mc_texture_coordinate 'c'
-#define mc_uv0 '0'
-#define mc_uv1 '1'
-#define mc_uv2 '2'
-#define mc_uv3 '3'
-#define mc_uv4 '4'
-#define mc_uv5 '5'
-#define mc_uv6 '6'
-#define mc_uv7 '7'
-#define mc_tangent 't'
-#define mc_bitangent 'b'
-#define mc_vertex_color0 'A'
-#define mc_vertex_color1 'B'
-#define mc_vertex_color2 'C'
-#define mc_vertex_color3 'D'
-#define mc_vertex_color4 'E'
-#define mc_vertex_color5 'F'
-#define mc_vertex_color6 'G'
-#define mc_vertex_color7 'H'
-
 // defines for compiler sub types (specifies type size and base)
 #define mc_x_1 0b00000000
 #define mc_x_2 0b00000001
@@ -114,67 +78,57 @@ std::map<char, char> baseMap = {
     {'8', mc_x_8 }
 };
 
-std::map<std::string, char> fieldsMap = {
+std::map<std::string, mesh_compiler::type> mesh_compiler::fieldsMap = {
     { "i", mc_indice},
     { "indice", mc_indice},
     { "v", mc_vertex},
     { "vertex", mc_vertex},
     { "n", mc_normal},
     { "normal", mc_normal},
-    { "tc", mc_texture_coordinate},
-    { "tex_coord", mc_texture_coordinate},
-    { "texture_coordinate", mc_texture_coordinate},
-    { "uv0", mc_uv0 },
-    { "uv1", mc_uv1 },
-    { "uv2", mc_uv2 },
-    { "uv3", mc_uv3 },
-    { "uv4", mc_uv4 },
-    { "uv5", mc_uv5 },
-    { "uv6", mc_uv6 },
-    { "uv7", mc_uv7 },
+    { "tc", mc_uv},
+    { "tex_coord", mc_uv},
+    { "texture_coordinate", mc_uv},
+    { "uv", mc_uv },
     { "t", mc_tangent },
     { "tangent", mc_tangent },
     { "b", mc_bitangent },
     { "bitangent", mc_bitangent},
-    { "vertex_color0", mc_vertex_color0 },
-    { "vertex_color1", mc_vertex_color1 },
-    { "vertex_color2", mc_vertex_color2 },
-    { "vertex_color3", mc_vertex_color3 },
-    { "vertex_color4", mc_vertex_color4 },
-    { "vertex_color5", mc_vertex_color5 },
-    { "vertex_color6", mc_vertex_color6 },
-    { "vertex_color7", mc_vertex_color7 }
+    { "vertex_color0", mc_vertex_color }
 };
 
-std::map<std::string, char> typesMap = {
+std::map<std::string, mesh_compiler::type> mesh_compiler::constsMap = {
     {"char", mc_char},
     {"short", mc_short},
     {"int", mc_int},
     {"long", mc_long},
+    {"long_long", mc_long_long},
     {"int2", mc_short},
     {"int4", mc_int},
     {"int8", mc_long},
+    {"int16", mc_long_long},
     {"unsigned_short", mc_unsigned_short},
     {"unsigned_int", mc_unsigned_int},
     {"unsigned_long", mc_unsigned_long},
     {"unsigned_int2", mc_unsigned_short},
     {"unsigned_int4", mc_unsigned_int},
     {"unsigned_int8", mc_unsigned_long},
+    {"unsigned_int16", mc_unsigned_long_long},
     {"ushort", mc_unsigned_short},
     {"uint", mc_unsigned_int},
     {"ulong", mc_unsigned_long},
     {"uint2", mc_unsigned_short},
     {"uint4", mc_unsigned_int},
     {"uint8", mc_unsigned_long},
-    {"f", mc_float},
+    {"uint16", mc_unsigned_long_long},
     {"float", mc_float},
+    {"float4", mc_float},
     {"double", mc_double},
     {"float8", mc_double},
     {"long_double", mc_long_double},
     {"float16", mc_long_double}
 };
 
-std::map<char, unsigned short> typeSizesMap = {
+std::map<mesh_compiler::type, unsigned short> mesh_compiler::typeSizesMap = {
     {mc_char, sizeof(char)},
     {mc_short, sizeof(short)},
     {mc_int, sizeof(int)},
@@ -187,27 +141,20 @@ std::map<char, unsigned short> typeSizesMap = {
     {mc_long_double, sizeof(long double)}
 };
 
-char getFieldCount(char fieldType) {
-    switch (fieldType)
+char mesh_compiler::getFieldCount(const type& t) {
+    switch (t)
     {
-    case 'v':
-    case 'n':
-    case 't':
-    case 'b':
-    case 'c':
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
+    case mc_vertex:
+    case mc_normal:
+    case mc_tangent:
+    case mc_bitangent:
+    case mc_uv:
+    case mc_vertex_color:
         return 'v';
-    case 'i':
+    case mc_indice:
         return 'i';
     default:
-        if (typeSizesMap.find(fieldType) != typeSizesMap.end()) return 0;
+        if (typeSizesMap.find(t) != typeSizesMap.end()) return 0;
         return 128;
         break;
     }
@@ -450,7 +397,7 @@ bool mesh_compiler::compileConfig::isField(const std::string& arg, std::vector<c
     return false;
 }
 
-void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
+void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::string& val) {
     union data_union {
         char c;
         short s;
@@ -463,11 +410,11 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
     
     data_union data;
 
-    switch (type)
+    switch (t)
     {
     case mc_char:
         if (val.size() > 1)
-            throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value, "char value must be only one character, given: " + std::to_string(val.size()));
+            throw formatInterpreterException(mc_err_invalid_const_value, "char value must be only one character, given: " + std::to_string(val.size()));
         data.c = val[0];
         break;
     case mc_short:
@@ -476,7 +423,7 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
             data.s = std::stoi(val);
         }
         catch (std::exception& e) {
-            throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value);
+            throw formatInterpreterException(mc_err_invalid_const_value);
         }
         break;
     case mc_int:
@@ -485,7 +432,7 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
             data.i = std::stoi(val);
         }
         catch (std::exception& e) {
-            throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value);
+            throw formatInterpreterException(mc_err_invalid_const_value);
         }
         break;
     case mc_long:
@@ -494,7 +441,7 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
             data.l = std::stol(val);
         }
         catch (std::exception& e) {
-            throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value);
+            throw formatInterpreterException(mc_err_invalid_const_value);
         }
         break;
     case mc_float:
@@ -502,7 +449,7 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
             data.f = std::stof(val);
         }
         catch (std::exception& e) {
-            throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value);
+            throw formatInterpreterException(mc_err_invalid_const_value);
         }
         break;
     case mc_double:
@@ -510,7 +457,7 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
             data.d = std::stod(val);
         }
         catch (std::exception& e) {
-            throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value);
+            throw formatInterpreterException(mc_err_invalid_const_value);
         }
         break;
     case mc_long_double:
@@ -518,35 +465,35 @@ void copyConstantToMemory(void* dst, const char& type, const std::string& val) {
             data.ld = std::stold(val);
         }
         catch (std::exception& e) {
-            throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value);
+            throw formatInterpreterException(mc_err_invalid_const_value);
         }
         break;
     default:
-        throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value);
+        throw formatInterpreterException(mc_err_invalid_const_value);
         break;
     }
 
-    switch (type) {
+    switch (t) {
     case mc_unsigned_short:
-        if (data.s < 0) throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value, "negative value passed as unsigned type");
+        if (data.s < 0) throw formatInterpreterException(mc_err_invalid_const_value, "negative value passed as unsigned type");
         break;
     case mc_unsigned_int:
-        if (data.i < 0) throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value, "negative value passed as unsigned type");
+        if (data.i < 0) throw formatInterpreterException(mc_err_invalid_const_value, "negative value passed as unsigned type");
         break;
     case mc_unsigned_long:
-        if (data.l < 0) throw mesh_compiler::formatInterpreterException(mc_err_invalid_const_value, "negative value passed as unsigned type");
+        if (data.l < 0) throw formatInterpreterException(mc_err_invalid_const_value, "negative value passed as unsigned type");
         break;
     default:
         break;
     }
-    memcpy(dst, &data, typeSizesMap[type]);
+    memcpy(dst, &data, typeSizesMap[t]);
 }
 
 bool mesh_compiler::compileConfig::isType(const std::string& arg, compilePreamble& preamble)
 {
     size_t pos = arg.find(':');
     if (pos == std::string::npos) {
-        if (typesMap.find(arg) != typesMap.end()) {
+        if (constsMap.find(arg) != constsMap.end()) {
             throw formatInterpreterException(mc_err_no_const_value);
         }
         return false;
@@ -554,9 +501,9 @@ bool mesh_compiler::compileConfig::isType(const std::string& arg, compilePreambl
     if (pos + 1 == arg.size())
         throw formatInterpreterException(mc_err_no_const_value);
 
-    std::string type = arg.substr(0, pos);
-    if (typesMap.find(type) != typesMap.end()) { // constant
-        char ctype = typesMap[type];
+    std::string t = arg.substr(0, pos);
+    if (constsMap.find(t) != constsMap.end()) { // constant
+        type ctype = constsMap[t];
         int siz = typeSizesMap[ctype];
         preamble.info_format.push_back((char)siz);
 
@@ -573,7 +520,7 @@ bool mesh_compiler::compileConfig::isType(const std::string& arg, std::vector<co
 {
     size_t pos = arg.find(':');
     if (pos == std::string::npos) {
-        if (typesMap.find(arg) != typesMap.end()) {
+        if (constsMap.find(arg) != constsMap.end()) {
             throw formatInterpreterException(mc_err_no_const_value);
         }
         return false;
@@ -582,9 +529,9 @@ bool mesh_compiler::compileConfig::isType(const std::string& arg, std::vector<co
         throw formatInterpreterException(mc_err_no_const_value);
 
     std::string type = arg.substr(0, pos);
-    if (typesMap.find(type) != typesMap.end()) { // constant
+    if (constsMap.find(type) != constsMap.end()) { // constant
         compileField field;
-        field.type = typesMap[type];
+        field.type = constsMap[type];
         field.data.resize(typeSizesMap[field.type]);
         copyConstantToMemory(field.data.data(), field.type, arg.substr(pos + 1, arg.size() - pos - 1));
         fields.push_back(field);
@@ -1019,9 +966,11 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
                 case mc_short:
                 case mc_int:
                 case mc_long:
+                case mc_long_long:
                 case mc_unsigned_short:
                 case mc_unsigned_int:
                 case mc_unsigned_long:
+                case mc_unsigned_long_long:
                 case mc_float:
                 case mc_double:
                 case mc_long_double:
@@ -1036,30 +985,8 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
                 case mc_normal:
                     fout.write((char*)&(m->mNormals[j][ind]), sizeof(ai_real));
                     break;
-                case mc_texture_coordinate:
-                case mc_uv0:
+                case mc_uv:
                     fout.write((char*)&(m->mTextureCoords[0][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_uv1:
-                    fout.write((char*)&(m->mTextureCoords[1][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_uv2:
-                    fout.write((char*)&(m->mTextureCoords[2][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_uv3:
-                    fout.write((char*)&(m->mTextureCoords[3][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_uv4:
-                    fout.write((char*)&(m->mTextureCoords[4][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_uv5:
-                    fout.write((char*)&(m->mTextureCoords[5][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_uv6:
-                    fout.write((char*)&(m->mTextureCoords[6][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_uv7:
-                    fout.write((char*)&(m->mTextureCoords[7][j][ind]), sizeof(ai_real));
                     break;
                 case mc_tangent:
                     fout.write((char*)&(m->mTangents[j][ind]), sizeof(ai_real));
@@ -1067,29 +994,8 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
                 case mc_bitangent:
                     fout.write((char*)&(m->mBitangents[j][ind]), sizeof(ai_real));
                     break;
-                case mc_vertex_color0:
+                case mc_vertex_color:
                     fout.write((char*)&(m->mColors[0][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_vertex_color1:
-                    fout.write((char*)&(m->mColors[1][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_vertex_color2:
-                    fout.write((char*)&(m->mColors[2][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_vertex_color3:
-                    fout.write((char*)&(m->mColors[3][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_vertex_color4:
-                    fout.write((char*)&(m->mColors[4][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_vertex_color5:
-                    fout.write((char*)&(m->mColors[5][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_vertex_color6:
-                    fout.write((char*)&(m->mColors[6][j][ind]), sizeof(ai_real));
-                    break;
-                case mc_vertex_color7:
-                    fout.write((char*)&(m->mColors[7][j][ind]), sizeof(ai_real));
                     break;
                 default:
                     break;
