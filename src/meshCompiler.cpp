@@ -454,7 +454,7 @@ mesh_compiler::value mesh_compiler::compileConfig::extractFieldValue(std::string
     return v;
 }
 
-bool mesh_compiler::compileConfig::isPreambuleValue(type t, std::string& arg, std::vector<compileField>& fields)
+bool mesh_compiler::compileConfig::isPreambleValue(type t, std::string& arg, std::vector<compileField>& fields)
 {
     value v = extractPreambleValue(arg);
     if (v != mc_none) {
@@ -529,7 +529,7 @@ mesh_compiler::compileConfig::compileConfig(const std::string& filename)
                 try {
                     type t = extractType(arg);
 
-                    if (isPreambuleValue(t, arg, this->preamble.info_format)) continue;
+                    if (isPreambleValue(t, arg, this->preamble.info_format)) continue;
 
                     if (isConstValue(t, arg, this->preamble.info_format)) continue;
                     
@@ -568,7 +568,7 @@ mesh_compiler::compileConfig::compileConfig(const std::string& filename)
                         try {
                             type t = extractType(arg);
 
-                            if (isPreambuleValue(t, arg, buffer.preamble.info_format)) continue;
+                            if (isPreambleValue(t, arg, buffer.preamble.info_format)) continue;
 
                             if (isFieldValue(t, arg, buffer.fields, field_count)) {
                                 fields_def = true;

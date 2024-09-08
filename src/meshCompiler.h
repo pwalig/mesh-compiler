@@ -151,7 +151,7 @@ private:
         static type extractType(std::string& word);
         static value extractPreambleValue(std::string& word);
         static value extractFieldValue(std::string& word);
-        static bool isPreambuleValue(type t, std::string& arg, std::vector<compileField>& fields);
+        static bool isPreambleValue(type t, std::string& arg, std::vector<compileField>& fields);
         static bool isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, char& field_count);
         static bool isConstValue(const type& t, std::string& arg, std::vector<compileField>& fields);
     };
