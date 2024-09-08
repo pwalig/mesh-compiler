@@ -123,7 +123,7 @@ mesh_compiler::type mesh_compiler::getDefaultValueType(const value& v)
     return type();
 }
 
-char mesh_compiler::getFieldCount(const value& t) {
+mesh_compiler::counting_type mesh_compiler::getFieldCount(const value& t) {
     switch (t)
     {
     case mc_vertex:
@@ -132,11 +132,11 @@ char mesh_compiler::getFieldCount(const value& t) {
     case mc_bitangent:
     case mc_uv:
     case mc_vertex_color:
-        return 'v';
+        return mc_per_vertex;
     case mc_indice:
-        return 'i';
+        return mc_per_indice;
     case mc_constant:
-        return 0;
+        return mc_any;
     default:
         throw std::logic_error("in getFieldCount: value with no field count");
         break;
@@ -465,7 +465,7 @@ bool mesh_compiler::compileConfig::isPreambleValue(type t, std::string& arg, std
     return false;
 }
 
-bool mesh_compiler::compileConfig::isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, char& field_count)
+bool mesh_compiler::compileConfig::isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count)
 {
     value v = extractFieldValue(arg);
     if (v != mc_none) {
@@ -475,9 +475,9 @@ bool mesh_compiler::compileConfig::isFieldValue(type t, std::string& arg, std::v
         if (suffixesMap.find(arg[0]) == suffixesMap.end()) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix);
 
         compileField field(t, v, nullptr, 0);
-        char ffc = getFieldCount(field.vtype);
-        if (ffc != 0) {
-            if (ffc != field_count && field_count != 0) {
+        counting_type ffc = getFieldCount(field.vtype);
+        if (ffc != mc_any) {
+            if (ffc != field_count && field_count != mc_any) {
                 std::string error_message = " conflicting types: ";
                 error_message.push_back(field.vtype);
                 error_message += " and ";
@@ -550,7 +550,7 @@ mesh_compiler::compileConfig::compileConfig(const std::string& filename)
     while (std::getline(formatFile, line)) {
         line += ' ';
         compileBuffer buffer;
-        char field_count = 0;
+        counting_type field_count = mc_any;
         bool fields_def = false;
         for (const char& c : line) {
             if ((c >= 9 && c <= 13) || c == ' ') { // whitespace character
@@ -605,7 +605,7 @@ mesh_compiler::compileConfig::compileConfig(const std::string& filename)
             }
             else arg += c;
         }
-        if (field_count == 0) {
+        if (field_count == mc_any) {
             formatInterpreterException e(formatInterpreterException::mc_err_constants_only);
             e.fillInfo(line_num, "");
             throw e;
@@ -763,21 +763,21 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
 {
     // fill counts
     for (compileBuffer& buffer : ci.config.buffers) {
-        char field_count = 0;
+        counting_type field_count = mc_any;
         for (const compileField& cf : buffer.fields) {
-            char ffc = getFieldCount(cf.vtype);
-            if (ffc != 0) {
-                if (ffc != field_count && field_count != 0) {
-                    throw meshCompilerException("format error: confilcting types detected in single buffer: conflicting types: " + std::to_string(cf.vtype) + " and " + std::string(1, field_count));
+            counting_type ffc = getFieldCount(cf.vtype);
+            if (ffc != mc_any) {
+                if (ffc != field_count && field_count != mc_any) {
+                    throw meshCompilerException("format error: confilcting types detected in single buffer: conflicting types: " + std::to_string(cf.vtype) + " and " + std::to_string(ffc));
                 }
                 field_count = ffc;
             }
         }
-        if (field_count == 0) {
+        if (field_count == mc_any) {
             throw meshCompilerException("format error: detected buffer of only constants: unknown buffer size");
         }
-        else if (field_count == 'i') buffer.count = m->mNumFaces;
-        else if (field_count == 'v') buffer.count = m->mNumVertices;
+        else if (field_count == mc_per_indice) buffer.count = m->mNumFaces;
+        else if (field_count == mc_per_vertex) buffer.count = m->mNumVertices;
         else {
             throw meshCompilerException("format error: unknown field type count");
         }

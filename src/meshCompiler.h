@@ -19,11 +19,16 @@ private:
     enum type {
         mc_null,
         mc_char,
-        mc_short, mc_unsigned_short,
-        mc_int, mc_unsigned_int,
-        mc_long, mc_unsigned_long,
-        mc_long_long, mc_unsigned_long_long,
-        mc_float, mc_double, mc_long_double
+        mc_short,
+        mc_unsigned_short,
+        mc_int,
+        mc_unsigned_int,
+        mc_long,
+        mc_unsigned_long,
+        mc_long_long,
+        mc_unsigned_long_long,
+        mc_float,
+        mc_double, mc_long_double
     };
     
     enum value {
@@ -47,9 +52,19 @@ private:
         mc_fields_per_entry,
         mc_fields_per_buffer
     };
+    
+    enum counting_type {
+        mc_any,
+        mc_per_indice,
+        mc_per_vertex,
+        mc_per_bone,
+        mc_per_mesh,
+        mc_per_skeleton,
+        mc_per_animation
+    };
 
     static type getDefaultValueType(const value& v);
-    static char getFieldCount(const value& t);
+    static counting_type getFieldCount(const value& t);
     static void copyConstantToMemory(void* dst, const type& type, const std::string& val);
     template <typename T>
     static std::vector<char> castToType(const T& value, const type& t);
@@ -152,7 +167,7 @@ private:
         static value extractPreambleValue(std::string& word);
         static value extractFieldValue(std::string& word);
         static bool isPreambleValue(type t, std::string& arg, std::vector<compileField>& fields);
-        static bool isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, char& field_count);
+        static bool isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count);
         static bool isConstValue(const type& t, std::string& arg, std::vector<compileField>& fields);
     };
 
