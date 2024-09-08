@@ -41,7 +41,7 @@ private:
         mc_bitangent,
         mc_uv,
         mc_vertex_color,
-        mc_file_size,
+        mc_unit_size,
         mc_buffer_size,
         mc_buffers_per_unit,
         mc_entry_size,
@@ -49,8 +49,8 @@ private:
         mc_entries_per_buffer,
         mc_field_size,
         mc_fields_per_unit,
-        mc_fields_per_entry,
-        mc_fields_per_buffer
+        mc_fields_per_buffer,
+        mc_fields_per_entry
     };
     
     enum counting_type {
@@ -66,9 +66,8 @@ private:
 
     static type getDefaultValueType(const value& v);
     static counting_type getFieldCount(const value& t);
+    static std::vector<unsigned short> getMaxSuffixes(const value& t);
     static void copyConstantToMemory(void* dst, const type& type, const std::string& val);
-    template <typename T>
-    static std::vector<char> castToType(const T& value, const type& t);
 
     static std::map<std::string, value> preambleMap;
     static std::map<std::string, value> fieldsMap;
@@ -84,6 +83,7 @@ private:
             mc_err_unknown_statement,
             mc_err_no_suffix,
             mc_err_invalid_suffix,
+            mc_err_wrong_suffixes_amount,
             mc_err_no_const_value,
             mc_err_invalid_const_value,
             mc_err_invalid_type_specifier,
@@ -194,75 +194,6 @@ private:
 };
 
 template<typename T>
-inline std::vector<char> mesh_compiler::castToType(const T& value, const type& t)
-{
-    std::vector<char> out;
-    out.resize(typeSizesMap[t]);
-
-    union data_union {
-        char c;
-        short s;
-        unsigned short us;
-        int i;
-        unsigned int ui;
-        long l;
-        unsigned long ul;
-        long long ll;
-        unsigned long long ull;
-        float f;
-        double d;
-        long double ld;
-    };
-
-    data_union data;
-
-    switch (t)
-    {
-    case mc_char:
-        data.c = (char)value;
-        break;
-    case mc_short:
-        data.s = (short)value;
-        break;
-    case mc_unsigned_short:
-        data.us = (unsigned short)value;
-        break;
-    case mc_int:
-        data.i = (int)value;
-        break;
-    case mc_unsigned_int:
-        data.ui = (unsigned int)value;
-        break;
-    case mc_long:
-        data.l = (long)value;
-        break;
-    case mc_unsigned_long:
-        data.ul = (unsigned long)value;
-        break;
-    case mc_long_long:
-        data.ll = (long long)value;
-        break;
-    case mc_unsigned_long_long:
-        data.ull = (unsigned long long)value;
-        break;
-    /*case mc_float:
-        data.f = (float)value;
-        break;
-    case mc_double:
-        data.d = (double)value;
-        break;
-    case mc_long_double:
-        data.ld = (long double)value;
-        break;*/
-    default:
-        throw std::logic_error("in castToType: unknown mc_type");
-        break;
-    }
-    memcpy(out.data(), &data, typeSizesMap[t]);
-    return out;
-}
-
-template<typename T>
 inline void mesh_compiler::writeConst(std::ofstream& file, const T& value)
 {
     T x = value;
@@ -272,6 +203,46 @@ inline void mesh_compiler::writeConst(std::ofstream& file, const T& value)
 template<typename T>
 inline void mesh_compiler::writeConst(std::ofstream& file, const T& value, const mesh_compiler::type& type)
 {
-    std::vector<char> dat = mesh_compiler::castToType<T>(value, type);
-    file.write(dat.data(), dat.size());
+    switch (type)
+    {
+    case mc_char:
+        writeConst<char>(file, value);
+        break;
+    case mc_short:
+        writeConst<short>(file, value);
+        break;
+    case mc_unsigned_short:
+        writeConst<unsigned short>(file, value);
+        break;
+    case mc_int:
+        writeConst<int>(file, value);
+        break;
+    case mc_unsigned_int:
+        writeConst<unsigned int>(file, value);
+        break;
+    case mc_long:
+        writeConst<long>(file, value);
+        break;
+    case mc_unsigned_long:
+        writeConst<unsigned long>(file, value);
+        break;
+    case mc_long_long:
+        writeConst<long long>(file, value);
+        break;
+    case mc_unsigned_long_long:
+        writeConst<unsigned long long>(file, value);
+        break;
+    case mc_float:
+        writeConst<float>(file, value);
+        break;
+    case mc_double:
+        writeConst<double>(file, value);
+        break;
+    case mc_long_double:
+        writeConst<long double>(file, value);
+        break;
+    default:
+        throw std::logic_error("unknown type");
+        break;
+    }
 }

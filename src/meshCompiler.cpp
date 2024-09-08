@@ -74,9 +74,11 @@ std::map<mesh_compiler::type, unsigned short> mesh_compiler::typeSizesMap = {
     {mc_short, sizeof(short)},
     {mc_int, sizeof(int)},
     {mc_long, sizeof(long)},
+    {mc_long_long, sizeof(long long)},
     {mc_unsigned_short, sizeof(unsigned short)},
     {mc_unsigned_int, sizeof(unsigned int)},
     {mc_unsigned_long, sizeof(unsigned long)},
+    {mc_unsigned_long_long, sizeof(unsigned long long)},
     {mc_float, sizeof(float)},
     {mc_double, sizeof(double)},
     {mc_long_double, sizeof(long double)}
@@ -104,7 +106,7 @@ mesh_compiler::type mesh_compiler::getDefaultValueType(const value& v)
     case mc_vertex_color:
         return mc_float;
 
-    case mc_file_size:
+    case mc_unit_size:
     case mc_buffer_size:
     case mc_buffers_per_unit:
     case mc_entry_size:
@@ -120,7 +122,6 @@ mesh_compiler::type mesh_compiler::getDefaultValueType(const value& v)
         throw std::logic_error("value type without default type");
         break;
     }
-    return type();
 }
 
 mesh_compiler::counting_type mesh_compiler::getFieldCount(const value& t) {
@@ -138,7 +139,33 @@ mesh_compiler::counting_type mesh_compiler::getFieldCount(const value& t) {
     case mc_constant:
         return mc_any;
     default:
-        throw std::logic_error("in getFieldCount: value with no field count");
+        throw std::logic_error("value with no field count querried for field count");
+        break;
+    }
+}
+
+std::vector<unsigned short> mesh_compiler::getMaxSuffixes(const value& t)
+{
+    std::vector<unsigned short> out;
+    switch (t)
+    {
+    case mc_indice:
+    case mc_vertex:
+    case mc_normal:
+    case mc_tangent:
+    case mc_bitangent:
+        out.push_back(3);
+        return out;
+    case mc_uv:
+        out.push_back(8);
+        out.push_back(3);
+        return out;
+    case mc_vertex_color:
+        out.push_back(8);
+        out.push_back(4);
+        return out;
+    default:
+        throw std::logic_error("value with no allowed suffixes querried for max suffixes");
         break;
     }
 }
@@ -255,6 +282,7 @@ std::map<int, std::string> mesh_compiler::formatInterpreterException::errorMessa
     {formatInterpreterException::mc_err_unknown_statement, "unknown statement"},
     {formatInterpreterException::mc_err_no_suffix, "field suffix not provided"},
     {formatInterpreterException::mc_err_invalid_suffix, "invalid field suffix"},
+    {formatInterpreterException::mc_err_wrong_suffixes_amount, "wrong amount of suffixes"},
     {formatInterpreterException::mc_err_no_const_value, "constant value not provided"},
     {formatInterpreterException::mc_err_invalid_const_value, "invalid const value"},
     {formatInterpreterException::mc_err_invalid_type_specifier, "invalid type specifier"},
@@ -438,7 +466,7 @@ mesh_compiler::value mesh_compiler::compileUnit::extractFieldValue(std::string& 
     }
     if (fieldsMap.find(ftype) != fieldsMap.end()) {
         v = fieldsMap[ftype];
-        word = word.substr(pos+1, word.size() - pos - 1);
+        word = word.substr(pos, word.size() - pos);
     }
     return v;
 }
@@ -459,10 +487,6 @@ bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vec
     value v = extractFieldValue(arg);
     if (v != mc_null) {
         if (t == mc_none) t = getDefaultValueType(v);
-        if (arg.empty()) throw formatInterpreterException(formatInterpreterException::mc_err_no_suffix);
-        if (arg.size() != 1) throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
-        if (suffixesMap.find(arg[0]) == suffixesMap.end()) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix);
-
         compileField field(t, v, nullptr, 0);
         counting_type ffc = getFieldCount(field.vtype);
         if (ffc != mc_any) {
@@ -476,10 +500,21 @@ bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vec
             }
             field_count = ffc;
         }
-        field.data.resize(sizeof(unsigned short));
-        memcpy(field.data.data(), &suffixesMap[arg[0]], sizeof(unsigned short));
+
+        if (arg.size() <= 1) throw formatInterpreterException(formatInterpreterException::mc_err_no_suffix); // only '.' was in the arg or arg was empty
+        std::vector<unsigned short> suffixes_data = getMaxSuffixes(v);
+        while (arg.size() > 0) {
+            if (arg[0] != '.') throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
+            if (suffixesMap.find(arg[1]) == suffixesMap.end()) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix);
+
+            field.data.push_back(suffixesMap[arg[1]]);
+            if (field.data.size() > suffixes_data.size()) throw formatInterpreterException(formatInterpreterException::mc_err_wrong_suffixes_amount, "this field type requires up to " + std::to_string(suffixes_data.size()) + " suffixes");
+            if (field.data.back() >= suffixes_data[field.data.size() - 1]) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix, arg.substr(0, 2) + " suffix must be less than " + std::to_string(suffixes_data[field.data.size() - 1] + 1));
+
+            arg = arg.substr(2, arg.size() - 2);
+        }
+        if (field.data.size() != suffixes_data.size()) throw formatInterpreterException(formatInterpreterException::mc_err_wrong_suffixes_amount, "this field type requires exacly " + std::to_string(suffixes_data.size()) + " suffixes, provided: " + std::to_string(field.data.size()));
         fields.push_back(field);
-        arg = "";
         return true;
     }
     return false;
@@ -862,7 +897,7 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
                 writeConst(fout, cb.fields.size(), field.stype);
                 break;
             case mc_fields_per_buffer:
-                writeConst(fout, cb.fields.size() * cb.count, field.stype);
+                writeConst(fout, cb.fields.size()* cb.count, field.stype);
                 break;
             default:
                 throw meshCompilerException("compilation error: unknown buffer info flag: " + std::to_string(field.vtype));
@@ -873,40 +908,32 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
         // data buffers
         for (unsigned int j = 0; j < cb.count; ++j) {
             for (const compileField& field : cb.fields) {
-                unsigned short ind = 0;
-                memcpy((char*)&ind, field.data.data(), sizeof(unsigned short));
+                //unsigned short ind = field.data[0];
                 switch (field.vtype)
                 {
                 case mc_constant:
                     fout.write(field.data.data(), typeSizesMap[field.stype]);
                     break;
                 case mc_indice:
-                    fout.write((char*)&(m->mFaces[j].mIndices[ind]), sizeof(unsigned int));
-                    //writeConst(fout, m->mFaces[j].mIndices[ind], field.stype);
+                    writeConst(fout, m->mFaces[j].mIndices[field.data[0]], field.stype);
                     break;
                 case mc_vertex:
-                    fout.write((char*)&(m->mVertices[j][ind]), sizeof(ai_real));
-                    //writeConst(fout, m->mVertices[j][ind], field.stype);
+                    writeConst(fout, m->mVertices[j][field.data[0]], field.stype);
                     break;
                 case mc_normal:
-                    fout.write((char*)&(m->mNormals[j][ind]), sizeof(ai_real));
-                    //writeConst(fout, m->mNormals[j][ind], field.stype);
+                    writeConst(fout, m->mNormals[j][field.data[0]], field.stype);
                     break;
                 case mc_uv:
-                    fout.write((char*)&(m->mTextureCoords[0][j][ind]), sizeof(ai_real));
-                    //writeConst(fout, m->mTextureCoords[0][j][ind], field.stype);
+                    writeConst(fout, m->mTextureCoords[field.data[0]][j][field.data[1]], field.stype);
                     break;
                 case mc_tangent:
-                    fout.write((char*)&(m->mTangents[j][ind]), sizeof(ai_real));
-                    //writeConst(fout, m->mTangents[j][ind], field.stype);
+                    writeConst(fout, m->mTangents[j][field.data[0]], field.stype);
                     break;
                 case mc_bitangent:
-                    fout.write((char*)&(m->mBitangents[j][ind]), sizeof(ai_real));
-                    //writeConst(fout, m->mBitangents[j][ind], field.stype);
+                    writeConst(fout, m->mBitangents[j][field.data[0]], field.stype);
                     break;
                 case mc_vertex_color:
-                    fout.write((char*)&(m->mColors[0][j][ind]), sizeof(ai_real));
-                    //writeConst(fout, (char*)&(m->mColors[0][j][ind]), field.stype);
+                    writeConst(fout, m->mColors[field.data[0]][j][field.data[1]], field.stype);
                     break;
                 default:
                     break;
