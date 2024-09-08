@@ -330,18 +330,6 @@ void mesh_compiler::compileField::print(const int& indent) const
     for (const char& c : data) std::cout << c;
 }
 
-void mesh_compiler::compilePreamble::print(const int& indent) const
-{
-    for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "info format: ";
-    for (const compileField& cf : info_format) cf.print();
-}
-
-void mesh_compiler::compilePreamble::clear()
-{
-    this->info_format.clear();
-}
-
 unsigned int mesh_compiler::compileBuffer::get_entry_size(unsigned short byte_base) const
 {
     unsigned int siz = 0;
@@ -358,8 +346,10 @@ unsigned int mesh_compiler::compileBuffer::get_size(unsigned short byte_base) co
 void mesh_compiler::compileBuffer::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "buffer info: ";
-    this->preamble.print(0);
+    std::cout << "buffer info: preamble: ";
+    for (const compileField& f : preamble) {
+        f.print();
+    }
     std::cout << ", count: " << count << ", fields: \n";
     for (const compileField& f : fields) {
         f.print(indent + 1);
@@ -399,7 +389,7 @@ void mesh_compiler::compileConfig::print(const int& indent) const
     for (int i = 0; i < indent; ++i) printf(" ");
     std::cout << "config info:\n";
     std::cout << " preamble info: ";
-    preamble.print(0);
+    for (const compileField& f : preamble) f.print();
     std::cout << "\n";
     for (const compileBuffer& b : buffers) b.print(indent + 1);
 }
@@ -528,9 +518,9 @@ mesh_compiler::compileConfig::compileConfig(const std::string& filename)
                 try {
                     type t = extractType(arg);
 
-                    if (isPreambleValue(t, arg, this->preamble.info_format)) continue;
+                    if (isPreambleValue(t, arg, this->preamble)) continue;
 
-                    if (isConstValue(t, arg, this->preamble.info_format)) continue;
+                    if (isConstValue(t, arg, this->preamble)) continue;
                     
                     throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
                 }
@@ -567,14 +557,14 @@ mesh_compiler::compileConfig::compileConfig(const std::string& filename)
                         try {
                             type t = extractType(arg);
 
-                            if (isPreambleValue(t, arg, buffer.preamble.info_format)) continue;
+                            if (isPreambleValue(t, arg, buffer.preamble)) continue;
 
                             if (isFieldValue(t, arg, buffer.fields, field_count)) {
                                 fields_def = true;
                                 continue;
                             }
 
-                            if (isConstValue(t, arg, buffer.preamble.info_format)) continue;
+                            if (isConstValue(t, arg, buffer.preamble)) continue;
 
                             throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
                         }
@@ -789,7 +779,7 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
     }
 
     // preamble
-    for (const compileField& field : ci.config.preamble.info_format) {
+    for (const compileField& field : ci.config.preamble) {
         // size
         switch (field.vtype)
         {
@@ -847,7 +837,7 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
     for (const compileBuffer& cb : ci.config.buffers) {
 
         // format info
-        for (const compileField& field : cb.preamble.info_format) {
+        for (const compileField& field : cb.preamble) {
 
             // size
             switch (field.vtype)

@@ -55,6 +55,7 @@ private:
     
     enum counting_type {
         mc_any,
+        mc_once,
         mc_per_indice,
         mc_per_vertex,
         mc_per_bone,
@@ -129,17 +130,9 @@ private:
         void print(const int& indent = 0) const;
     };
 
-    class compilePreamble {
-    public:
-        std::vector<compileField> info_format;
-
-        void print(const int& indent = 0) const;
-        void clear();
-    };
-
     class compileBuffer {
     public:
-        compilePreamble preamble;
+        std::vector<compileField> preamble;
         size_t count = 0;
         std::vector<compileField> fields;
 
@@ -151,7 +144,7 @@ private:
 
     class compileConfig {
     public:
-        compilePreamble preamble;
+        std::vector<compileField> preamble;
         std::vector<compileBuffer> buffers;
 
         compileConfig(const std::string& filename);
