@@ -293,15 +293,14 @@ const char* mesh_compiler::meshCompilerException::what() throw()
 
 // ========== METHODS DEFINITIONS ==========
 
-mesh_compiler::compileField::compileField(const type& s, const value& v, const void* data_source) : stype(s), vtype(v)
+mesh_compiler::compileField::compileField(const type& s, const value& v, const void* data_source) : compileField(s, v, data_source, typeSizesMap[s])
 {
-    if (data_source != nullptr) {
-        setData(data_source, typeSizesMap[s]);
-    }
 }
 
 mesh_compiler::compileField::compileField(const type& s, const value& v, const void* data_source, const size_t& data_amount) : stype(s), vtype(v)
 {
+    if (s == mc_none) throw std::logic_error("unable to construct compile Field of type: none");
+    if (v == mc_null) throw std::logic_error("unable to construct compile Field of value: null");
     if (data_source != nullptr) {
         setData(data_source, data_amount);
     }
@@ -413,7 +412,7 @@ void mesh_compiler::compileConfig::clear()
 
 mesh_compiler::type mesh_compiler::compileConfig::extractType(std::string& word)
 {
-    type t = mc_null;
+    type t = mc_none;
     size_t pos = word.find(':');
     if (pos != std::string::npos) {
         if (typesMap.find(word.substr(0, pos)) == typesMap.end()) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_type_specifier);
@@ -422,7 +421,7 @@ mesh_compiler::type mesh_compiler::compileConfig::extractType(std::string& word)
     }
 
     if (word.empty()) {
-        if (t != mc_null) throw formatInterpreterException(formatInterpreterException::mc_err_no_const_value);
+        if (t != mc_none) throw formatInterpreterException(formatInterpreterException::mc_err_no_const_value);
         else throw std::logic_error("type somehow ended up null despite empty word");
     }
 
@@ -431,7 +430,7 @@ mesh_compiler::type mesh_compiler::compileConfig::extractType(std::string& word)
 
 mesh_compiler::value mesh_compiler::compileConfig::extractPreambleValue(std::string& word)
 {
-    value v = mc_none;
+    value v = mc_null;
     if (preambleMap.find(word) != preambleMap.end()) {
         v = preambleMap[word];
         word = "";
@@ -441,7 +440,7 @@ mesh_compiler::value mesh_compiler::compileConfig::extractPreambleValue(std::str
 
 mesh_compiler::value mesh_compiler::compileConfig::extractFieldValue(std::string& word)
 {
-    value v = mc_none;
+    value v = mc_null;
     size_t pos = word.find('.');
     std::string ftype;
     if (pos != std::string::npos) {
@@ -457,8 +456,8 @@ mesh_compiler::value mesh_compiler::compileConfig::extractFieldValue(std::string
 bool mesh_compiler::compileConfig::isPreambleValue(type t, std::string& arg, std::vector<compileField>& fields)
 {
     value v = extractPreambleValue(arg);
-    if (v != mc_none) {
-        if (t == mc_null) t = getDefaultValueType(v);
+    if (v != mc_null) {
+        if (t == mc_none) t = getDefaultValueType(v);
         fields.push_back(compileField(t, v, nullptr, 0));
         return true;
     }
@@ -468,8 +467,8 @@ bool mesh_compiler::compileConfig::isPreambleValue(type t, std::string& arg, std
 bool mesh_compiler::compileConfig::isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count)
 {
     value v = extractFieldValue(arg);
-    if (v != mc_none) {
-        if (t == mc_null) t = getDefaultValueType(v);
+    if (v != mc_null) {
+        if (t == mc_none) t = getDefaultValueType(v);
         if (arg.empty()) throw formatInterpreterException(formatInterpreterException::mc_err_no_suffix);
         if (arg.size() != 1) throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
         if (suffixesMap.find(arg[0]) == suffixesMap.end()) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix);
@@ -498,7 +497,7 @@ bool mesh_compiler::compileConfig::isFieldValue(type t, std::string& arg, std::v
 
 bool mesh_compiler::compileConfig::isConstValue(const type& t, std::string& arg, std::vector<compileField>& fields)
 {
-    if (t == mc_null) false;
+    if (t == mc_none) false;
 
     fields.push_back(compileField(t, mc_constant, nullptr, 0));
     fields.back().data.resize(typeSizesMap[t]);

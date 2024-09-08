@@ -17,7 +17,7 @@ private:
 // ========== TYPES ==========
 
     enum type {
-        mc_null,
+        mc_none,
         mc_char,
         mc_short,
         mc_unsigned_short,
@@ -32,7 +32,7 @@ private:
     };
     
     enum value {
-        mc_none,
+        mc_null,
         mc_constant,
         mc_indice,
         mc_vertex,
