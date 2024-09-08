@@ -142,12 +142,12 @@ private:
         void clear();
     };
 
-    class compileConfig {
+    class compileUnit {
     public:
         std::vector<compileField> preamble;
         std::vector<compileBuffer> buffers;
 
-        compileConfig(const std::string& filename);
+        compileUnit(const std::string& filename);
 
         unsigned int get_size(unsigned short byte_base = 1);
         unsigned int get_entries_count();
@@ -168,7 +168,7 @@ private:
     public:
         bool debug_messages;
         std::string output_file;
-        compileConfig config;
+        compileUnit config;
 
         compilationInfo(const std::string& format_file, const std::string& output_file = "{file}_{mesh}.mesh", const bool& debug_messages = false);
     };

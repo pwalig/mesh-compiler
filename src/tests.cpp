@@ -93,12 +93,7 @@ void mainTest() {
     args.push_back("test/out.mesh");
     args.push_back("-d");
 
-    try {
-        mesh_compiler::runOnce(args);
-    }
-    catch (std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
+    mesh_compiler::runOnce(args);
 
     mesh me1;
     const auto start1{ std::chrono::steady_clock::now() };

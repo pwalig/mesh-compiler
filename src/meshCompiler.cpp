@@ -363,28 +363,28 @@ void mesh_compiler::compileBuffer::clear()
     this->fields.clear();
 }
 
-unsigned int mesh_compiler::compileConfig::get_size(unsigned short byte_base)
+unsigned int mesh_compiler::compileUnit::get_size(unsigned short byte_base)
 {
     unsigned int siz = 0;
     for (const compileBuffer& cb : buffers) siz += cb.get_size();
     return siz;
 }
 
-unsigned int mesh_compiler::compileConfig::get_entries_count()
+unsigned int mesh_compiler::compileUnit::get_entries_count()
 {
     unsigned int siz = 0;
     for (const compileBuffer& cb : buffers) siz += cb.count;
     return siz;
 }
 
-unsigned int mesh_compiler::compileConfig::get_fields_count()
+unsigned int mesh_compiler::compileUnit::get_fields_count()
 {
     unsigned int siz = 0;
     for (const compileBuffer& cb : buffers) siz += cb.fields.size();
     return siz;
 }
 
-void mesh_compiler::compileConfig::print(const int& indent) const
+void mesh_compiler::compileUnit::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
     std::cout << "config info:\n";
@@ -394,13 +394,13 @@ void mesh_compiler::compileConfig::print(const int& indent) const
     for (const compileBuffer& b : buffers) b.print(indent + 1);
 }
 
-void mesh_compiler::compileConfig::clear()
+void mesh_compiler::compileUnit::clear()
 {
     this->preamble.clear();
     this->buffers.clear();
 }
 
-mesh_compiler::type mesh_compiler::compileConfig::extractType(std::string& word)
+mesh_compiler::type mesh_compiler::compileUnit::extractType(std::string& word)
 {
     type t = mc_none;
     size_t pos = word.find(':');
@@ -418,7 +418,7 @@ mesh_compiler::type mesh_compiler::compileConfig::extractType(std::string& word)
     return t;
 }
 
-mesh_compiler::value mesh_compiler::compileConfig::extractPreambleValue(std::string& word)
+mesh_compiler::value mesh_compiler::compileUnit::extractPreambleValue(std::string& word)
 {
     value v = mc_null;
     if (preambleMap.find(word) != preambleMap.end()) {
@@ -428,7 +428,7 @@ mesh_compiler::value mesh_compiler::compileConfig::extractPreambleValue(std::str
     return v;
 }
 
-mesh_compiler::value mesh_compiler::compileConfig::extractFieldValue(std::string& word)
+mesh_compiler::value mesh_compiler::compileUnit::extractFieldValue(std::string& word)
 {
     value v = mc_null;
     size_t pos = word.find('.');
@@ -443,7 +443,7 @@ mesh_compiler::value mesh_compiler::compileConfig::extractFieldValue(std::string
     return v;
 }
 
-bool mesh_compiler::compileConfig::isPreambleValue(type t, std::string& arg, std::vector<compileField>& fields)
+bool mesh_compiler::compileUnit::isPreambleValue(type t, std::string& arg, std::vector<compileField>& fields)
 {
     value v = extractPreambleValue(arg);
     if (v != mc_null) {
@@ -454,7 +454,7 @@ bool mesh_compiler::compileConfig::isPreambleValue(type t, std::string& arg, std
     return false;
 }
 
-bool mesh_compiler::compileConfig::isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count)
+bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count)
 {
     value v = extractFieldValue(arg);
     if (v != mc_null) {
@@ -485,7 +485,7 @@ bool mesh_compiler::compileConfig::isFieldValue(type t, std::string& arg, std::v
     return false;
 }
 
-bool mesh_compiler::compileConfig::isConstValue(const type& t, std::string& arg, std::vector<compileField>& fields)
+bool mesh_compiler::compileUnit::isConstValue(const type& t, std::string& arg, std::vector<compileField>& fields)
 {
     if (t == mc_none) false;
 
@@ -497,11 +497,10 @@ bool mesh_compiler::compileConfig::isConstValue(const type& t, std::string& arg,
     return true;
 }
 
-mesh_compiler::compileConfig::compileConfig(const std::string& filename)
+mesh_compiler::compileUnit::compileUnit(const std::string& filename)
 {
     std::ifstream formatFile(filename, std::ios::in);
     if (!formatFile) {
-        ;
         throw formatInterpreterException(formatInterpreterException::mc_err_cannot_open_file, filename);
     }
 
@@ -650,7 +649,7 @@ void mesh_compiler::runOnce(const std::vector<std::string>& args)
     try {
         compile(args);
     }
-    catch (std::exception& e) {
+    catch (std::runtime_error& e) {
         std::cout << e.what() << std::endl;
     }
 }
