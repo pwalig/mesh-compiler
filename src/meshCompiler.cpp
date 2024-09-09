@@ -3,9 +3,10 @@
 #include <sstream>
 #include <map>
 #include <assimpReader.h>
+#include <NotImplemented.h>
 
 // ========== DEFINES AND MAPS ==========
-#define mc_version "v1.1.1"
+#define mc_version "v2.0.0"
 
 std::map<std::string, mesh_compiler::value> mesh_compiler::preambleMap = {
     {"buffc", value::buffers_per_unit },
@@ -39,7 +40,8 @@ std::map<std::string, mesh_compiler::value> mesh_compiler::fieldsMap = {
     { "rotation_key", value::rotation_key },
     { "scale_key", value::scale_key },
     { "timestamp", value::timestamp },
-    { "duration", value::duration }
+    { "duration", value::duration },
+    { "ticks_per_second", value::ticks_per_second }
 };
 
 std::map<std::string, mesh_compiler::type> mesh_compiler::typesMap = {
@@ -91,6 +93,7 @@ std::map<mesh_compiler::type, unsigned short> mesh_compiler::typeSizesMap = {
 
 std::map<mesh_compiler::type, std::string> mesh_compiler::typeNamesMap = {
     {mc_none, "null"},
+    {mc_unit, "unit"},
     {mc_char, "char"},
     {mc_short, "int2"},
     {mc_int, "int4"},
@@ -111,15 +114,16 @@ std::map<mesh_compiler::value, std::string> mesh_compiler::valueNamesMap = {
     { value::indice, "indice" },
     { value::vertex, "vertex"},
     { value::normal, "normal"},
-    { value::uv, "uv" },
     { value::tangent, "tangent"},
     { value::bitangent, "bitangent"},
+    { value::uv, "uv" },
     { value::vertex_color, "vertex_color"},
     { value::position_key, "position_key"},
     { value::rotation_key, "rotation_key"},
     { value::scale_key, "scale_key"},
     { value::timestamp, "timestamp"},
     { value::duration, "duration"},
+    { value::ticks_per_second, "ticks_per_second"},
     { value::buffers_per_unit, "buffc" },
     { value::buffer_size, "buffs" },
     { value::entries_per_unit, "entrya" },
@@ -167,8 +171,11 @@ mesh_compiler::type mesh_compiler::getDefaultValueType(const value& v)
     case value::rotation_key:
     case value::scale_key:
     case value::timestamp:
-    case value::duration:
         return mc_float;
+
+    case value::duration:
+    case value::ticks_per_second:
+        return mc_double;
 
     case value::unit_size:
     case value::buffer_size:
@@ -208,6 +215,7 @@ mesh_compiler::counting_type mesh_compiler::getFieldCount(const value& t) {
         return counting_type::per_keyframe;
 
     case value::duration:
+    case value::ticks_per_second:
         return counting_type::per_animation_channel;
 
     case value::constant:
@@ -253,6 +261,7 @@ std::vector<unsigned short> mesh_compiler::getMaxSuffixes(const value& t)
     {
     case value::timestamp:
     case value::duration:
+    case value::ticks_per_second:
         return out;
     case value::indice:
     case value::vertex:
@@ -479,8 +488,87 @@ std::string mesh_compiler::compileField::get_otherUnitName() const
 void mesh_compiler::compileField::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "field: " << typeNamesMap[stype] << ":" << valueNamesMap[vtype] << ":";
+    std::cout << "FIELD: " << typeNamesMap[stype] << ":" << valueNamesMap[vtype] << ":";
     for (const char& c : data) std::cout << c;
+}
+
+void mesh_compiler::compileField::put(std::ofstream& file, const compileBuffer& buffer) const
+{
+    // size
+    switch (this->vtype)
+    {
+    case value::constant:
+        file.write(this->data.data(), typeSizesMap[this->stype]);
+        break;
+    case value::buffer_size:
+        writeConst(file, buffer.get_size(), this->stype);
+        break;
+    case value::entry_size:
+        writeConst(file, buffer.get_entry_size(), this->stype);
+        break;
+    case value::entries_per_buffer:
+        writeConst(file, buffer.count, this->stype);
+        break;
+    case value::field_size:
+        for (const compileField& cf : buffer.fields) {
+            writeConst(file, cf.get_size(), this->stype);
+        }
+        break;
+    case value::fields_per_entry:
+        writeConst(file, buffer.fields.size(), this->stype);
+        break;
+    case value::fields_per_buffer:
+        writeConst(file, buffer.fields.size() * buffer.count, this->stype);
+        break;
+    default:
+        throw std::logic_error("flag could not be handled with this function call, flag: " + valueNamesMap[this->vtype]);
+        break;
+    }
+}
+
+void mesh_compiler::compileField::put(std::ofstream& file, const std::vector<compileBuffer>& buffers) const
+{
+    switch (this->vtype)
+    {
+    case value::constant:
+        file.write(this->data.data(), typeSizesMap[this->stype]);
+        break;
+    case value::buffer_size:
+    case value::entry_size:
+    case value::entries_per_buffer:
+    case value::field_size:
+    case value::fields_per_entry:
+    case value::fields_per_buffer:
+        for (const compileBuffer& cb : buffers) {
+            this->put(file, cb);
+        }
+        break;
+    default:
+        throw std::logic_error("flag could not be handled with this function call, flag: " + valueNamesMap[this->vtype]);
+        break;
+    }
+}
+
+void mesh_compiler::compileField::put(std::ofstream& file, const compileUnit& unit) const
+{
+    switch (this->vtype)
+    {
+    case value::constant:
+        file.write(this->data.data(), typeSizesMap[this->stype]);
+        break;
+    case value::buffers_per_unit:
+        writeConst(file, unit.buffers.size(), this->stype);
+        break;
+    case value::entries_per_unit:
+        writeConst(file, unit.get_entries_count(), this->stype);
+        break;
+    case value::fields_per_unit:
+        writeConst(file, unit.get_fields_count(), this->stype);
+        break;
+    default:
+        this->put(file, unit.buffers);
+        break;
+    }
 }
 
 size_t mesh_compiler::compileBuffer::get_entry_size() const
@@ -499,13 +587,13 @@ size_t mesh_compiler::compileBuffer::get_size() const
 void mesh_compiler::compileBuffer::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "buffer: preamble: ";
+    std::cout << "BUFFER: preamble: ";
     for (const compileField& f : preamble) {
         f.print();
     }
     std::cout << ", count: " << count << ", fields: \n";
     for (const compileField& f : fields) {
-        f.print(indent + 1);
+        f.print(indent + 2);
         std::cout << std::endl;
     }
 }
@@ -540,11 +628,10 @@ size_t mesh_compiler::compileUnit::get_fields_count() const
 void mesh_compiler::compileUnit::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "config info:\n";
-    std::cout << " preamble info: ";
+    std::cout << "UNIT: preamble: ";
     for (const compileField& f : preamble) f.print();
     std::cout << "\n";
-    for (const compileBuffer& b : buffers) b.print(indent + 1);
+    for (const compileBuffer& b : buffers) b.print(indent + 2);
 }
 
 void mesh_compiler::compileUnit::clear()
@@ -553,14 +640,68 @@ void mesh_compiler::compileUnit::clear()
     this->buffers.clear();
 }
 
+void mesh_compiler::compileUnit::put(std::ofstream& file, const aiNodeAnim* animation_channel)
+{
+    if (this->count_type != counting_type::per_animation_channel) throw meshCompilerException("invalid compilation unit for this object");
+    throw NotImplemented();
+}
+
 void mesh_compiler::compileUnit::put(std::ofstream& file, const aiSkeleton* skeleton)
 {
     if (this->count_type != counting_type::per_skeleton) throw meshCompilerException("invalid compilation unit for this object");
+    throw NotImplemented();
 }
 
 void mesh_compiler::compileUnit::put(std::ofstream& file, const aiAnimation* animation)
 {
     if (this->count_type != counting_type::per_animation) throw meshCompilerException("invalid compilation unit for this object");
+    // fill counts
+    for (compileBuffer& buffer : this->buffers) {
+        if (buffer.count_type == counting_type::per_animation_channel) buffer.count = animation->mNumChannels;
+        else {
+            throw std::logic_error("invalid counting type for this animation object" + countingTypeNamesMap[buffer.count_type]);
+        }
+    }
+
+    // preamble
+    for (const compileField& field : this->preamble) {
+        if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, animation);
+        else field.put(file, *this);
+    }
+
+    // buffers
+    for (const compileBuffer& buffer : this->buffers) {
+
+        // buffer preamble
+        for (const compileField& field : buffer.preamble) {
+            if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, animation);
+            else field.put(file, buffer);
+        }
+
+        // data buffers
+        for (unsigned int j = 0; j < buffer.count; ++j) {
+            for (const compileField& field : buffer.fields) {
+                switch (field.vtype)
+                {
+                case value::constant:
+                    file.write(field.data.data(), typeSizesMap[field.stype]);
+                    break;
+                case value::other_unit:
+                    (*unitsMap)[field.get_otherUnitName()].put(file, animation->mChannels[j]);
+                    break;
+                case value::duration:
+                    writeConst(file, animation->mDuration, field.stype);
+                    break;
+                case value::ticks_per_second:
+                    writeConst(file, animation->mTicksPerSecond, field.stype);
+                    break;
+                default:
+                    throw std::logic_error("invalid value");
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
@@ -572,109 +713,28 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
         else if (buffer.count_type == counting_type::per_vertex) buffer.count = mesh->mNumVertices;
         else if (buffer.count_type == counting_type::per_mesh_bone) buffer.count = mesh->mNumBones;
         else {
-            throw meshCompilerException("format error: unknown type count" + countingTypeNamesMap[buffer.count_type]);
+            throw std::logic_error("invalid counting type for scene object" + countingTypeNamesMap[buffer.count_type]);
         }
     }
 
     // preamble
     for (const compileField& field : this->preamble) {
-        // size
-        switch (field.vtype)
-        {
-        case value::other_unit:
-            (*unitsMap)[field.get_otherUnitName()].put(file, mesh);
-            break;
-        case value::constant:
-            file.write(field.data.data(), typeSizesMap[field.stype]);
-            break;
-        case value::buffer_size:
-            for (const compileBuffer& cb : this->buffers) {
-                writeConst(file, cb.get_size(), field.stype);
-            }
-            break;
-        case value::buffers_per_unit:
-            writeConst(file, this->buffers.size(), field.stype);
-            break;
-        case value::entry_size:
-            for (const compileBuffer& cb : this->buffers) {
-                writeConst(file, cb.get_entry_size(), field.stype);
-            }
-            break;
-        case value::entries_per_buffer:
-            for (const compileBuffer& cb : this->buffers) {
-                writeConst(file, cb.count, field.stype);
-            }
-            break;
-        case value::entries_per_unit:
-            writeConst(file, this->get_entries_count(), field.stype);
-            break;
-        case value::field_size:
-            for (const compileBuffer& cb : this->buffers) {
-                for (const compileField& cf : cb.fields) {
-                    writeConst(file, cf.get_size(), field.stype);
-                }
-            }
-            break;
-        case value::fields_per_entry:
-            for (const compileBuffer& cb : this->buffers) {
-                writeConst(file, cb.fields.size(), field.stype);
-            }
-            break;
-        case value::fields_per_buffer:
-            for (const compileBuffer& cb : this->buffers) {
-                writeConst(file, cb.fields.size() * cb.count, field.stype);
-            }
-            break;
-        case value::fields_per_unit:
-            writeConst(file, this->get_fields_count(), field.stype);
-            break;
-        default:
-            throw meshCompilerException("compilation error: unknown buffer info flag: " + valueNamesMap[field.vtype]);
-            break;
-        }
+        if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, mesh);
+        else field.put(file, *this);
     }
 
     // buffers
-    for (const compileBuffer& cb : this->buffers) {
+    for (const compileBuffer& buffer : this->buffers) {
 
-        // format info
-        for (const compileField& field : cb.preamble) {
-
-            // size
-            switch (field.vtype)
-            {
-            case value::constant:
-                file.write(field.data.data(), typeSizesMap[field.stype]);
-                break;
-            case value::buffer_size:
-                writeConst(file, cb.get_size(), field.stype);
-                break;
-            case value::entry_size:
-                writeConst(file, cb.get_entry_size(), field.stype);
-                break;
-            case value::entries_per_buffer:
-                writeConst(file, cb.count, field.stype);
-                break;
-            case value::field_size:
-                for (const compileField& cf : cb.fields) {
-                    writeConst(file, cf.get_size(), field.stype);
-                }
-                break;
-            case value::fields_per_entry:
-                writeConst(file, cb.fields.size(), field.stype);
-                break;
-            case value::fields_per_buffer:
-                writeConst(file, cb.fields.size() * cb.count, field.stype);
-                break;
-            default:
-                throw meshCompilerException("compilation error: unknown buffer info flag: " + valueNamesMap[field.vtype]);
-                break;
-            }
+        // buffer preamble
+        for (const compileField& field : buffer.preamble) {
+            if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, mesh);
+            else field.put(file, buffer);
         }
 
         // data buffers
-        for (unsigned int j = 0; j < cb.count; ++j) {
-            for (const compileField& field : cb.fields) {
+        for (unsigned int j = 0; j < buffer.count; ++j) {
+            for (const compileField& field : buffer.fields) {
                 switch (field.vtype)
                 {
                 case value::constant:
@@ -702,6 +762,7 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
                     writeConst(file, mesh->mColors[field.data[0]][j][field.data[1]], field.stype);
                     break;
                 default:
+                    throw std::logic_error("invalid value");
                     break;
                 }
             }
@@ -712,6 +773,60 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
 void mesh_compiler::compileUnit::put(std::ofstream& file, const aiScene* scene)
 {
     if (this->count_type != counting_type::per_scene) throw meshCompilerException("invalid compilation unit for this object");
+
+    // fill counts
+    for (compileBuffer& buffer : this->buffers) {
+        if (buffer.count_type == counting_type::per_mesh) buffer.count = scene->mNumMeshes;
+        else if (buffer.count_type == counting_type::per_skeleton) buffer.count = scene->mNumSkeletons;
+        else if (buffer.count_type == counting_type::per_animation) buffer.count = scene->mNumAnimations;
+        else {
+            throw std::logic_error("invalid counting type for this mesh" + countingTypeNamesMap[buffer.count_type]);
+        }
+    }
+
+    // preamble
+    for (const compileField& field : this->preamble) {
+        if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, scene);
+        else field.put(file, *this);
+    }
+
+    // buffers
+    for (const compileBuffer& buffer : this->buffers) {
+
+        // buffer preamble
+        for (const compileField& field : buffer.preamble) {
+            if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, scene);
+            else field.put(file, buffer);
+        }
+
+        // data buffers
+        for (unsigned int j = 0; j < buffer.count; ++j) {
+            for (const compileField& field : buffer.fields) {
+                switch (field.vtype)
+                {
+                case value::constant:
+                    file.write(field.data.data(), typeSizesMap[field.stype]);
+                    break;
+                case value::other_unit:
+                    switch (buffer.count_type) {
+                    case counting_type::per_mesh:
+                        (*unitsMap)[field.get_otherUnitName()].put(file, scene->mMeshes[j]);
+                        break;
+                    case counting_type::per_skeleton:
+                        (*unitsMap)[field.get_otherUnitName()].put(file, scene->mSkeletons[j]);
+                        break;
+                    case counting_type::per_animation:
+                        (*unitsMap)[field.get_otherUnitName()].put(file, scene->mAnimations[j]);
+                        break;
+                    }
+                    break;
+                default:
+                    throw std::logic_error("value type");
+                    break;
+                }
+            }
+        }
+    }
 }
 
 mesh_compiler::type mesh_compiler::compileUnit::extractType(std::string& word)
@@ -907,6 +1022,8 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, /
 
                     if (isPreambleValue(t, word, buffer.preamble)) continue;
 
+                    if (isOtherUnitValue(t, word, buffer.preamble, this->count_type, *unitsMap)) continue;
+
                     if (isFieldValue(t, word, buffer.fields, buffer.count_type, this->count_type)) {
                         fields_def = true;
                         continue;
@@ -926,6 +1043,8 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, /
 
                 try {
                     type t = extractType(word);
+
+                    if (isOtherUnitValue(t, word, buffer.preamble, this->count_type, *unitsMap)) continue;
 
                     if (isFieldValue(t, word, buffer.fields, buffer.count_type, this->count_type)) continue;
 
@@ -973,12 +1092,18 @@ mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, 
             if (word == "file") {
                 if (!(ss >> word)) throw formatInterpreterException(formatInterpreterException::error_code::no_file_name, line_num, arg);
                 this->file_units.push_back(fileUnit(formatFile, word, line_num, &units));
-                if (this->debug_messages) this->file_units.back().print();
+                if (this->debug_messages) {
+                    std::cout << "file ";
+                    this->file_units.back().print();
+                }
             }
             else {
                 if (units.find(word) != units.end()) throw formatInterpreterException(formatInterpreterException::error_code::unit_redefinition, line_num, arg);
                 this->units.emplace(word, compileUnit(formatFile, line_num, &units));
-                if (this->debug_messages) this->units[word].print();
+                if (this->debug_messages) {
+                    std::cout << word << " ";
+                    this->units[word].print();
+                }
             }
         }
     }

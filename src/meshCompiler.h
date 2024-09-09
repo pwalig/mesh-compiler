@@ -50,6 +50,7 @@ private:
         scale_key,
         timestamp,
         duration,
+        ticks_per_second,
 
         unit_size,
         buffer_size,
@@ -143,6 +144,9 @@ private:
 
 // ========== COMPILE CONFIGURATION ==========
 
+    class compileBuffer;
+    class compileUnit;
+
     class compileField {
     public:
         type stype;
@@ -158,6 +162,10 @@ private:
         size_t get_size() const;
         std::string get_otherUnitName() const;
         void print(const int& indent = 0) const;
+
+        void put(std::ofstream& file, const compileBuffer& buffer) const;
+        void put(std::ofstream& file, const std::vector<compileBuffer>& buffers) const;
+        void put(std::ofstream& file, const compileUnit& unit) const;
     };
 
     class compileBuffer {
@@ -189,6 +197,7 @@ private:
         void print(const int& indent = 0) const;
         void clear();
 
+        void put(std::ofstream& file, const aiNodeAnim* animation_channel);
         void put(std::ofstream& file, const aiSkeleton* skeleton);
         void put(std::ofstream& file, const aiAnimation* animation);
         void put(std::ofstream& file, const aiMesh* mesh);
