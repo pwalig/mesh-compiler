@@ -291,22 +291,32 @@ std::map<int, std::string> mesh_compiler::formatInterpreterException::errorMessa
     {formatInterpreterException::mc_err_unsupported_type, "unsupported type"},
     {formatInterpreterException::mc_err_conflicting_fields, "confilcting types detected in single buffer"},
     {formatInterpreterException::mc_err_constants_only, "detected buffer of only constants - unknown buffer size"},
+    {formatInterpreterException::mc_err_no_unit_name, "unit name unspecified"},
+    {formatInterpreterException::mc_err_no_file_name, "file name unspecified"},
+    {formatInterpreterException::mc_err_unit_redefinition, "unit redefinition"},
+    {formatInterpreterException::mc_err_no_end, "end key word expected"},
     {formatInterpreterException::mc_err_unknown, "unknown error"}
 };
 
-mesh_compiler::formatInterpreterException::formatInterpreterException(const error_code& error_code, const std::string& message) : type(error_code), msg(" " + message)
+mesh_compiler::formatInterpreterException::formatInterpreterException(const error_code& error_code, const std::string& message) : type(error_code), msg(" " + message), filled(false)
 {
     if (errorMessagesMap.find(type) == errorMessagesMap.end()) type = formatInterpreterException::mc_err_unknown;
+}
+
+mesh_compiler::formatInterpreterException::formatInterpreterException(const error_code& error_code, const unsigned int& line_number, const std::string& processed_word, const std::string& message) : formatInterpreterException(error_code, message)
+{
+    fillInfo(line_number, processed_word);
 }
 
 void mesh_compiler::formatInterpreterException::fillInfo(const unsigned int& line_number, const std::string& processed_word)
 {
     this->msg = "format compilation error: " + errorMessagesMap[type] + ": " + processed_word + " in line " + std::to_string(line_number) + "." + this->msg;
+    this->filled = true;
 }
 
 const char* mesh_compiler::formatInterpreterException::what() throw()
 {
-    if (msg.size() < 10) this->msg = "format compilation error: " + errorMessagesMap[type];
+    if (!filled) this->msg = "format compilation error: " + errorMessagesMap[type] + ": info not filled";
     return this->msg.c_str();
 }
 
@@ -550,118 +560,138 @@ bool mesh_compiler::compileUnit::isConstValue(const type& t, std::string& arg, s
     return true;
 }
 
-mesh_compiler::compileUnit::compileUnit(const std::string& filename)
+mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
 {
-    std::ifstream formatFile(filename, std::ios::in);
-    if (!formatFile) {
-        throw formatInterpreterException(formatInterpreterException::mc_err_cannot_open_file, filename);
-    }
-
-    std::string line, arg = "";
+    std::string line;
 
     // preamble
-    std::getline(formatFile, line);
-    line += ' ';
-    for (const char& c : line) {
-        if ((c >= 9 && c <= 13) || c == ' ') {
-            if (arg.empty()) continue;
-            else { // process word
-                std::string word = arg;
-                try {
-                    type t = extractType(arg);
+    {
+        std::getline(file, line);
+        std::stringstream ss(line);
+        std::string word;
+        while (ss >> word) {
+            std::string arg = word;
+            try {
+                type t = extractType(word);
 
-                    if (isPreambleValue(t, arg, this->preamble)) continue;
+                if (isPreambleValue(t, word, this->preamble)) continue;
 
-                    if (isConstValue(t, arg, this->preamble)) continue;
-                    
-                    throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
-                }
-                catch (formatInterpreterException& e){
-                    e.fillInfo(1, word);
-                    throw;
-                }
-                arg = "";
+                if (isConstValue(t, word, this->preamble)) continue;
+
+                throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
+            }
+            catch (formatInterpreterException& e) {
+                e.fillInfo(line_num, arg);
+                throw;
             }
         }
-        else arg += c;
+        ++line_num;
     }
 
     // buffers
-    int line_num = 2;
-    while (std::getline(formatFile, line)) {
-        line += ' ';
+    while (std::getline(file, line)) {
         compileBuffer buffer;
         counting_type field_count = mc_any;
         bool fields_def = false;
-        for (const char& c : line) {
-            if ((c >= 9 && c <= 13) || c == ' ') { // whitespace character
-                if (arg.empty()) continue;
-                else { // process word
-                    std::string word = arg;
+        std::stringstream ss(line);
+        std::string word;
+        while (ss >> word) { // process word
+            std::string arg = word;
 
-                    if (!fields_def) { // preamble
+            if (word == "end") {
+                if (ss >> word) throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement, line_num, word);
+                return;
+            }
 
-                        if (arg.size() == 1 && arg[0] == ';') {
-                            fields_def = true;
-                            arg = "";
-                            continue;
-                        }
-                        try {
-                            type t = extractType(arg);
+            if (!fields_def) { // preamble
 
-                            if (isPreambleValue(t, arg, buffer.preamble)) continue;
+                if (word == ";") {
+                    fields_def = true;
+                    continue;
+                }
+                try {
+                    type t = extractType(word);
 
-                            if (isFieldValue(t, arg, buffer.fields, field_count)) {
-                                fields_def = true;
-                                continue;
-                            }
+                    if (isPreambleValue(t, word, buffer.preamble)) continue;
 
-                            if (isConstValue(t, arg, buffer.preamble)) continue;
-
-                            throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
-                        }
-                        catch (formatInterpreterException& e) {
-                            e.fillInfo(line_num, word);
-                            throw;
-                        }
+                    if (isFieldValue(t, word, buffer.fields, field_count)) {
+                        fields_def = true;
+                        continue;
                     }
 
-                    else { // fields
+                    if (isConstValue(t, word, buffer.preamble)) continue;
 
-                        try {
-                            type t = extractType(arg);
-
-                            if (isFieldValue(t, arg, buffer.fields, field_count)) continue;
-
-                            if (isConstValue(t, arg, buffer.fields)) continue;
-
-                            throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
-                        }
-                        catch (formatInterpreterException& e) {
-                            e.fillInfo(line_num, word);
-                            throw;
-                        }
-                    }
+                    throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
+                }
+                catch (formatInterpreterException& e) {
+                    e.fillInfo(line_num, arg);
+                    throw;
                 }
             }
-            else arg += c;
+
+            else { // fields
+
+                try {
+                    type t = extractType(word);
+
+                    if (isFieldValue(t, word, buffer.fields, field_count)) continue;
+
+                    if (isConstValue(t, word, buffer.fields)) continue;
+
+                    throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
+                }
+                catch (formatInterpreterException& e) {
+                    e.fillInfo(line_num, arg);
+                    throw;
+                }
+            }
         }
         if (field_count == mc_any) {
-            formatInterpreterException e(formatInterpreterException::mc_err_constants_only);
-            e.fillInfo(line_num, "");
-            throw e;
+            throw formatInterpreterException(formatInterpreterException::mc_err_constants_only, line_num, "");
         }
         this->buffers.push_back(buffer);
         ++line_num;
     }
+    throw formatInterpreterException(formatInterpreterException::mc_err_no_end, line_num, "");
+}
+
+
+mesh_compiler::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num) : compileUnit(file, line_num), output_file(output_file_)
+{
+}
+
+mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, const bool& debug_messages) : debug_messages(debug_messages)
+{
+    std::ifstream formatFile(format_file, std::ios::in);
+    if (!formatFile) {
+        throw formatInterpreterException(formatInterpreterException::mc_err_cannot_open_file, format_file);
+    }
+
+    size_t line_num = 0;
+    std::string line;
+    while (std::getline(formatFile, line)) {
+        std::stringstream ss(line);
+        std::string word;
+        while (ss >> word) { // if would also work
+            std::string arg = word; // for error messages only
+            if (word != "begin") throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement, line_num, arg);
+            if (!(ss >> word)) throw formatInterpreterException(formatInterpreterException::mc_err_no_unit_name, line_num, arg);
+            arg += " " + word;
+            if (word == "file") {
+                if (!(ss >> word)) throw formatInterpreterException(formatInterpreterException::mc_err_no_file_name, line_num, arg);
+                this->file_units.push_back(fileUnit(formatFile, word, line_num));
+                if (this->debug_messages) this->file_units.back().print();
+            }
+            else {
+                if (units.find(word) != units.end()) throw formatInterpreterException(formatInterpreterException::mc_err_unit_redefinition, line_num, arg);
+                this->units.emplace(word, compileUnit(formatFile, line_num));
+                if (this->debug_messages) this->units[word].print();
+            }
+        }
+    }
 
     formatFile.close();
     std::cout << "format file compilation succeded\n";
-}
-
-mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, const std::string& output_file, const bool& debug_messages) : output_file(output_file), config(format_file), debug_messages(true)
-{
-    if (this->debug_messages) this->config.print();
 }
 
 // ========== COMPILER FUNCTION DEFINITIONS ==========
@@ -744,7 +774,7 @@ void mesh_compiler::compile(const std::vector<std::string>& args)
     }
     try {
         try {
-            compileFile(args[0], compilationInfo(format_file, output_file, debug_messages));
+            compileFile(args[0], compilationInfo(format_file, debug_messages));
         }
         catch (formatInterpreterException& e) {
             std::cout << e.what() << std::endl;
@@ -758,38 +788,40 @@ void mesh_compiler::compile(const std::vector<std::string>& args)
 
 void mesh_compiler::compileFile(const std::string& filename, compilationInfo ci)
 {
-    // replace {file} with file name in output file name
-    size_t found = ci.output_file.find("{file}");
-    if (found != std::string::npos) {
-        std::string base_filename = filename.substr(filename.find_last_of("/\\") + 1);
-        size_t const p(base_filename.find_last_of('.'));
-        ci.output_file.replace(found, 6, base_filename.substr(0, p));
-    }
+    for (fileUnit& fu : ci.file_units) {
+        // replace {file} with file name in output file name
+        size_t found = fu.output_file.find("{file}");
+        if (found != std::string::npos) {
+            std::string base_filename = filename.substr(filename.find_last_of("/\\") + 1);
+            size_t const p(base_filename.find_last_of('.'));
+            fu.output_file.replace(found, 6, base_filename.substr(0, p));
+        }
 
-    assimp::readFile(filename, std::bind(mesh_compiler::compileScene, std::placeholders::_1, std::ref(ci)));
+        assimp::readFile(filename, std::bind(mesh_compiler::compileScene, std::placeholders::_1, std::ref(fu)));
+    }
 }
 
-void mesh_compiler::compileScene(const aiScene* scene, compilationInfo ci)
+void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
 {
     // replace {scene} with scene name in output file name
-    size_t found = ci.output_file.find("{scene}");
-    if (found != std::string::npos) ci.output_file.replace(found, 7, scene->mName.C_Str());
+    size_t found = fu.output_file.find("{scene}");
+    if (found != std::string::npos) fu.output_file.replace(found, 7, scene->mName.C_Str());
 
     // find name and extension
-    std::string orig_name = ci.output_file;
+    std::string orig_name = fu.output_file;
     int errors = 0;
     for (int i = 0; i < scene->mNumMeshes; ++i) {
-        size_t found = ci.output_file.find("{mesh}");
-        if (found != std::string::npos) ci.output_file.replace(found, 6, scene->mMeshes[i]->mName.C_Str());
+        size_t found = fu.output_file.find("{mesh}");
+        if (found != std::string::npos) fu.output_file.replace(found, 6, scene->mMeshes[i]->mName.C_Str());
         try {
-            compileMesh(scene->mMeshes[i], ci);
+            compileMesh(scene->mMeshes[i], fu);
         }
         catch (std::exception& e) {
             std::cout << e.what() << std::endl;
             std::cout << "compilation of mesh: " << scene->mMeshes[i]->mName.C_Str() << " ended up with errors.\n";
             errors += 1;
         }
-        ci.output_file = orig_name; // go back to original name
+        fu.output_file = orig_name; // go back to original name
     }
 
     if (errors != 0) {
@@ -800,10 +832,10 @@ void mesh_compiler::compileScene(const aiScene* scene, compilationInfo ci)
     std::cout << "scene compilation ended with success\n";
 }
 
-void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
+void mesh_compiler::compileMesh(const aiMesh* m, fileUnit fu)
 {
     // fill counts
-    for (compileBuffer& buffer : ci.config.buffers) {
+    for (compileBuffer& buffer : fu.buffers) {
         counting_type field_count = mc_any;
         for (const compileField& cf : buffer.fields) {
             counting_type ffc = getFieldCount(cf.vtype);
@@ -825,13 +857,13 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
     }
 
     // output file creation
-    std::ofstream fout(ci.output_file, std::ios::out | std::ios::binary);
+    std::ofstream fout(fu.output_file, std::ios::out | std::ios::binary);
     if (!fout) {
-        throw std::runtime_error("compilation error: cannot open file: " + ci.output_file);
+        throw std::runtime_error("compilation error: cannot open file: " + fu.output_file);
     }
 
     // preamble
-    for (const compileField& field : ci.config.preamble) {
+    for (const compileField& field : fu.preamble) {
         // size
         switch (field.vtype)
         {
@@ -839,45 +871,45 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
             fout.write(field.data.data(), typeSizesMap[field.stype]);
             break;
         case mc_buffer_size:
-            for (const compileBuffer& cb : ci.config.buffers) {
+            for (const compileBuffer& cb : fu.buffers) {
                 writeConst(fout, cb.get_size(), field.stype);
             }
             break;
         case mc_buffers_per_unit:
-            writeConst(fout, ci.config.buffers.size(), field.stype);
+            writeConst(fout, fu.buffers.size(), field.stype);
             break;
         case mc_entry_size:
-            for (const compileBuffer& cb : ci.config.buffers) {
+            for (const compileBuffer& cb : fu.buffers) {
                 writeConst(fout, cb.get_entry_size(), field.stype);
             }
             break;
         case mc_entries_per_buffer:
-            for (const compileBuffer& cb : ci.config.buffers) {
+            for (const compileBuffer& cb : fu.buffers) {
                 writeConst(fout, cb.count, field.stype);
             }
             break;
         case mc_entries_per_unit:
-            writeConst(fout, ci.config.get_entries_count(), field.stype);
+            writeConst(fout, fu.get_entries_count(), field.stype);
             break;
         case mc_field_size:
-            for (const compileBuffer& cb : ci.config.buffers) {
+            for (const compileBuffer& cb : fu.buffers) {
                 for (const compileField& cf : cb.fields) {
                     writeConst(fout, cf.get_size(), field.stype);
                 }
             }
             break;
         case mc_fields_per_entry:
-            for (const compileBuffer& cb : ci.config.buffers) {
+            for (const compileBuffer& cb : fu.buffers) {
                 writeConst(fout, cb.fields.size(), field.stype);
             }
             break;
         case mc_fields_per_buffer:
-            for (const compileBuffer& cb : ci.config.buffers) {
+            for (const compileBuffer& cb : fu.buffers) {
                 writeConst(fout, cb.fields.size() * cb.count, field.stype);
             }
             break;
         case mc_fields_per_unit:
-            writeConst(fout, ci.config.get_fields_count(), field.stype);
+            writeConst(fout, fu.get_fields_count(), field.stype);
             break;
         default:
             throw meshCompilerException("compilation error: unknown buffer info flag: " + std::to_string(field.vtype));
@@ -886,7 +918,7 @@ void mesh_compiler::compileMesh(const aiMesh* m, compilationInfo ci)
     }
 
     // buffers
-    for (const compileBuffer& cb : ci.config.buffers) {
+    for (const compileBuffer& cb : fu.buffers) {
 
         // format info
         for (const compileField& field : cb.preamble) {

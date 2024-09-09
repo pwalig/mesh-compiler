@@ -34,6 +34,7 @@ private:
     enum value {
         mc_null,
         mc_constant,
+        mc_other_unit,
         mc_indice,
         mc_vertex,
         mc_normal,
@@ -92,13 +93,19 @@ private:
             mc_err_unsupported_type,
             mc_err_conflicting_fields,
             mc_err_constants_only,
+            mc_err_no_unit_name,
+            mc_err_no_file_name,
+            mc_err_unit_redefinition,
+            mc_err_no_end,
             mc_err_unknown
         };
         formatInterpreterException(const error_code& error_code, const std::string& message = "");
+        formatInterpreterException(const error_code& error_code, const unsigned int& line_number, const std::string& processed_word, const std::string& message = "");
         void fillInfo(const unsigned int& line_number, const std::string& processed_word);
         virtual const char* what() throw();
     protected:
         error_code type;
+        bool filled;
         std::string msg = "";
     private:
         static std::map<int, std::string> errorMessagesMap;
@@ -147,7 +154,8 @@ private:
         std::vector<compileField> preamble;
         std::vector<compileBuffer> buffers;
 
-        compileUnit(const std::string& filename);
+        compileUnit() = default;
+        compileUnit(std::ifstream& file, size_t& line_num);
 
         size_t get_size();
         size_t get_entries_count();
@@ -164,13 +172,22 @@ private:
         static bool isConstValue(const type& t, std::string& arg, std::vector<compileField>& fields);
     };
 
+    class fileUnit : public compileUnit {
+    public:
+        std::string output_file;
+
+        fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num);
+    };
+
     class compilationInfo {
     public:
         bool debug_messages;
-        std::string output_file;
-        compileUnit config;
+        std::map<std::string, compileUnit> units;
+        std::vector<fileUnit> file_units;
 
-        compilationInfo(const std::string& format_file, const std::string& output_file = "{file}_{mesh}.mesh", const bool& debug_messages = false);
+        compilationInfo(const std::string& format_file, const bool& debug_messages = false);
+
+        //static void processFile(const std::string& format_file, const std::function<void>(const std::string& word, const size_t& line_num, const size_t& word_num));
     };
 
 // ========== RUNNING METHODS ==========
@@ -182,8 +199,8 @@ public:
 private:
     static void compile(const std::vector<std::string>& args);
     static void compileFile(const std::string& filename, compilationInfo ci);
-    static void compileScene(const aiScene* scene, compilationInfo ci);
-    static void compileMesh(const aiMesh* m, compilationInfo ci);
+    static void compileScene(const aiScene* scene, fileUnit ci);
+    static void compileMesh(const aiMesh* m, fileUnit ci);
 
 
     template <typename T>
