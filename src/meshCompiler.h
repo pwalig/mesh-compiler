@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <functional>
 #include <map>
 #include <stdexcept>
 #include <fstream>
@@ -186,8 +187,6 @@ private:
         std::vector<fileUnit> file_units;
 
         compilationInfo(const std::string& format_file, const bool& debug_messages = false);
-
-        //static void processFile(const std::string& format_file, const std::function<void>(const std::string& word, const size_t& line_num, const size_t& word_num));
     };
 
 // ========== RUNNING METHODS ==========

@@ -105,4 +105,15 @@ void mainTest() {
     std::cout << "Indices Count: " << me1.indices.size() / 3 << '\n';
     printMesh(me1);
     std::cout << "Binary read time: " << elapsed_seconds1.count() << '\n';
+
+    mesh me2;
+    const auto start2{ std::chrono::steady_clock::now() };
+    readMeshFile("test/yeet.mesh", me2);
+    const auto end2{ std::chrono::steady_clock::now() };
+    const std::chrono::duration<double> elapsed_seconds2{ end2 - start2 };
+
+    std::cout << "Vert Count: " << me2.verts.size() / 4 << '\n';
+    std::cout << "Indices Count: " << me2.indices.size() / 3 << '\n';
+    printMesh(me2);
+    std::cout << "Binary read time: " << elapsed_seconds2.count() << '\n';
 }

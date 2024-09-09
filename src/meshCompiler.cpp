@@ -585,7 +585,6 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
                 throw;
             }
         }
-        ++line_num;
     }
 
     // buffers
@@ -595,10 +594,13 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
         bool fields_def = false;
         std::stringstream ss(line);
         std::string word;
+        int word_num = -1;
         while (ss >> word) { // process word
+            ++word_num;
+            ++line_num;
             std::string arg = word;
 
-            if (word == "end") {
+            if (word == "end" && word_num == 0) {
                 if (ss >> word) throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement, line_num, word);
                 return;
             }
@@ -650,7 +652,6 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
             throw formatInterpreterException(formatInterpreterException::mc_err_constants_only, line_num, "");
         }
         this->buffers.push_back(buffer);
-        ++line_num;
     }
     throw formatInterpreterException(formatInterpreterException::mc_err_no_end, line_num, "");
 }
