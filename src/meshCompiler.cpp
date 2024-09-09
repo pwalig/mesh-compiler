@@ -516,21 +516,21 @@ void mesh_compiler::compileBuffer::clear()
     this->fields.clear();
 }
 
-size_t mesh_compiler::compileUnit::get_size()
+size_t mesh_compiler::compileUnit::get_size() const
 {
     size_t siz = 0;
     for (const compileBuffer& cb : buffers) siz += cb.get_size();
     return siz;
 }
 
-size_t mesh_compiler::compileUnit::get_entries_count()
+size_t mesh_compiler::compileUnit::get_entries_count() const
 {
     size_t siz = 0;
     for (const compileBuffer& cb : buffers) siz += cb.count;
     return siz;
 }
 
-size_t mesh_compiler::compileUnit::get_fields_count()
+size_t mesh_compiler::compileUnit::get_fields_count() const
 {
     size_t siz = 0;
     for (const compileBuffer& cb : buffers) siz += cb.fields.size();

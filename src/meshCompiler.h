@@ -183,9 +183,9 @@ private:
         compileUnit() = default;
         compileUnit(std::ifstream& file, size_t& line_num, /*const*/ std::map<std::string, compileUnit>* unitsMap);
 
-        size_t get_size();
-        size_t get_entries_count();
-        size_t get_fields_count();
+        size_t get_size() const;
+        size_t get_entries_count() const;
+        size_t get_fields_count() const;
         void print(const int& indent = 0) const;
         void clear();
 
