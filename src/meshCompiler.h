@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <functional>
 #include <map>
 #include <stdexcept>
 #include <fstream>
@@ -19,6 +18,7 @@ private:
 
     enum type {
         mc_none,
+        mc_unit,
         mc_char,
         mc_short,
         mc_unsigned_short,
@@ -80,25 +80,25 @@ private:
 
     class formatInterpreterException : public std::exception {
     public:
-        enum error_code {
-            mc_err_cannot_open_file,
-            mc_err_unknown_statement,
-            mc_err_no_suffix,
-            mc_err_invalid_suffix,
-            mc_err_wrong_suffixes_amount,
-            mc_err_no_const_value,
-            mc_err_invalid_const_value,
-            mc_err_invalid_type_specifier,
-            mc_err_byte_base_in_count_type,
-            mc_err_field_spec_in_preamble,
-            mc_err_unsupported_type,
-            mc_err_conflicting_fields,
-            mc_err_constants_only,
-            mc_err_no_unit_name,
-            mc_err_no_file_name,
-            mc_err_unit_redefinition,
-            mc_err_no_end,
-            mc_err_unknown
+        enum class error_code {
+            cannot_open_file,
+            unknown_statement,
+            no_suffix,
+            invalid_suffix,
+            wrong_suffixes_amount,
+            no_const_value,
+            invalid_const_value,
+            invalid_type_specifier,
+            byte_base_in_count_type,
+            field_spec_in_preamble,
+            unsupported_type,
+            conflicting_fields,
+            constants_only,
+            no_unit_name,
+            no_file_name,
+            unit_redefinition,
+            no_end,
+            unknown
         };
         formatInterpreterException(const error_code& error_code, const std::string& message = "");
         formatInterpreterException(const error_code& error_code, const unsigned int& line_number, const std::string& processed_word, const std::string& message = "");
@@ -109,7 +109,7 @@ private:
         bool filled;
         std::string msg = "";
     private:
-        static std::map<int, std::string> errorMessagesMap;
+        static std::map<error_code, std::string> errorMessagesMap;
     };
 
     class meshCompilerException : public std::exception {
@@ -141,8 +141,9 @@ private:
     class compileBuffer {
     public:
         std::vector<compileField> preamble;
-        size_t count = 0;
         std::vector<compileField> fields;
+        size_t count = 0;
+        counting_type count_type = counting_type::mc_any;
 
         size_t get_entry_size() const;
         size_t get_size() const;
@@ -154,9 +155,10 @@ private:
     public:
         std::vector<compileField> preamble;
         std::vector<compileBuffer> buffers;
+        counting_type count_type = counting_type::mc_any;
 
         compileUnit() = default;
-        compileUnit(std::ifstream& file, size_t& line_num);
+        compileUnit(std::ifstream& file, size_t& line_num, const std::map<std::string, compileUnit>& unitsMap);
 
         size_t get_size();
         size_t get_entries_count();
@@ -171,13 +173,14 @@ private:
         static bool isPreambleValue(type t, std::string& arg, std::vector<compileField>& fields);
         static bool isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count);
         static bool isConstValue(const type& t, std::string& arg, std::vector<compileField>& fields);
+        static bool isOtherUnitValue(const type& t, std::string& arg, std::vector<compileField>& fields, const std::map<std::string, compileUnit>& unitsMap);
     };
 
     class fileUnit : public compileUnit {
     public:
         std::string output_file;
 
-        fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num);
+        fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num, const std::map<std::string, compileUnit>& unitsMap);
     };
 
     class compilationInfo {

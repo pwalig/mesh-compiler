@@ -188,7 +188,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
     {
     case mc_char:
         if (val.size() > 1)
-            throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value, "char value must be only one character, given: " + std::to_string(val.size()));
+            throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value, "char value must be only one character, given: " + std::to_string(val.size()));
         data.c = val[0];
         break;
     case mc_short:
@@ -197,7 +197,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
             data.s = std::stoi(val);
         }
         catch (std::exception& e) {
-            throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value);
+            throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
     case mc_int:
@@ -206,7 +206,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
             data.i = std::stoi(val);
         }
         catch (std::exception& e) {
-            throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value);
+            throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
     case mc_long:
@@ -215,7 +215,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
             data.l = std::stol(val);
         }
         catch (std::exception& e) {
-            throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value);
+            throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
     case mc_long_long:
@@ -224,7 +224,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
             data.ll = std::stoll(val);
         }
         catch (std::exception& e) {
-            throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value);
+            throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
     case mc_float:
@@ -232,7 +232,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
             data.f = std::stof(val);
         }
         catch (std::exception& e) {
-            throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value);
+            throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
     case mc_double:
@@ -240,7 +240,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
             data.d = std::stod(val);
         }
         catch (std::exception& e) {
-            throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value);
+            throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
     case mc_long_double:
@@ -248,26 +248,26 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
             data.ld = std::stold(val);
         }
         catch (std::exception& e) {
-            throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value);
+            throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
     default:
-        throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value);
+        throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         break;
     }
 
     switch (t) {
     case mc_unsigned_short:
-        if (data.s < 0) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value, "negative value passed as unsigned type");
+        if (data.s < 0) throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value, "negative value passed as unsigned type");
         break;
     case mc_unsigned_int:
-        if (data.i < 0) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value, "negative value passed as unsigned type");
+        if (data.i < 0) throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value, "negative value passed as unsigned type");
         break;
     case mc_unsigned_long:
-        if (data.l < 0) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value, "negative value passed as unsigned type");
+        if (data.l < 0) throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value, "negative value passed as unsigned type");
         break;
     case mc_unsigned_long_long:
-        if (data.ll < 0) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_const_value, "negative value passed as unsigned type");
+        if (data.ll < 0) throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value, "negative value passed as unsigned type");
         break;
     default:
         break;
@@ -277,30 +277,30 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
 
 // ========== EXCEPTIONS ==========
 
-std::map<int, std::string> mesh_compiler::formatInterpreterException::errorMessagesMap = {
-    {formatInterpreterException::mc_err_cannot_open_file, "could not open file"},
-    {formatInterpreterException::mc_err_unknown_statement, "unknown statement"},
-    {formatInterpreterException::mc_err_no_suffix, "field suffix not provided"},
-    {formatInterpreterException::mc_err_invalid_suffix, "invalid field suffix"},
-    {formatInterpreterException::mc_err_wrong_suffixes_amount, "wrong amount of suffixes"},
-    {formatInterpreterException::mc_err_no_const_value, "constant value not provided"},
-    {formatInterpreterException::mc_err_invalid_const_value, "invalid const value"},
-    {formatInterpreterException::mc_err_invalid_type_specifier, "invalid type specifier"},
-    {formatInterpreterException::mc_err_byte_base_in_count_type, "given byte base in count type"},
-    {formatInterpreterException::mc_err_field_spec_in_preamble, "attempted field specification in preamble"},
-    {formatInterpreterException::mc_err_unsupported_type, "unsupported type"},
-    {formatInterpreterException::mc_err_conflicting_fields, "confilcting types detected in single buffer"},
-    {formatInterpreterException::mc_err_constants_only, "detected buffer of only constants - unknown buffer size"},
-    {formatInterpreterException::mc_err_no_unit_name, "unit name unspecified"},
-    {formatInterpreterException::mc_err_no_file_name, "file name unspecified"},
-    {formatInterpreterException::mc_err_unit_redefinition, "unit redefinition"},
-    {formatInterpreterException::mc_err_no_end, "end key word expected"},
-    {formatInterpreterException::mc_err_unknown, "unknown error"}
+std::map<mesh_compiler::formatInterpreterException::error_code, std::string> mesh_compiler::formatInterpreterException::errorMessagesMap = {
+    {formatInterpreterException::error_code::cannot_open_file, "could not open file"},
+    {formatInterpreterException::error_code::unknown_statement, "unknown statement"},
+    {formatInterpreterException::error_code::no_suffix, "field suffix not provided"},
+    {formatInterpreterException::error_code::invalid_suffix, "invalid field suffix"},
+    {formatInterpreterException::error_code::wrong_suffixes_amount, "wrong amount of suffixes"},
+    {formatInterpreterException::error_code::no_const_value, "constant value not provided"},
+    {formatInterpreterException::error_code::invalid_const_value, "invalid const value"},
+    {formatInterpreterException::error_code::invalid_type_specifier, "invalid type specifier"},
+    {formatInterpreterException::error_code::byte_base_in_count_type, "given byte base in count type"},
+    {formatInterpreterException::error_code::field_spec_in_preamble, "attempted field specification in preamble"},
+    {formatInterpreterException::error_code::unsupported_type, "unsupported type"},
+    {formatInterpreterException::error_code::conflicting_fields, "confilcting types detected in single buffer"},
+    {formatInterpreterException::error_code::constants_only, "detected buffer of only constants - unknown buffer size"},
+    {formatInterpreterException::error_code::no_unit_name, "unit name unspecified"},
+    {formatInterpreterException::error_code::no_file_name, "file name unspecified"},
+    {formatInterpreterException::error_code::unit_redefinition, "unit redefinition"},
+    {formatInterpreterException::error_code::no_end, "end key word expected"},
+    {formatInterpreterException::error_code::unknown, "unknown error"}
 };
 
 mesh_compiler::formatInterpreterException::formatInterpreterException(const error_code& error_code, const std::string& message) : type(error_code), msg(" " + message), filled(false)
 {
-    if (errorMessagesMap.find(type) == errorMessagesMap.end()) type = formatInterpreterException::mc_err_unknown;
+    if (errorMessagesMap.find(type) == errorMessagesMap.end()) type = formatInterpreterException::error_code::unknown;
 }
 
 mesh_compiler::formatInterpreterException::formatInterpreterException(const error_code& error_code, const unsigned int& line_number, const std::string& processed_word, const std::string& message) : formatInterpreterException(error_code, message)
@@ -443,13 +443,13 @@ mesh_compiler::type mesh_compiler::compileUnit::extractType(std::string& word)
     type t = mc_none;
     size_t pos = word.find(':');
     if (pos != std::string::npos) {
-        if (typesMap.find(word.substr(0, pos)) == typesMap.end()) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_type_specifier);
+        if (typesMap.find(word.substr(0, pos)) == typesMap.end()) throw formatInterpreterException(formatInterpreterException::error_code::invalid_type_specifier);
         t = typesMap[word.substr(0, pos)];
         word = word.substr(pos + 1, word.size() - pos - 1);
     }
 
     if (word.empty()) {
-        if (t != mc_none) throw formatInterpreterException(formatInterpreterException::mc_err_no_const_value);
+        if (t != mc_none) throw formatInterpreterException(formatInterpreterException::error_code::no_const_value);
         else throw std::logic_error("type somehow ended up null despite empty word");
     }
 
@@ -509,7 +509,7 @@ bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vec
                 error_message += " and ";
                 error_message.push_back(field_count);
                 error_message += ".";
-                throw formatInterpreterException(formatInterpreterException::mc_err_conflicting_fields, error_message);
+                throw formatInterpreterException(formatInterpreterException::error_code::conflicting_fields, error_message);
             }
             field_count = ffc;
         }
@@ -517,15 +517,15 @@ bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vec
         std::vector<unsigned short> suffixes_data = getMaxSuffixes(v);
         while (arg.size() > 0) {
             if (arg.size() == 1) {
-                if (arg[0] == '.') throw formatInterpreterException(formatInterpreterException::mc_err_no_suffix);
-                else throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
+                if (arg[0] == '.') throw formatInterpreterException(formatInterpreterException::error_code::no_suffix);
+                else throw formatInterpreterException(formatInterpreterException::error_code::unknown_statement);
             }
-            if (arg[0] != '.') throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
-            if (suffixesMap.find(arg[1]) == suffixesMap.end()) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix);
+            if (arg[0] != '.') throw formatInterpreterException(formatInterpreterException::error_code::unknown_statement);
+            if (suffixesMap.find(arg[1]) == suffixesMap.end()) throw formatInterpreterException(formatInterpreterException::error_code::invalid_suffix);
 
             field.data.push_back(suffixesMap[arg[1]]);
-            if (field.data.size() > suffixes_data.size()) throw formatInterpreterException(formatInterpreterException::mc_err_wrong_suffixes_amount, "this field type requires up to " + std::to_string(suffixes_data.size()) + " suffixes");
-            if (field.data.back() >= suffixes_data[field.data.size() - 1]) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix, arg.substr(0, 2) + " suffix must be less than " + std::to_string(suffixes_data[field.data.size() - 1]));
+            if (field.data.size() > suffixes_data.size()) throw formatInterpreterException(formatInterpreterException::error_code::wrong_suffixes_amount, "this field type requires up to " + std::to_string(suffixes_data.size()) + " suffixes");
+            if (field.data.back() >= suffixes_data[field.data.size() - 1]) throw formatInterpreterException(formatInterpreterException::error_code::invalid_suffix, arg.substr(0, 2) + " suffix must be less than " + std::to_string(suffixes_data[field.data.size() - 1]));
 
             arg = arg.substr(2, arg.size() - 2);
         }
@@ -560,13 +560,25 @@ bool mesh_compiler::compileUnit::isConstValue(const type& t, std::string& arg, s
     return true;
 }
 
-mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
+bool mesh_compiler::compileUnit::isOtherUnitValue(const type& t, std::string& arg, std::vector<compileField>& fields, const std::map<std::string, compileUnit>& unitsMap)
+{
+    if (unitsMap.find(arg) != unitsMap.end()) {
+        if (t != type::mc_none) throw formatInterpreterException(formatInterpreterException::error_code::unsupported_type, "units dont have types");
+        fields.push_back(compileField(type::mc_unit, value::mc_other_unit, arg.data(), arg.size()));
+        arg = "";
+        return true;
+    }
+    return false;
+}
+
+mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, const std::map<std::string, compileUnit>& unitsMap)
 {
     std::string line;
 
     // preamble
     {
         std::getline(file, line);
+        ++line_num;
         std::stringstream ss(line);
         std::string word;
         while (ss >> word) {
@@ -576,9 +588,11 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
 
                 if (isPreambleValue(t, word, this->preamble)) continue;
 
+                if (isOtherUnitValue(t, word, this->preamble, unitsMap)) continue;
+
                 if (isConstValue(t, word, this->preamble)) continue;
 
-                throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
+                throw formatInterpreterException(formatInterpreterException::error_code::unknown_statement);
             }
             catch (formatInterpreterException& e) {
                 e.fillInfo(line_num, arg);
@@ -589,19 +603,18 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
 
     // buffers
     while (std::getline(file, line)) {
+        ++line_num;
         compileBuffer buffer;
-        counting_type field_count = mc_any;
         bool fields_def = false;
         std::stringstream ss(line);
         std::string word;
         int word_num = -1;
         while (ss >> word) { // process word
             ++word_num;
-            ++line_num;
             std::string arg = word;
 
             if (word == "end" && word_num == 0) {
-                if (ss >> word) throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement, line_num, word);
+                if (ss >> word) throw formatInterpreterException(formatInterpreterException::error_code::unknown_statement, line_num, word);
                 return;
             }
 
@@ -616,14 +629,14 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
 
                     if (isPreambleValue(t, word, buffer.preamble)) continue;
 
-                    if (isFieldValue(t, word, buffer.fields, field_count)) {
+                    if (isFieldValue(t, word, buffer.fields, buffer.count_type)) {
                         fields_def = true;
                         continue;
                     }
 
                     if (isConstValue(t, word, buffer.preamble)) continue;
 
-                    throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
+                    throw formatInterpreterException(formatInterpreterException::error_code::unknown_statement);
                 }
                 catch (formatInterpreterException& e) {
                     e.fillInfo(line_num, arg);
@@ -636,11 +649,11 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
                 try {
                     type t = extractType(word);
 
-                    if (isFieldValue(t, word, buffer.fields, field_count)) continue;
+                    if (isFieldValue(t, word, buffer.fields, buffer.count_type)) continue;
 
                     if (isConstValue(t, word, buffer.fields)) continue;
 
-                    throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
+                    throw formatInterpreterException(formatInterpreterException::error_code::unknown_statement);
                 }
                 catch (formatInterpreterException& e) {
                     e.fillInfo(line_num, arg);
@@ -648,16 +661,16 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num)
                 }
             }
         }
-        if (field_count == mc_any) {
-            throw formatInterpreterException(formatInterpreterException::mc_err_constants_only, line_num, "");
+        if (buffer.count_type == mc_any) {
+            throw formatInterpreterException(formatInterpreterException::error_code::constants_only, line_num, "");
         }
         this->buffers.push_back(buffer);
     }
-    throw formatInterpreterException(formatInterpreterException::mc_err_no_end, line_num, "");
+    throw formatInterpreterException(formatInterpreterException::error_code::no_end, line_num, "");
 }
 
 
-mesh_compiler::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num) : compileUnit(file, line_num), output_file(output_file_)
+mesh_compiler::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num, const std::map<std::string, compileUnit>& unitsMap) : compileUnit(file, line_num, unitsMap), output_file(output_file_)
 {
 }
 
@@ -665,27 +678,28 @@ mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, 
 {
     std::ifstream formatFile(format_file, std::ios::in);
     if (!formatFile) {
-        throw formatInterpreterException(formatInterpreterException::mc_err_cannot_open_file, format_file);
+        throw formatInterpreterException(formatInterpreterException::error_code::cannot_open_file, format_file);
     }
 
     size_t line_num = 0;
     std::string line;
     while (std::getline(formatFile, line)) {
+        ++line_num;
         std::stringstream ss(line);
         std::string word;
         while (ss >> word) { // if would also work
             std::string arg = word; // for error messages only
-            if (word != "begin") throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement, line_num, arg);
-            if (!(ss >> word)) throw formatInterpreterException(formatInterpreterException::mc_err_no_unit_name, line_num, arg);
+            if (word != "begin") throw formatInterpreterException(formatInterpreterException::error_code::unknown_statement, line_num, arg);
+            if (!(ss >> word)) throw formatInterpreterException(formatInterpreterException::error_code::no_unit_name, line_num, arg);
             arg += " " + word;
             if (word == "file") {
-                if (!(ss >> word)) throw formatInterpreterException(formatInterpreterException::mc_err_no_file_name, line_num, arg);
-                this->file_units.push_back(fileUnit(formatFile, word, line_num));
+                if (!(ss >> word)) throw formatInterpreterException(formatInterpreterException::error_code::no_file_name, line_num, arg);
+                this->file_units.push_back(fileUnit(formatFile, word, line_num, units));
                 if (this->debug_messages) this->file_units.back().print();
             }
             else {
-                if (units.find(word) != units.end()) throw formatInterpreterException(formatInterpreterException::mc_err_unit_redefinition, line_num, arg);
-                this->units.emplace(word, compileUnit(formatFile, line_num));
+                if (units.find(word) != units.end()) throw formatInterpreterException(formatInterpreterException::error_code::unit_redefinition, line_num, arg);
+                this->units.emplace(word, compileUnit(formatFile, line_num, units));
                 if (this->debug_messages) this->units[word].print();
             }
         }
@@ -730,12 +744,16 @@ void mesh_compiler::runOnce(const std::vector<std::string>& args)
         std::cout << mc_version << std::endl;
         return;
     }
+#ifdef _DEBUG
+    compile(args);
+#else
     try {
         compile(args);
     }
     catch (std::runtime_error& e) {
         std::cout << e.what() << std::endl;
     }
+#endif
 }
 
 void mesh_compiler::compile(const std::vector<std::string>& args)
@@ -817,7 +835,7 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
         try {
             compileMesh(scene->mMeshes[i], fu);
         }
-        catch (std::exception& e) {
+        catch (meshCompilerException& e) {
             std::cout << e.what() << std::endl;
             std::cout << "compilation of mesh: " << scene->mMeshes[i]->mName.C_Str() << " ended up with errors.\n";
             errors += 1;
@@ -837,23 +855,11 @@ void mesh_compiler::compileMesh(const aiMesh* m, fileUnit fu)
 {
     // fill counts
     for (compileBuffer& buffer : fu.buffers) {
-        counting_type field_count = mc_any;
-        for (const compileField& cf : buffer.fields) {
-            counting_type ffc = getFieldCount(cf.vtype);
-            if (ffc != mc_any) {
-                if (ffc != field_count && field_count != mc_any) {
-                    throw meshCompilerException("format error: confilcting types detected in single buffer: conflicting types: " + std::to_string(cf.vtype) + " and " + std::to_string(ffc));
-                }
-                field_count = ffc;
-            }
-        }
-        if (field_count == mc_any) {
-            throw meshCompilerException("format error: detected buffer of only constants: unknown buffer size");
-        }
-        else if (field_count == mc_per_indice) buffer.count = m->mNumFaces;
-        else if (field_count == mc_per_vertex) buffer.count = m->mNumVertices;
+        if (buffer.count_type == mc_per_indice) buffer.count = m->mNumFaces;
+        else if (buffer.count_type == mc_per_vertex) buffer.count = m->mNumVertices;
+        else if (buffer.count_type == mc_per_bone) buffer.count = m->mNumBones;
         else {
-            throw meshCompilerException("format error: unknown field type count");
+            throw meshCompilerException("format error: unknown type count" + std::to_string(buffer.count_type));
         }
     }
 
