@@ -156,6 +156,7 @@ private:
         void setData(const void* data_source, const size_t& data_amount);
 
         size_t get_size() const;
+        std::string get_otherUnitName() const;
         void print(const int& indent = 0) const;
     };
 

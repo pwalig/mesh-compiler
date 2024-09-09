@@ -107,7 +107,7 @@ std::map<mesh_compiler::type, std::string> mesh_compiler::typeNamesMap = {
 std::map<mesh_compiler::value, std::string> mesh_compiler::valueNamesMap = {
     { value::null, "null"},
     { value::constant, "const"},
-    { value::other_unit, "const"},
+    { value::other_unit, "other_unit"},
     { value::indice, "indice" },
     { value::vertex, "vertex"},
     { value::normal, "normal"},
@@ -470,6 +470,12 @@ size_t mesh_compiler::compileField::get_size() const
     return typeSizesMap[stype];
 }
 
+std::string mesh_compiler::compileField::get_otherUnitName() const
+{
+    if (this->vtype != value::other_unit) throw std::logic_error("attempted to get unit name when value type was not other unit");
+    return std::string(this->data.begin(), this->data.end());
+}
+
 void mesh_compiler::compileField::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
@@ -575,6 +581,9 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
         // size
         switch (field.vtype)
         {
+        case value::other_unit:
+            (*unitsMap)[field.get_otherUnitName()].put(file, mesh);
+            break;
         case value::constant:
             file.write(field.data.data(), typeSizesMap[field.stype]);
             break;
@@ -1109,7 +1118,6 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
                 }
                 fu.put(fout, scene->mMeshes[i]);
                 fout.close();
-                //compileMesh(scene->mMeshes[i], fu);
             }
             catch (meshCompilerException& e) {
                 std::cout << e.what() << std::endl;
