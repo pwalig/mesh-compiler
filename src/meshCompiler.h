@@ -32,38 +32,38 @@ private:
         mc_double, mc_long_double
     };
     
-    enum value {
-        mc_null,
-        mc_constant,
-        mc_other_unit,
-        mc_indice,
-        mc_vertex,
-        mc_normal,
-        mc_tangent,
-        mc_bitangent,
-        mc_uv,
-        mc_vertex_color,
-        mc_unit_size,
-        mc_buffer_size,
-        mc_buffers_per_unit,
-        mc_entry_size,
-        mc_entries_per_unit,
-        mc_entries_per_buffer,
-        mc_field_size,
-        mc_fields_per_unit,
-        mc_fields_per_buffer,
-        mc_fields_per_entry
+    enum class value {
+        null,
+        constant,
+        other_unit,
+        indice,
+        vertex,
+        normal,
+        tangent,
+        bitangent,
+        uv,
+        vertex_color,
+        unit_size,
+        buffer_size,
+        buffers_per_unit,
+        entry_size,
+        entries_per_unit,
+        entries_per_buffer,
+        field_size,
+        fields_per_unit,
+        fields_per_buffer,
+        fields_per_entry
     };
     
-    enum counting_type {
-        mc_any,
-        mc_once,
-        mc_per_indice,
-        mc_per_vertex,
-        mc_per_bone,
-        mc_per_mesh,
-        mc_per_skeleton,
-        mc_per_animation
+    enum class counting_type {
+        null,
+        once,
+        per_indice,
+        per_vertex,
+        per_bone,
+        per_mesh,
+        per_skeleton,
+        per_animation
     };
 
     static type getDefaultValueType(const value& v);
@@ -143,7 +143,7 @@ private:
         std::vector<compileField> preamble;
         std::vector<compileField> fields;
         size_t count = 0;
-        counting_type count_type = counting_type::mc_any;
+        counting_type count_type = counting_type::null;
 
         size_t get_entry_size() const;
         size_t get_size() const;
@@ -155,7 +155,7 @@ private:
     public:
         std::vector<compileField> preamble;
         std::vector<compileBuffer> buffers;
-        counting_type count_type = counting_type::mc_any;
+        counting_type count_type = counting_type::null;
 
         compileUnit() = default;
         compileUnit(std::ifstream& file, size_t& line_num, const std::map<std::string, compileUnit>& unitsMap);
