@@ -85,7 +85,7 @@ std::map<mesh_compiler::type, unsigned short> mesh_compiler::typeSizesMap = {
 };
 
 std::map<char, unsigned short> suffixesMap = {
-    {'0', 0}, {'1', 1}, {'2', 2}, {'3', 3},
+    {'0', 0}, {'1', 1}, {'2', 2}, {'3', 3}, {'4', 4}, {'5', 5}, {'6', 6}, {'7', 7},
     {'x', 0}, {'y', 1}, {'z', 2},
     {'r', 0}, {'g', 1}, {'b', 2}, {'a', 3},
     {'u', 0}, {'v', 1}, {'w', 2}
@@ -460,10 +460,11 @@ mesh_compiler::value mesh_compiler::compileUnit::extractFieldValue(std::string& 
 {
     value v = mc_null;
     size_t pos = word.find('.');
-    std::string ftype;
+    std::string ftype = word;
     if (pos != std::string::npos) {
         ftype = word.substr(0, pos);
     }
+    else pos = word.size();
     if (fieldsMap.find(ftype) != fieldsMap.end()) {
         v = fieldsMap[ftype];
         word = word.substr(pos, word.size() - pos);
@@ -488,6 +489,8 @@ bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vec
     if (v != mc_null) {
         if (t == mc_none) t = getDefaultValueType(v);
         compileField field(t, v, nullptr, 0);
+
+        // counting type
         counting_type ffc = getFieldCount(field.vtype);
         if (ffc != mc_any) {
             if (ffc != field_count && field_count != mc_any) {
@@ -501,20 +504,35 @@ bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vec
             field_count = ffc;
         }
 
-        if (arg.size() <= 1) throw formatInterpreterException(formatInterpreterException::mc_err_no_suffix); // only '.' was in the arg or arg was empty
         std::vector<unsigned short> suffixes_data = getMaxSuffixes(v);
         while (arg.size() > 0) {
+            if (arg.size() == 1) {
+                if (arg[0] == '.') throw formatInterpreterException(formatInterpreterException::mc_err_no_suffix);
+                else throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
+            }
             if (arg[0] != '.') throw formatInterpreterException(formatInterpreterException::mc_err_unknown_statement);
             if (suffixesMap.find(arg[1]) == suffixesMap.end()) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix);
 
             field.data.push_back(suffixesMap[arg[1]]);
             if (field.data.size() > suffixes_data.size()) throw formatInterpreterException(formatInterpreterException::mc_err_wrong_suffixes_amount, "this field type requires up to " + std::to_string(suffixes_data.size()) + " suffixes");
-            if (field.data.back() >= suffixes_data[field.data.size() - 1]) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix, arg.substr(0, 2) + " suffix must be less than " + std::to_string(suffixes_data[field.data.size() - 1] + 1));
+            if (field.data.back() >= suffixes_data[field.data.size() - 1]) throw formatInterpreterException(formatInterpreterException::mc_err_invalid_suffix, arg.substr(0, 2) + " suffix must be less than " + std::to_string(suffixes_data[field.data.size() - 1]));
 
             arg = arg.substr(2, arg.size() - 2);
         }
-        if (field.data.size() != suffixes_data.size()) throw formatInterpreterException(formatInterpreterException::mc_err_wrong_suffixes_amount, "this field type requires exacly " + std::to_string(suffixes_data.size()) + " suffixes, provided: " + std::to_string(field.data.size()));
-        fields.push_back(field);
+
+        if (field.data.size() == suffixes_data.size()) {
+            fields.push_back(field);
+            return true;
+        }
+
+        for (int j = field.data.size(); j < suffixes_data.size(); ++j) {
+            field.data.push_back(0);
+            for (int i = 0; i < suffixes_data[j]; ++i) {
+                field.data.back() = i;
+                fields.push_back(field);
+            }
+        }
+
         return true;
     }
     return false;
@@ -522,7 +540,7 @@ bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vec
 
 bool mesh_compiler::compileUnit::isConstValue(const type& t, std::string& arg, std::vector<compileField>& fields)
 {
-    if (t == mc_none) false;
+    if (t == mc_none) return false;
 
     fields.push_back(compileField(t, mc_constant, nullptr, 0));
     fields.back().data.resize(typeSizesMap[t]);
