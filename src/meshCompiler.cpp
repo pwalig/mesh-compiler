@@ -346,9 +346,9 @@ void mesh_compiler::compileField::setData(const void* data_source, const size_t&
     memcpy(data.data(), data_source, data_amount);
 }
 
-unsigned int mesh_compiler::compileField::get_size(unsigned short byte_base) const
+size_t mesh_compiler::compileField::get_size() const
 {
-    return 4 / byte_base;
+    return typeSizesMap[stype];
 }
 
 void mesh_compiler::compileField::print(const int& indent) const
@@ -358,17 +358,17 @@ void mesh_compiler::compileField::print(const int& indent) const
     for (const char& c : data) std::cout << c;
 }
 
-unsigned int mesh_compiler::compileBuffer::get_entry_size(unsigned short byte_base) const
+size_t mesh_compiler::compileBuffer::get_entry_size() const
 {
-    unsigned int siz = 0;
+    size_t siz = 0;
     for (const compileField& cf : fields)
         siz += cf.get_size();
-    return siz / byte_base;
+    return siz;
 }
 
-unsigned int mesh_compiler::compileBuffer::get_size(unsigned short byte_base) const
+size_t mesh_compiler::compileBuffer::get_size() const
 {
-    return get_entry_size() * count / byte_base;
+    return get_entry_size() * count;
 }
 
 void mesh_compiler::compileBuffer::print(const int& indent) const
@@ -391,23 +391,23 @@ void mesh_compiler::compileBuffer::clear()
     this->fields.clear();
 }
 
-unsigned int mesh_compiler::compileUnit::get_size(unsigned short byte_base)
+size_t mesh_compiler::compileUnit::get_size()
 {
-    unsigned int siz = 0;
+    size_t siz = 0;
     for (const compileBuffer& cb : buffers) siz += cb.get_size();
     return siz;
 }
 
-unsigned int mesh_compiler::compileUnit::get_entries_count()
+size_t mesh_compiler::compileUnit::get_entries_count()
 {
-    unsigned int siz = 0;
+    size_t siz = 0;
     for (const compileBuffer& cb : buffers) siz += cb.count;
     return siz;
 }
 
-unsigned int mesh_compiler::compileUnit::get_fields_count()
+size_t mesh_compiler::compileUnit::get_fields_count()
 {
-    unsigned int siz = 0;
+    size_t siz = 0;
     for (const compileBuffer& cb : buffers) siz += cb.fields.size();
     return siz;
 }

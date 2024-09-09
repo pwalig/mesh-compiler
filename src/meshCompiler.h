@@ -126,7 +126,7 @@ private:
         void setAsConst(const type& t, const void* data_source);
         void setData(const void* data_source, const size_t& data_amount);
 
-        unsigned int get_size(unsigned short byte_base = 1) const;
+        size_t get_size() const;
         void print(const int& indent = 0) const;
     };
 
@@ -136,8 +136,8 @@ private:
         size_t count = 0;
         std::vector<compileField> fields;
 
-        unsigned int get_entry_size(unsigned short byte_base = 1) const;
-        unsigned int get_size(unsigned short byte_base = 1) const;
+        size_t get_entry_size() const;
+        size_t get_size() const;
         void print(const int& indent = 0) const;
         void clear();
     };
@@ -149,9 +149,9 @@ private:
 
         compileUnit(const std::string& filename);
 
-        unsigned int get_size(unsigned short byte_base = 1);
-        unsigned int get_entries_count();
-        unsigned int get_fields_count();
+        size_t get_size();
+        size_t get_entries_count();
+        size_t get_fields_count();
         void print(const int& indent = 0) const;
         void clear();
 
