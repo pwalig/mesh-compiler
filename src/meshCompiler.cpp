@@ -34,7 +34,12 @@ std::map<std::string, mesh_compiler::value> mesh_compiler::fieldsMap = {
     { "tangent", value::tangent },
     { "b", value::bitangent },
     { "bitangent", value::bitangent},
-    { "vertex_color0", value::vertex_color }
+    { "vertex_color", value::vertex_color },
+    { "position_key", value::position_key },
+    { "rotation_key", value::rotation_key },
+    { "scale_key", value::scale_key },
+    { "timestamp", value::timestamp },
+    { "duration", value::duration }
 };
 
 std::map<std::string, mesh_compiler::type> mesh_compiler::typesMap = {
@@ -84,6 +89,60 @@ std::map<mesh_compiler::type, unsigned short> mesh_compiler::typeSizesMap = {
     {mc_long_double, sizeof(long double)}
 };
 
+std::map<mesh_compiler::type, std::string> mesh_compiler::typeNamesMap = {
+    {mc_none, "null"},
+    {mc_char, "char"},
+    {mc_short, "int2"},
+    {mc_int, "int4"},
+    {mc_long, "int8"},
+    {mc_long_long, "int16"},
+    {mc_unsigned_short, "uint2"},
+    {mc_unsigned_int, "uint4"},
+    {mc_unsigned_long, "uint8"},
+    {mc_unsigned_long_long, "uint16"},
+    {mc_float, "float4"},
+    {mc_double, "float8"},
+    {mc_long_double, "float16"}
+};
+std::map<mesh_compiler::value, std::string> mesh_compiler::valueNamesMap = {
+    { value::null, "null"},
+    { value::constant, "const"},
+    { value::other_unit, "const"},
+    { value::indice, "indice" },
+    { value::vertex, "vertex"},
+    { value::normal, "normal"},
+    { value::uv, "uv" },
+    { value::tangent, "tangent"},
+    { value::bitangent, "bitangent"},
+    { value::vertex_color, "vertex_color"},
+    { value::position_key, "position_key"},
+    { value::rotation_key, "rotation_key"},
+    { value::scale_key, "scale_key"},
+    { value::timestamp, "timestamp"},
+    { value::duration, "duration"},
+    { value::buffers_per_unit, "buffc" },
+    { value::buffer_size, "buffs" },
+    { value::entries_per_unit, "entrya" },
+    { value::entries_per_buffer, "entryc" },
+    { value::entry_size, "entrys" },
+    { value::fields_per_unit, "fielda" },
+    { value::fields_per_buffer, "fielde"},
+    { value::fields_per_entry, "fieldc" },
+    { value::field_size, "fields"}
+};
+std::map<mesh_compiler::counting_type, std::string> mesh_compiler::countingTypeNamesMap = {
+    {counting_type::null, "null"},
+    {counting_type::per_indice, "per_indice"},
+    {counting_type::per_vertex, "per_vertex"},
+    {counting_type::per_mesh_bone, "per_mesh_bone"},
+    {counting_type::per_mesh, "per_mesh"},
+    {counting_type::per_bone, "per_bone"},
+    {counting_type::per_skeleton, "per_skeleton"},
+    {counting_type::per_keyframe, "per_keyframe"},
+    {counting_type::per_animation_channel, "per_animation_channel"},
+    {counting_type::per_animation, "per_animation"},
+};
+
 std::map<char, unsigned short> suffixesMap = {
     {'0', 0}, {'1', 1}, {'2', 2}, {'3', 3}, {'4', 4}, {'5', 5}, {'6', 6}, {'7', 7},
     {'x', 0}, {'y', 1}, {'z', 2},
@@ -104,6 +163,11 @@ mesh_compiler::type mesh_compiler::getDefaultValueType(const value& v)
     case value::bitangent:
     case value::uv:
     case value::vertex_color:
+    case value::position_key:
+    case value::rotation_key:
+    case value::scale_key:
+    case value::timestamp:
+    case value::duration:
         return mc_float;
 
     case value::unit_size:
@@ -120,7 +184,6 @@ mesh_compiler::type mesh_compiler::getDefaultValueType(const value& v)
 
     default:
         throw std::logic_error("value type without default type");
-        break;
     }
 }
 
@@ -134,13 +197,52 @@ mesh_compiler::counting_type mesh_compiler::getFieldCount(const value& t) {
     case value::uv:
     case value::vertex_color:
         return counting_type::per_vertex;
+
     case value::indice:
         return counting_type::per_indice;
+
+    case value::position_key:
+    case value::rotation_key:
+    case value::scale_key:
+    case value::timestamp:
+        return counting_type::per_keyframe;
+
+    case value::duration:
+        return counting_type::per_animation_channel;
+
     case value::constant:
         return counting_type::null;
+
     default:
         throw std::logic_error("value with no field count querried for field count");
-        break;
+    }
+}
+
+mesh_compiler::counting_type mesh_compiler::getParentCountingType(const counting_type& ct)
+{
+    switch (ct)
+    {
+    case counting_type::per_indice:
+    case counting_type::per_vertex:
+    case counting_type::per_mesh_bone:
+        return counting_type::per_mesh;
+
+    case counting_type::per_bone:
+        return counting_type::per_skeleton;
+
+    case counting_type::per_keyframe:
+        return counting_type::per_animation_channel;
+
+    case counting_type::per_animation_channel:
+        return counting_type::per_animation;
+
+    case counting_type::per_mesh:
+    case counting_type::per_skeleton:
+    case counting_type::per_animation:
+        return counting_type::per_scene;
+
+    default:
+        throw std::logic_error("counting type has no parent");
     }
 }
 
@@ -149,11 +251,17 @@ std::vector<unsigned short> mesh_compiler::getMaxSuffixes(const value& t)
     std::vector<unsigned short> out;
     switch (t)
     {
+    case value::timestamp:
+    case value::duration:
+        return out;
     case value::indice:
     case value::vertex:
     case value::normal:
     case value::tangent:
     case value::bitangent:
+    case value::position_key:
+    case value::rotation_key:
+    case value::scale_key:
         out.push_back(3);
         return out;
     case value::uv:
@@ -289,7 +397,8 @@ std::map<mesh_compiler::formatInterpreterException::error_code, std::string> mes
     {formatInterpreterException::error_code::byte_base_in_count_type, "given byte base in count type"},
     {formatInterpreterException::error_code::field_spec_in_preamble, "attempted field specification in preamble"},
     {formatInterpreterException::error_code::unsupported_type, "unsupported type"},
-    {formatInterpreterException::error_code::conflicting_fields, "confilcting types detected in single buffer"},
+    {formatInterpreterException::error_code::conflicting_buffer_fields, "confilcting types detected in single buffer"},
+    {formatInterpreterException::error_code::conflicting_unit_fields, "confilcting types detected in single unit"},
     {formatInterpreterException::error_code::constants_only, "detected buffer of only constants - unknown buffer size"},
     {formatInterpreterException::error_code::no_unit_name, "unit name unspecified"},
     {formatInterpreterException::error_code::no_file_name, "file name unspecified"},
@@ -364,7 +473,7 @@ size_t mesh_compiler::compileField::get_size() const
 void mesh_compiler::compileField::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "field info: type: " << stype << ":" << (int)vtype;
+    std::cout << "field: " << typeNamesMap[stype] << ":" << valueNamesMap[vtype] << ":";
     for (const char& c : data) std::cout << c;
 }
 
@@ -384,7 +493,7 @@ size_t mesh_compiler::compileBuffer::get_size() const
 void mesh_compiler::compileBuffer::print(const int& indent) const
 {
     for (int i = 0; i < indent; ++i) printf(" ");
-    std::cout << "buffer info: preamble: ";
+    std::cout << "buffer: preamble: ";
     for (const compileField& f : preamble) {
         f.print();
     }
@@ -436,6 +545,164 @@ void mesh_compiler::compileUnit::clear()
 {
     this->preamble.clear();
     this->buffers.clear();
+}
+
+void mesh_compiler::compileUnit::put(std::ofstream& file, const aiSkeleton* skeleton)
+{
+    if (this->count_type != counting_type::per_skeleton) throw meshCompilerException("invalid compilation unit for this object");
+}
+
+void mesh_compiler::compileUnit::put(std::ofstream& file, const aiAnimation* animation)
+{
+    if (this->count_type != counting_type::per_animation) throw meshCompilerException("invalid compilation unit for this object");
+}
+
+void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
+{
+    if (this->count_type != counting_type::per_mesh) throw meshCompilerException("invalid compilation unit for this object");
+    // fill counts
+    for (compileBuffer& buffer : this->buffers) {
+        if (buffer.count_type == counting_type::per_indice) buffer.count = mesh->mNumFaces;
+        else if (buffer.count_type == counting_type::per_vertex) buffer.count = mesh->mNumVertices;
+        else if (buffer.count_type == counting_type::per_mesh_bone) buffer.count = mesh->mNumBones;
+        else {
+            throw meshCompilerException("format error: unknown type count" + countingTypeNamesMap[buffer.count_type]);
+        }
+    }
+
+    // preamble
+    for (const compileField& field : this->preamble) {
+        // size
+        switch (field.vtype)
+        {
+        case value::constant:
+            file.write(field.data.data(), typeSizesMap[field.stype]);
+            break;
+        case value::buffer_size:
+            for (const compileBuffer& cb : this->buffers) {
+                writeConst(file, cb.get_size(), field.stype);
+            }
+            break;
+        case value::buffers_per_unit:
+            writeConst(file, this->buffers.size(), field.stype);
+            break;
+        case value::entry_size:
+            for (const compileBuffer& cb : this->buffers) {
+                writeConst(file, cb.get_entry_size(), field.stype);
+            }
+            break;
+        case value::entries_per_buffer:
+            for (const compileBuffer& cb : this->buffers) {
+                writeConst(file, cb.count, field.stype);
+            }
+            break;
+        case value::entries_per_unit:
+            writeConst(file, this->get_entries_count(), field.stype);
+            break;
+        case value::field_size:
+            for (const compileBuffer& cb : this->buffers) {
+                for (const compileField& cf : cb.fields) {
+                    writeConst(file, cf.get_size(), field.stype);
+                }
+            }
+            break;
+        case value::fields_per_entry:
+            for (const compileBuffer& cb : this->buffers) {
+                writeConst(file, cb.fields.size(), field.stype);
+            }
+            break;
+        case value::fields_per_buffer:
+            for (const compileBuffer& cb : this->buffers) {
+                writeConst(file, cb.fields.size() * cb.count, field.stype);
+            }
+            break;
+        case value::fields_per_unit:
+            writeConst(file, this->get_fields_count(), field.stype);
+            break;
+        default:
+            throw meshCompilerException("compilation error: unknown buffer info flag: " + valueNamesMap[field.vtype]);
+            break;
+        }
+    }
+
+    // buffers
+    for (const compileBuffer& cb : this->buffers) {
+
+        // format info
+        for (const compileField& field : cb.preamble) {
+
+            // size
+            switch (field.vtype)
+            {
+            case value::constant:
+                file.write(field.data.data(), typeSizesMap[field.stype]);
+                break;
+            case value::buffer_size:
+                writeConst(file, cb.get_size(), field.stype);
+                break;
+            case value::entry_size:
+                writeConst(file, cb.get_entry_size(), field.stype);
+                break;
+            case value::entries_per_buffer:
+                writeConst(file, cb.count, field.stype);
+                break;
+            case value::field_size:
+                for (const compileField& cf : cb.fields) {
+                    writeConst(file, cf.get_size(), field.stype);
+                }
+                break;
+            case value::fields_per_entry:
+                writeConst(file, cb.fields.size(), field.stype);
+                break;
+            case value::fields_per_buffer:
+                writeConst(file, cb.fields.size() * cb.count, field.stype);
+                break;
+            default:
+                throw meshCompilerException("compilation error: unknown buffer info flag: " + valueNamesMap[field.vtype]);
+                break;
+            }
+        }
+
+        // data buffers
+        for (unsigned int j = 0; j < cb.count; ++j) {
+            for (const compileField& field : cb.fields) {
+                switch (field.vtype)
+                {
+                case value::constant:
+                    file.write(field.data.data(), typeSizesMap[field.stype]);
+                    break;
+                case value::indice:
+                    writeConst(file, mesh->mFaces[j].mIndices[field.data[0]], field.stype);
+                    break;
+                case value::vertex:
+                    writeConst(file, mesh->mVertices[j][field.data[0]], field.stype);
+                    break;
+                case value::normal:
+                    writeConst(file, mesh->mNormals[j][field.data[0]], field.stype);
+                    break;
+                case value::uv:
+                    writeConst(file, mesh->mTextureCoords[field.data[0]][j][field.data[1]], field.stype);
+                    break;
+                case value::tangent:
+                    writeConst(file, mesh->mTangents[j][field.data[0]], field.stype);
+                    break;
+                case value::bitangent:
+                    writeConst(file, mesh->mBitangents[j][field.data[0]], field.stype);
+                    break;
+                case value::vertex_color:
+                    writeConst(file, mesh->mColors[field.data[0]][j][field.data[1]], field.stype);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void mesh_compiler::compileUnit::put(std::ofstream& file, const aiScene* scene)
+{
+    if (this->count_type != counting_type::per_scene) throw meshCompilerException("invalid compilation unit for this object");
 }
 
 mesh_compiler::type mesh_compiler::compileUnit::extractType(std::string& word)
@@ -493,22 +760,26 @@ bool mesh_compiler::compileUnit::isPreambleValue(type t, std::string& arg, std::
     return false;
 }
 
-bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count)
+bool mesh_compiler::compileUnit::isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count, counting_type& unit_count)
 {
     value v = extractFieldValue(arg);
     if (v != value::null) {
         if (t == mc_none) t = getDefaultValueType(v);
         compileField field(t, v, nullptr, 0);
 
-        // counting type
+        // field counting type
         counting_type ffc = getFieldCount(field.vtype);
         if (ffc != counting_type::null) {
             if (ffc != field_count && field_count != counting_type::null) {
-                std::string error_message = " conflicting types: " + std::to_string((int)field.vtype) + " and " + std::to_string((int)field_count) + ".";
-                throw formatInterpreterException(formatInterpreterException::error_code::conflicting_fields, error_message);
+                throw formatInterpreterException(formatInterpreterException::error_code::conflicting_buffer_fields, " conflicting types: " + valueNamesMap[field.vtype] + " and " + countingTypeNamesMap[field_count]);
             }
             field_count = ffc;
         }
+
+        // unit counting type
+        ffc = getParentCountingType(field_count);
+        if (unit_count == counting_type::null) unit_count = ffc;
+        else if (unit_count != ffc) throw formatInterpreterException(formatInterpreterException::error_code::conflicting_unit_fields, " conflicting types: " + countingTypeNamesMap[ffc] + " and " + countingTypeNamesMap[unit_count]);
 
         std::vector<unsigned short> suffixes_data = getMaxSuffixes(v);
         while (arg.size() > 0) {
@@ -556,10 +827,12 @@ bool mesh_compiler::compileUnit::isConstValue(const type& t, std::string& arg, s
     return true;
 }
 
-bool mesh_compiler::compileUnit::isOtherUnitValue(const type& t, std::string& arg, std::vector<compileField>& fields, const std::map<std::string, compileUnit>& unitsMap)
+bool mesh_compiler::compileUnit::isOtherUnitValue(const type& t, std::string& arg, std::vector<compileField>& fields, counting_type& count_type, /*const*/ std::map<std::string, compileUnit>& unitsMap)
 {
     if (unitsMap.find(arg) != unitsMap.end()) {
         if (t != type::mc_none) throw formatInterpreterException(formatInterpreterException::error_code::unsupported_type, "units dont have types");
+        if (count_type == counting_type::null) count_type = unitsMap[arg].count_type;
+        else if (count_type != unitsMap[arg].count_type) throw formatInterpreterException(formatInterpreterException::error_code::conflicting_unit_fields, "conflicting types: " + countingTypeNamesMap[unitsMap[arg].count_type] + " and " + countingTypeNamesMap[count_type]);
         fields.push_back(compileField(type::mc_unit, value::other_unit, arg.data(), arg.size()));
         arg = "";
         return true;
@@ -567,7 +840,7 @@ bool mesh_compiler::compileUnit::isOtherUnitValue(const type& t, std::string& ar
     return false;
 }
 
-mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, const std::map<std::string, compileUnit>& unitsMap)
+mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, /*const*/ std::map<std::string, compileUnit>* unitsMap) : unitsMap(unitsMap)
 {
     std::string line;
 
@@ -584,7 +857,7 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, c
 
                 if (isPreambleValue(t, word, this->preamble)) continue;
 
-                if (isOtherUnitValue(t, word, this->preamble, unitsMap)) continue;
+                if (isOtherUnitValue(t, word, this->preamble, this->count_type, *unitsMap)) continue;
 
                 if (isConstValue(t, word, this->preamble)) continue;
 
@@ -625,7 +898,7 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, c
 
                     if (isPreambleValue(t, word, buffer.preamble)) continue;
 
-                    if (isFieldValue(t, word, buffer.fields, buffer.count_type)) {
+                    if (isFieldValue(t, word, buffer.fields, buffer.count_type, this->count_type)) {
                         fields_def = true;
                         continue;
                     }
@@ -645,7 +918,7 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, c
                 try {
                     type t = extractType(word);
 
-                    if (isFieldValue(t, word, buffer.fields, buffer.count_type)) continue;
+                    if (isFieldValue(t, word, buffer.fields, buffer.count_type, this->count_type)) continue;
 
                     if (isConstValue(t, word, buffer.fields)) continue;
 
@@ -666,7 +939,7 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, c
 }
 
 
-mesh_compiler::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num, const std::map<std::string, compileUnit>& unitsMap) : compileUnit(file, line_num, unitsMap), output_file(output_file_)
+mesh_compiler::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num, /*const*/ std::map<std::string, compileUnit>* unitsMap) : compileUnit(file, line_num, unitsMap), output_file(output_file_)
 {
 }
 
@@ -690,12 +963,12 @@ mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, 
             arg += " " + word;
             if (word == "file") {
                 if (!(ss >> word)) throw formatInterpreterException(formatInterpreterException::error_code::no_file_name, line_num, arg);
-                this->file_units.push_back(fileUnit(formatFile, word, line_num, units));
+                this->file_units.push_back(fileUnit(formatFile, word, line_num, &units));
                 if (this->debug_messages) this->file_units.back().print();
             }
             else {
                 if (units.find(word) != units.end()) throw formatInterpreterException(formatInterpreterException::error_code::unit_redefinition, line_num, arg);
-                this->units.emplace(word, compileUnit(formatFile, line_num, units));
+                this->units.emplace(word, compileUnit(formatFile, line_num, &units));
                 if (this->debug_messages) this->units[word].print();
             }
         }
@@ -824,177 +1097,34 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
 
     // find name and extension
     std::string orig_name = fu.output_file;
-    int errors = 0;
-    for (int i = 0; i < scene->mNumMeshes; ++i) {
-        size_t found = fu.output_file.find("{mesh}");
-        if (found != std::string::npos) fu.output_file.replace(found, 6, scene->mMeshes[i]->mName.C_Str());
-        try {
-            compileMesh(scene->mMeshes[i], fu);
+    if (fu.count_type == counting_type::per_mesh) {
+        int errors = 0;
+        for (int i = 0; i < scene->mNumMeshes; ++i) {
+            size_t found = fu.output_file.find("{mesh}");
+            if (found != std::string::npos) fu.output_file.replace(found, 6, scene->mMeshes[i]->mName.C_Str());
+            try {
+                std::ofstream fout(fu.output_file, std::ios::out | std::ios::binary);
+                if (!fout) {
+                    throw std::runtime_error("compilation error: cannot open file: " + fu.output_file);
+                }
+                fu.put(fout, scene->mMeshes[i]);
+                fout.close();
+                //compileMesh(scene->mMeshes[i], fu);
+            }
+            catch (meshCompilerException& e) {
+                std::cout << e.what() << std::endl;
+                std::cout << "compilation of mesh: " << scene->mMeshes[i]->mName.C_Str() << " ended up with errors.\n";
+                errors += 1;
+            }
+            fu.output_file = orig_name; // go back to original name
         }
-        catch (meshCompilerException& e) {
-            std::cout << e.what() << std::endl;
-            std::cout << "compilation of mesh: " << scene->mMeshes[i]->mName.C_Str() << " ended up with errors.\n";
-            errors += 1;
+        if (errors != 0) {
+            std::cout << "scene compilation ended with errors\n";
+            printf("compiled %d out of %d meshes\n", scene->mNumMeshes - errors, scene->mNumMeshes);
+            return;
         }
-        fu.output_file = orig_name; // go back to original name
     }
+    else throw meshCompilerException("for now units of count types other than per_mesh are unsupported: count type was: " + countingTypeNamesMap[fu.count_type]);
 
-    if (errors != 0) {
-        std::cout << "scene compilation ended with errors\n";
-        printf("compiled %d out of %d meshes\n", scene->mNumMeshes - errors, scene->mNumMeshes);
-        return;
-    }
     std::cout << "scene compilation ended with success\n";
-}
-
-void mesh_compiler::compileMesh(const aiMesh* m, fileUnit fu)
-{
-    // fill counts
-    for (compileBuffer& buffer : fu.buffers) {
-        if (buffer.count_type == counting_type::per_indice) buffer.count = m->mNumFaces;
-        else if (buffer.count_type == counting_type::per_vertex) buffer.count = m->mNumVertices;
-        else if (buffer.count_type == counting_type::per_bone) buffer.count = m->mNumBones;
-        else {
-            throw meshCompilerException("format error: unknown type count" + std::to_string((int)buffer.count_type));
-        }
-    }
-
-    // output file creation
-    std::ofstream fout(fu.output_file, std::ios::out | std::ios::binary);
-    if (!fout) {
-        throw std::runtime_error("compilation error: cannot open file: " + fu.output_file);
-    }
-
-    // preamble
-    for (const compileField& field : fu.preamble) {
-        // size
-        switch (field.vtype)
-        {
-        case value::constant:
-            fout.write(field.data.data(), typeSizesMap[field.stype]);
-            break;
-        case value::buffer_size:
-            for (const compileBuffer& cb : fu.buffers) {
-                writeConst(fout, cb.get_size(), field.stype);
-            }
-            break;
-        case value::buffers_per_unit:
-            writeConst(fout, fu.buffers.size(), field.stype);
-            break;
-        case value::entry_size:
-            for (const compileBuffer& cb : fu.buffers) {
-                writeConst(fout, cb.get_entry_size(), field.stype);
-            }
-            break;
-        case value::entries_per_buffer:
-            for (const compileBuffer& cb : fu.buffers) {
-                writeConst(fout, cb.count, field.stype);
-            }
-            break;
-        case value::entries_per_unit:
-            writeConst(fout, fu.get_entries_count(), field.stype);
-            break;
-        case value::field_size:
-            for (const compileBuffer& cb : fu.buffers) {
-                for (const compileField& cf : cb.fields) {
-                    writeConst(fout, cf.get_size(), field.stype);
-                }
-            }
-            break;
-        case value::fields_per_entry:
-            for (const compileBuffer& cb : fu.buffers) {
-                writeConst(fout, cb.fields.size(), field.stype);
-            }
-            break;
-        case value::fields_per_buffer:
-            for (const compileBuffer& cb : fu.buffers) {
-                writeConst(fout, cb.fields.size() * cb.count, field.stype);
-            }
-            break;
-        case value::fields_per_unit:
-            writeConst(fout, fu.get_fields_count(), field.stype);
-            break;
-        default:
-            throw meshCompilerException("compilation error: unknown buffer info flag: " + std::to_string((int)field.vtype));
-            break;
-        }
-    }
-
-    // buffers
-    for (const compileBuffer& cb : fu.buffers) {
-
-        // format info
-        for (const compileField& field : cb.preamble) {
-
-            // size
-            switch (field.vtype)
-            {
-            case value::constant:
-                fout.write(field.data.data(), typeSizesMap[field.stype]);
-                break;
-            case value::buffer_size:
-                writeConst(fout, cb.get_size(), field.stype);
-                break;
-            case value::entry_size:
-                writeConst(fout, cb.get_entry_size(), field.stype);
-                break;
-            case value::entries_per_buffer:
-                writeConst(fout, cb.count, field.stype);
-                break;
-            case value::field_size:
-                for (const compileField& cf : cb.fields) {
-                    writeConst(fout, cf.get_size(), field.stype);
-                }
-                break;
-            case value::fields_per_entry:
-                writeConst(fout, cb.fields.size(), field.stype);
-                break;
-            case value::fields_per_buffer:
-                writeConst(fout, cb.fields.size()* cb.count, field.stype);
-                break;
-            default:
-                throw meshCompilerException("compilation error: unknown buffer info flag: " + std::to_string((int)field.vtype));
-                break;
-            }
-        }
-
-        // data buffers
-        for (unsigned int j = 0; j < cb.count; ++j) {
-            for (const compileField& field : cb.fields) {
-                //unsigned short ind = field.data[0];
-                switch (field.vtype)
-                {
-                case value::constant:
-                    fout.write(field.data.data(), typeSizesMap[field.stype]);
-                    break;
-                case value::indice:
-                    writeConst(fout, m->mFaces[j].mIndices[field.data[0]], field.stype);
-                    break;
-                case value::vertex:
-                    writeConst(fout, m->mVertices[j][field.data[0]], field.stype);
-                    break;
-                case value::normal:
-                    writeConst(fout, m->mNormals[j][field.data[0]], field.stype);
-                    break;
-                case value::uv:
-                    writeConst(fout, m->mTextureCoords[field.data[0]][j][field.data[1]], field.stype);
-                    break;
-                case value::tangent:
-                    writeConst(fout, m->mTangents[j][field.data[0]], field.stype);
-                    break;
-                case value::bitangent:
-                    writeConst(fout, m->mBitangents[j][field.data[0]], field.stype);
-                    break;
-                case value::vertex_color:
-                    writeConst(fout, m->mColors[field.data[0]][j][field.data[1]], field.stype);
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-    }
-
-    fout.close();
-    std::cout << "mesh: " + std::string(m->mName.C_Str()) + " compilation succeded\n";
 }

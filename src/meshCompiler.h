@@ -18,6 +18,7 @@ private:
 
     enum type {
         mc_none,
+
         mc_unit,
         mc_char,
         mc_short,
@@ -34,6 +35,7 @@ private:
     
     enum class value {
         null,
+
         constant,
         other_unit,
         indice,
@@ -43,6 +45,12 @@ private:
         bitangent,
         uv,
         vertex_color,
+        position_key,
+        rotation_key,
+        scale_key,
+        timestamp,
+        duration,
+
         unit_size,
         buffer_size,
         buffers_per_unit,
@@ -57,17 +65,25 @@ private:
     
     enum class counting_type {
         null,
-        once,
+
         per_indice,
         per_vertex,
-        per_bone,
+        per_mesh_bone,
         per_mesh,
+
+        per_bone,
         per_skeleton,
-        per_animation
+
+        per_keyframe,
+        per_animation_channel,
+        per_animation,
+
+        per_scene
     };
 
     static type getDefaultValueType(const value& v);
     static counting_type getFieldCount(const value& t);
+    static counting_type getParentCountingType(const counting_type& ct);
     static std::vector<unsigned short> getMaxSuffixes(const value& t);
     static void copyConstantToMemory(void* dst, const type& type, const std::string& val);
 
@@ -75,6 +91,10 @@ private:
     static std::map<std::string, value> fieldsMap;
     static std::map<std::string, type> typesMap;
     static std::map<type, unsigned short> typeSizesMap;
+
+    static std::map<type, std::string> typeNamesMap;
+    static std::map<value, std::string> valueNamesMap;
+    static std::map<counting_type, std::string> countingTypeNamesMap;
 
 // ========== EXCEPTIONS ==========
 
@@ -92,7 +112,8 @@ private:
             byte_base_in_count_type,
             field_spec_in_preamble,
             unsupported_type,
-            conflicting_fields,
+            conflicting_buffer_fields,
+            conflicting_unit_fields,
             constants_only,
             no_unit_name,
             no_file_name,
@@ -156,9 +177,10 @@ private:
         std::vector<compileField> preamble;
         std::vector<compileBuffer> buffers;
         counting_type count_type = counting_type::null;
+        std::map<std::string, compileUnit>* unitsMap = nullptr;
 
         compileUnit() = default;
-        compileUnit(std::ifstream& file, size_t& line_num, const std::map<std::string, compileUnit>& unitsMap);
+        compileUnit(std::ifstream& file, size_t& line_num, /*const*/ std::map<std::string, compileUnit>* unitsMap);
 
         size_t get_size();
         size_t get_entries_count();
@@ -166,21 +188,26 @@ private:
         void print(const int& indent = 0) const;
         void clear();
 
+        void put(std::ofstream& file, const aiSkeleton* skeleton);
+        void put(std::ofstream& file, const aiAnimation* animation);
+        void put(std::ofstream& file, const aiMesh* mesh);
+        void put(std::ofstream& file, const aiScene* scene);
+
     private:
         static type extractType(std::string& word);
         static value extractPreambleValue(std::string& word);
         static value extractFieldValue(std::string& word);
         static bool isPreambleValue(type t, std::string& arg, std::vector<compileField>& fields);
-        static bool isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count);
+        static bool isFieldValue(type t, std::string& arg, std::vector<compileField>& fields, counting_type& field_count, counting_type& unit_count);
         static bool isConstValue(const type& t, std::string& arg, std::vector<compileField>& fields);
-        static bool isOtherUnitValue(const type& t, std::string& arg, std::vector<compileField>& fields, const std::map<std::string, compileUnit>& unitsMap);
+        static bool isOtherUnitValue(const type& t, std::string& arg, std::vector<compileField>& fields, counting_type& count_type, /*const*/ std::map<std::string, compileUnit>& unitsMap);
     };
 
     class fileUnit : public compileUnit {
     public:
         std::string output_file;
 
-        fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num, const std::map<std::string, compileUnit>& unitsMap);
+        fileUnit(std::ifstream& file, const std::string& output_file_, size_t& line_num, /*const*/ std::map<std::string, compileUnit>* unitsMap);
     };
 
     class compilationInfo {
@@ -202,7 +229,6 @@ private:
     static void compile(const std::vector<std::string>& args);
     static void compileFile(const std::string& filename, compilationInfo ci);
     static void compileScene(const aiScene* scene, fileUnit ci);
-    static void compileMesh(const aiMesh* m, fileUnit ci);
 
 
     template <typename T>
