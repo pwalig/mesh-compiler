@@ -23,6 +23,7 @@ std::map<std::string, mesh_compiler::value> mesh_compiler::preambleMap = {
 std::map<std::string, mesh_compiler::value> mesh_compiler::fieldsMap = {
     { "i", value::indice},
     { "indice", value::indice},
+
     { "v", value::vertex},
     { "vertex", value::vertex},
     { "n", value::normal},
@@ -36,10 +37,28 @@ std::map<std::string, mesh_compiler::value> mesh_compiler::fieldsMap = {
     { "b", value::bitangent },
     { "bitangent", value::bitangent},
     { "vertex_color", value::vertex_color },
+
+    { "off_matr", value::offset_matrix },
+    { "off_matrix", value::offset_matrix },
+    { "offset_matr", value::offset_matrix },
+    { "offset_matrix", value::offset_matrix },
+
     { "position_key", value::position_key },
     { "rotation_key", value::rotation_key },
     { "scale_key", value::scale_key },
-    { "timestamp", value::timestamp },
+    { "position_key_timestamp", value::position_key_timestamp },
+    { "rotation_key_timestamp", value::rotation_key_timestamp },
+    { "scale_key_timestamp", value::scale_key_timestamp },
+    { "position_key_time", value::position_key_timestamp },
+    { "rotation_key_time", value::rotation_key_timestamp },
+    { "scale_key_time", value::scale_key_timestamp },
+    { "position_timestamp", value::position_key_timestamp },
+    { "rotation_timestamp", value::rotation_key_timestamp },
+    { "scale_timestamp", value::scale_key_timestamp },
+    { "position_time", value::position_key_timestamp },
+    { "rotation_time", value::rotation_key_timestamp },
+    { "scale_time", value::scale_key_timestamp },
+
     { "duration", value::duration },
     { "ticks_per_second", value::ticks_per_second }
 };
@@ -109,8 +128,10 @@ std::map<mesh_compiler::type, std::string> mesh_compiler::typeNamesMap = {
 };
 std::map<mesh_compiler::value, std::string> mesh_compiler::valueNamesMap = {
     { value::null, "null"},
+
     { value::constant, "const"},
     { value::other_unit, "other_unit"},
+
     { value::indice, "indice" },
     { value::vertex, "vertex"},
     { value::normal, "normal"},
@@ -118,21 +139,29 @@ std::map<mesh_compiler::value, std::string> mesh_compiler::valueNamesMap = {
     { value::bitangent, "bitangent"},
     { value::uv, "uv" },
     { value::vertex_color, "vertex_color"},
+
+    { value::offset_matrix, "offset_matrix"},
+
     { value::position_key, "position_key"},
     { value::rotation_key, "rotation_key"},
     { value::scale_key, "scale_key"},
-    { value::timestamp, "timestamp"},
+    { value::position_key_timestamp, "position_key_timestamp"},
+    { value::rotation_key_timestamp, "rotation_key_timestamp"},
+    { value::scale_key_timestamp, "scale_key_timestamp"},
+
     { value::duration, "duration"},
     { value::ticks_per_second, "ticks_per_second"},
-    { value::buffers_per_unit, "buffc" },
+
+    { value::unit_size, "units" },
     { value::buffer_size, "buffs" },
-    { value::entries_per_unit, "entrya" },
-    { value::entries_per_buffer, "entryc" },
+    { value::buffers_per_unit, "buffu" },
     { value::entry_size, "entrys" },
-    { value::fields_per_unit, "fielda" },
-    { value::fields_per_buffer, "fielde"},
-    { value::fields_per_entry, "fieldc" },
-    { value::field_size, "fields"}
+    { value::entries_per_unit, "entryu" },
+    { value::entries_per_buffer, "entryb" },
+    { value::field_size, "fields"},
+    { value::fields_per_unit, "fieldu" },
+    { value::fields_per_buffer, "fieldb"},
+    { value::fields_per_entry, "fielde" }
 };
 std::map<mesh_compiler::counting_type, std::string> mesh_compiler::countingTypeNamesMap = {
     {counting_type::null, "null"},
@@ -142,7 +171,9 @@ std::map<mesh_compiler::counting_type, std::string> mesh_compiler::countingTypeN
     {counting_type::per_mesh, "per_mesh"},
     {counting_type::per_bone, "per_bone"},
     {counting_type::per_skeleton, "per_skeleton"},
-    {counting_type::per_keyframe, "per_keyframe"},
+    {counting_type::per_position_keyframe, "per_position_keyframe"},
+    {counting_type::per_rotation_keyframe, "per_rotation_keyframe"},
+    {counting_type::per_scale_keyframe, "per_scale_keyframe"},
     {counting_type::per_animation_channel, "per_animation_channel"},
     {counting_type::per_animation, "per_animation"},
 };
@@ -170,9 +201,12 @@ mesh_compiler::type mesh_compiler::getDefaultValueType(const value& v)
     case value::position_key:
     case value::rotation_key:
     case value::scale_key:
-    case value::timestamp:
+    case value::offset_matrix:
         return mc_float;
 
+    case value::position_key_timestamp:
+    case value::rotation_key_timestamp:
+    case value::scale_key_timestamp:
     case value::duration:
     case value::ticks_per_second:
         return mc_double;
@@ -197,6 +231,9 @@ mesh_compiler::type mesh_compiler::getDefaultValueType(const value& v)
 mesh_compiler::counting_type mesh_compiler::getFieldCount(const value& t) {
     switch (t)
     {
+    case value::indice:
+        return counting_type::per_indice;
+
     case value::vertex:
     case value::normal:
     case value::tangent:
@@ -205,14 +242,20 @@ mesh_compiler::counting_type mesh_compiler::getFieldCount(const value& t) {
     case value::vertex_color:
         return counting_type::per_vertex;
 
-    case value::indice:
-        return counting_type::per_indice;
+    case value::offset_matrix:
+        return counting_type::per_bone;
 
     case value::position_key:
+    case value::position_key_timestamp:
+        return counting_type::per_position_keyframe;
+
     case value::rotation_key:
+    case value::rotation_key_timestamp:
+        return counting_type::per_rotation_keyframe;
+
     case value::scale_key:
-    case value::timestamp:
-        return counting_type::per_keyframe;
+    case value::scale_key_timestamp:
+        return counting_type::per_scale_keyframe;
 
     case value::duration:
     case value::ticks_per_second:
@@ -238,7 +281,9 @@ mesh_compiler::counting_type mesh_compiler::getParentCountingType(const counting
     case counting_type::per_bone:
         return counting_type::per_skeleton;
 
-    case counting_type::per_keyframe:
+    case counting_type::per_position_keyframe:
+    case counting_type::per_rotation_keyframe:
+    case counting_type::per_scale_keyframe:
         return counting_type::per_animation_channel;
 
     case counting_type::per_animation_channel:
@@ -259,7 +304,9 @@ std::vector<unsigned short> mesh_compiler::getMaxSuffixes(const value& t)
     std::vector<unsigned short> out;
     switch (t)
     {
-    case value::timestamp:
+    case value::position_key_timestamp:
+    case value::rotation_key_timestamp:
+    case value::scale_key_timestamp:
     case value::duration:
     case value::ticks_per_second:
         return out;
@@ -269,9 +316,11 @@ std::vector<unsigned short> mesh_compiler::getMaxSuffixes(const value& t)
     case value::tangent:
     case value::bitangent:
     case value::position_key:
-    case value::rotation_key:
     case value::scale_key:
         out.push_back(3);
+        return out;
+    case value::rotation_key:
+        out.push_back(4);
         return out;
     case value::uv:
         out.push_back(8);
@@ -279,6 +328,10 @@ std::vector<unsigned short> mesh_compiler::getMaxSuffixes(const value& t)
         return out;
     case value::vertex_color:
         out.push_back(8);
+        out.push_back(4);
+        return out;
+    case value::offset_matrix:
+        out.push_back(4);
         out.push_back(4);
         return out;
     default:
@@ -643,13 +696,123 @@ void mesh_compiler::compileUnit::clear()
 void mesh_compiler::compileUnit::put(std::ofstream& file, const aiNodeAnim* animation_channel)
 {
     if (this->count_type != counting_type::per_animation_channel) throw meshCompilerException("invalid compilation unit for this object");
-    throw NotImplemented();
+    // fill counts
+    for (compileBuffer& buffer : this->buffers) {
+        if (buffer.count_type == counting_type::per_position_keyframe) buffer.count = animation_channel->mNumPositionKeys;
+        else if (buffer.count_type == counting_type::per_rotation_keyframe) buffer.count = animation_channel->mNumRotationKeys;
+        else if (buffer.count_type == counting_type::per_scale_keyframe) buffer.count = animation_channel->mNumScalingKeys;
+        else {
+            throw std::logic_error("invalid counting type for this animation object" + countingTypeNamesMap[buffer.count_type]);
+        }
+    }
+
+    // preamble
+    for (const compileField& field : this->preamble) {
+        if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, animation_channel);
+        else field.put(file, *this);
+    }
+
+    // buffers
+    for (const compileBuffer& buffer : this->buffers) {
+
+        // buffer preamble
+        for (const compileField& field : buffer.preamble) {
+            if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, animation_channel);
+            else field.put(file, buffer);
+        }
+
+        // fields
+        for (unsigned int j = 0; j < buffer.count; ++j) {
+            for (const compileField& field : buffer.fields) {
+                switch (field.vtype)
+                {
+                case value::constant:
+                    file.write(field.data.data(), typeSizesMap[field.stype]);
+                    break;
+                case value::position_key:
+                    writeConst(file, animation_channel->mPositionKeys[j].mValue[field.data[0]], field.stype);
+                    break;
+                case value::rotation_key:
+                    switch (field.data[0]) {
+                    case 0:
+                        writeConst(file, animation_channel->mRotationKeys[j].mValue.x, field.stype);
+                        break;
+                    case 1:
+                        writeConst(file, animation_channel->mRotationKeys[j].mValue.y, field.stype);
+                        break;
+                    case 2:
+                        writeConst(file, animation_channel->mRotationKeys[j].mValue.z, field.stype);
+                        break;
+                    case 3:
+                        writeConst(file, animation_channel->mRotationKeys[j].mValue.w, field.stype);
+                        break;
+                    }
+                    break;
+                case value::scale_key:
+                    writeConst(file, animation_channel->mScalingKeys[j].mValue[field.data[0]], field.stype);
+                    break;
+                case value::position_key_timestamp:
+                    writeConst(file, animation_channel->mPositionKeys[j].mTime, field.stype);
+                    break;
+                case value::rotation_key_timestamp:
+                    writeConst(file, animation_channel->mRotationKeys[j].mTime, field.stype);
+                    break;
+                case value::scale_key_timestamp:
+                    writeConst(file, animation_channel->mScalingKeys[j].mTime, field.stype);
+                    break;
+                default:
+                    throw std::logic_error("invalid value");
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void mesh_compiler::compileUnit::put(std::ofstream& file, const aiSkeleton* skeleton)
 {
     if (this->count_type != counting_type::per_skeleton) throw meshCompilerException("invalid compilation unit for this object");
-    throw NotImplemented();
+    // fill counts
+    for (compileBuffer& buffer : this->buffers) {
+        if (buffer.count_type == counting_type::per_bone) buffer.count = skeleton->mNumBones;
+        else {
+            throw std::logic_error("invalid counting type for scene object" + countingTypeNamesMap[buffer.count_type]);
+        }
+    }
+
+    // preamble
+    for (const compileField& field : this->preamble) {
+        if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, skeleton);
+        else field.put(file, *this);
+    }
+
+    // buffers
+    for (const compileBuffer& buffer : this->buffers) {
+
+        // buffer preamble
+        for (const compileField& field : buffer.preamble) {
+            if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, skeleton);
+            else field.put(file, buffer);
+        }
+
+        // fields
+        for (unsigned int j = 0; j < buffer.count; ++j) {
+            for (const compileField& field : buffer.fields) {
+                switch (field.vtype)
+                {
+                case value::constant:
+                    file.write(field.data.data(), typeSizesMap[field.stype]);
+                    break;
+                case value::offset_matrix:
+                    writeConst(file, skeleton->mBones[j]->mOffsetMatrix[field.data[0]][field.data[1]], field.stype);
+                    break;
+                default:
+                    throw std::logic_error("invalid value");
+                    break;
+                }
+            }
+        }
+    }
 }
 
 void mesh_compiler::compileUnit::put(std::ofstream& file, const aiAnimation* animation)
@@ -678,7 +841,7 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiAnimation* ani
             else field.put(file, buffer);
         }
 
-        // data buffers
+        // fields
         for (unsigned int j = 0; j < buffer.count; ++j) {
             for (const compileField& field : buffer.fields) {
                 switch (field.vtype)
@@ -732,7 +895,7 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
             else field.put(file, buffer);
         }
 
-        // data buffers
+        // fields
         for (unsigned int j = 0; j < buffer.count; ++j) {
             for (const compileField& field : buffer.fields) {
                 switch (field.vtype)
@@ -799,7 +962,7 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiScene* scene)
             else field.put(file, buffer);
         }
 
-        // data buffers
+        // fields
         for (unsigned int j = 0; j < buffer.count; ++j) {
             for (const compileField& field : buffer.fields) {
                 switch (field.vtype)
@@ -1022,12 +1185,12 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, /
 
                     if (isPreambleValue(t, word, buffer.preamble)) continue;
 
-                    if (isOtherUnitValue(t, word, buffer.preamble, this->count_type, *unitsMap)) continue;
-
                     if (isFieldValue(t, word, buffer.fields, buffer.count_type, this->count_type)) {
                         fields_def = true;
                         continue;
                     }
+
+                    if (isOtherUnitValue(t, word, buffer.preamble, this->count_type, *unitsMap)) continue;
 
                     if (isConstValue(t, word, buffer.preamble)) continue;
 
@@ -1044,9 +1207,9 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, /
                 try {
                     type t = extractType(word);
 
-                    if (isOtherUnitValue(t, word, buffer.preamble, this->count_type, *unitsMap)) continue;
-
                     if (isFieldValue(t, word, buffer.fields, buffer.count_type, this->count_type)) continue;
+
+                    if (isOtherUnitValue(t, word, buffer.preamble, this->count_type, *unitsMap)) continue;
 
                     if (isConstValue(t, word, buffer.fields)) continue;
 

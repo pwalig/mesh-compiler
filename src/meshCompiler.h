@@ -38,6 +38,7 @@ private:
 
         constant,
         other_unit,
+
         indice,
         vertex,
         normal,
@@ -45,10 +46,16 @@ private:
         bitangent,
         uv,
         vertex_color,
+
+        offset_matrix,
+
         position_key,
         rotation_key,
         scale_key,
-        timestamp,
+        position_key_timestamp,
+        rotation_key_timestamp,
+        scale_key_timestamp,
+
         duration,
         ticks_per_second,
 
@@ -75,7 +82,9 @@ private:
         per_bone,
         per_skeleton,
 
-        per_keyframe,
+        per_position_keyframe,
+        per_rotation_keyframe,
+        per_scale_keyframe,
         per_animation_channel,
         per_animation,
 
