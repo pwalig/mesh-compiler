@@ -12,6 +12,8 @@ public:
     mesh_compiler(const mesh_compiler& other) = delete;
     mesh_compiler(mesh_compiler&& other) = delete;
 
+    friend class unit_testing;
+
 private:
 
 // ========== TYPES ==========
@@ -133,6 +135,7 @@ private:
         };
         formatInterpreterException(const error_code& error_code, const std::string& message = "");
         formatInterpreterException(const error_code& error_code, const unsigned int& line_number, const std::string& processed_word, const std::string& message = "");
+        static std::string make_message(const error_code& error_code, const unsigned int& line_number, const std::string& processed_word, const std::string& message = "");
         void fillInfo(const unsigned int& line_number, const std::string& processed_word);
         virtual const char* what() throw();
     protected:

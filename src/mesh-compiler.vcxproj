@@ -137,6 +137,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshCompiler.cpp" />
     <ClCompile Include="tests.cpp" />
+    <ClCompile Include="unit_testing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assimpReader.h" />
@@ -144,6 +145,7 @@
     <ClInclude Include="meshReader.h" />
     <ClInclude Include="tests.h" />
     <ClInclude Include="NotImplemented.h" />
+    <ClInclude Include="unit_testing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -9,14 +9,14 @@
 #define mc_version "v2.0.0"
 
 std::map<std::string, mesh_compiler::value> mesh_compiler::preambleMap = {
-    {"buffc", value::buffers_per_unit },
+    {"buffu", value::buffers_per_unit },
     {"buffs", value::buffer_size },
-    {"entrya", value::entries_per_unit },
-    {"entryc", value::entries_per_buffer },
+    {"entryu", value::entries_per_unit },
+    {"entryb", value::entries_per_buffer },
     {"entrys", value::entry_size },
-    {"fielda", value::fields_per_unit },
-    {"fielde", value::fields_per_buffer },
-    {"fieldc", value::fields_per_entry },
+    {"fieldu", value::fields_per_unit },
+    {"fieldb", value::fields_per_buffer },
+    {"fielde", value::fields_per_entry },
     {"fields", value::field_size },
 };
 
@@ -469,7 +469,7 @@ std::map<mesh_compiler::formatInterpreterException::error_code, std::string> mes
     {formatInterpreterException::error_code::unknown, "unknown error"}
 };
 
-mesh_compiler::formatInterpreterException::formatInterpreterException(const error_code& error_code, const std::string& message) : type(error_code), msg(" " + message), filled(false)
+mesh_compiler::formatInterpreterException::formatInterpreterException(const error_code& error_code, const std::string& message) : type(error_code), msg(message), filled(false)
 {
     if (errorMessagesMap.find(type) == errorMessagesMap.end()) type = formatInterpreterException::error_code::unknown;
 }
@@ -479,9 +479,14 @@ mesh_compiler::formatInterpreterException::formatInterpreterException(const erro
     fillInfo(line_number, processed_word);
 }
 
+std::string mesh_compiler::formatInterpreterException::make_message(const error_code& error_code, const unsigned int& line_number, const std::string& processed_word, const std::string& message)
+{
+    return "format compilation error: " + errorMessagesMap[error_code] + ": " + processed_word + " in line " + std::to_string(line_number) + ". " + message;
+}
+
 void mesh_compiler::formatInterpreterException::fillInfo(const unsigned int& line_number, const std::string& processed_word)
 {
-    this->msg = "format compilation error: " + errorMessagesMap[type] + ": " + processed_word + " in line " + std::to_string(line_number) + "." + this->msg;
+    this->msg = "format compilation error: " + errorMessagesMap[type] + ": " + processed_word + " in line " + std::to_string(line_number) + ". " + this->msg;
     this->filled = true;
 }
 
@@ -1247,7 +1252,7 @@ mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, 
         ++line_num;
         std::stringstream ss(line);
         std::string word;
-        while (ss >> word) { // if would also work
+        while (ss >> word) {
             std::string arg = word; // for error messages only
             if (word != "begin") throw formatInterpreterException(formatInterpreterException::error_code::unknown_statement, line_num, arg);
             if (!(ss >> word)) throw formatInterpreterException(formatInterpreterException::error_code::no_unit_name, line_num, arg);
@@ -1272,7 +1277,7 @@ mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, 
     }
 
     formatFile.close();
-    std::cout << "format file compilation succeded\n";
+    if (debug_messages) std::cout << "format file compilation succeded\n";
 }
 
 // ========== COMPILER FUNCTION DEFINITIONS ==========
@@ -1421,6 +1426,4 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
         }
     }
     else throw meshCompilerException("for now units of count types other than per_mesh are unsupported: count type was: " + countingTypeNamesMap[fu.count_type]);
-
-    std::cout << "scene compilation ended with success\n";
 }
