@@ -178,6 +178,9 @@ private:
         void put(std::ofstream& file, const compileBuffer& buffer) const;
         void put(std::ofstream& file, const std::vector<compileBuffer>& buffers) const;
         void put(std::ofstream& file, const compileUnit& unit) const;
+
+        bool operator==(const compileField& other) const;
+        bool operator!=(const compileField& other) const;
     };
 
     class compileBuffer {
@@ -191,6 +194,9 @@ private:
         size_t get_size() const;
         void print(const int& indent = 0) const;
         void clear();
+
+        bool operator==(const compileBuffer& other) const;
+        bool operator!=(const compileBuffer& other) const;
     };
 
     class compileUnit {
@@ -214,6 +220,9 @@ private:
         void put(std::ofstream& file, const aiAnimation* animation);
         void put(std::ofstream& file, const aiMesh* mesh);
         void put(std::ofstream& file, const aiScene* scene);
+
+        bool operator==(const compileUnit& other) const;
+        bool operator!=(const compileUnit& other) const;
 
     private:
         static type extractType(std::string& word);

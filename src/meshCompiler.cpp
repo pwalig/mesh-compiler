@@ -629,6 +629,16 @@ void mesh_compiler::compileField::put(std::ofstream& file, const compileUnit& un
     }
 }
 
+bool mesh_compiler::compileField::operator==(const compileField& other) const
+{
+    return (this->vtype == other.vtype && this->stype == other.stype && this->data == other.data);
+}
+
+bool mesh_compiler::compileField::operator!=(const compileField& other) const
+{
+    return !(*this == other);
+}
+
 size_t mesh_compiler::compileBuffer::get_entry_size() const
 {
     size_t siz = 0;
@@ -660,6 +670,16 @@ void mesh_compiler::compileBuffer::clear()
 {
     this->preamble.clear();
     this->fields.clear();
+}
+
+bool mesh_compiler::compileBuffer::operator==(const compileBuffer& other) const
+{
+    return (this->count_type == other.count_type && this->preamble == other.preamble && this->fields == other.fields);
+}
+
+bool mesh_compiler::compileBuffer::operator!=(const compileBuffer& other) const
+{
+    return !(*this == other);
 }
 
 size_t mesh_compiler::compileUnit::get_size() const
@@ -995,6 +1015,16 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiScene* scene)
             }
         }
     }
+}
+
+bool mesh_compiler::compileUnit::operator==(const compileUnit& other) const
+{
+    return (this->count_type == other.count_type && this->preamble == other.preamble && this->buffers == other.buffers);
+}
+
+bool mesh_compiler::compileUnit::operator!=(const compileUnit& other) const
+{
+    return !(*this == other);
 }
 
 mesh_compiler::type mesh_compiler::compileUnit::extractType(std::string& word)

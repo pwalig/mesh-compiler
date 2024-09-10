@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include "meshReader.h"
+#include "meshCompiler.h"
 
 class unit_testing
 {
@@ -51,14 +52,22 @@ public:
 
     class formatInterpreterSuccessTest : public test {
     public:
-        struct unit {
+        class unit {
+        public:
             std::string name;
-            //std::vector<mesh_compiler::compileField> preamble;
-            //std::vector< std::vector<mesh_compiler::compileField>> buffers;
+            std::vector<mesh_compiler::compileField> preamble;
+            std::vector<mesh_compiler::compileBuffer> buffers;
+
+            bool operator==(const mesh_compiler::compileUnit& other);
+            bool operator!=(const mesh_compiler::compileUnit& other);
         };
-        struct info {
+        class info {
+        public:
             std::vector<unit> file_units;
             std::vector<unit> helper_units;
+
+            bool operator==(const mesh_compiler::compilationInfo& other);
+            bool operator!=(const mesh_compiler::compilationInfo& other);
         };
         std::string format_file;
         info expected;

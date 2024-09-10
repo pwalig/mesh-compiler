@@ -2,7 +2,6 @@ begin mesh
 
 fieldb indice
 fieldb vertex
-fieldb normal
 end
 
 begin file {file}_{mesh}.mesh
