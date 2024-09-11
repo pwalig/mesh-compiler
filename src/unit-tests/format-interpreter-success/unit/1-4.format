@@ -1,0 +1,25 @@
+begin mesh
+
+uint2:fieldb indice
+fieldb ; double:1.0 float8:vertex
+fieldb tex_coord.0.x texture_coordinate.0.y
+fieldb float8:normal
+end
+
+begin abc
+ushort:fields
+entryb indice.0 i.1 indice.2
+entryb vertex.x vert.x v.x
+entryb normal.z normal.y normal.x
+end
+
+begin file {file}_{mesh}.mesh
+mesh
+uint16:fieldb float16:tangent
+unsigned_long_long:fieldb long_double:bitangent
+end
+
+begin file {scene}-{mesh}.mesh
+
+unsigned_short:entryb ; abc
+end

@@ -25,6 +25,7 @@ std::map<std::string, mesh_compiler::value> mesh_compiler::fieldsMap = {
     { "indice", value::indice},
 
     { "v", value::vertex},
+    { "vert", value::vertex},
     { "vertex", value::vertex},
     { "n", value::normal},
     { "normal", value::normal},
@@ -76,6 +77,7 @@ std::map<std::string, mesh_compiler::type> mesh_compiler::typesMap = {
     {"unsigned_short", mc_unsigned_short},
     {"unsigned_int", mc_unsigned_int},
     {"unsigned_long", mc_unsigned_long},
+    {"unsigned_long_long", mc_unsigned_long_long},
     {"unsigned_int2", mc_unsigned_short},
     {"unsigned_int4", mc_unsigned_int},
     {"unsigned_int8", mc_unsigned_long},
@@ -1244,7 +1246,7 @@ mesh_compiler::compileUnit::compileUnit(std::ifstream& file, size_t& line_num, /
 
                     if (isFieldValue(t, word, buffer.fields, buffer.count_type, this->count_type)) continue;
 
-                    if (isOtherUnitValue(t, word, buffer.preamble, this->count_type, *unitsMap)) continue;
+                    if (isOtherUnitValue(t, word, buffer.fields, buffer.count_type, *unitsMap)) continue;
 
                     if (isConstValue(t, word, buffer.fields)) continue;
 

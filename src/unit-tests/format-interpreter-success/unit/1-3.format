@@ -1,0 +1,24 @@
+begin abc
+fields
+entryb indice
+entryb vertex
+entryb normal
+end
+
+begin mesh
+
+fieldb indice
+fieldb vertex float:1.0
+fieldb uv.0.x uv.0.y
+fieldb normal
+end
+
+begin file {file}_{mesh}.mesh
+mesh
+fieldb tangent
+fieldb bitangent
+end
+begin file {scene}-{mesh}.mesh
+
+entryb ; abc
+end

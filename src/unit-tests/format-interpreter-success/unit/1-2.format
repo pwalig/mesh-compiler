@@ -1,0 +1,25 @@
+begin mesh
+
+fieldb unsigned_int:indice
+fieldb float:vertex float4:1.0
+uint4:fieldb ; uv.0.x uv.0.y
+fieldb normal.x n.y float4:normal.z
+end
+
+begin abc
+uint:fields
+fieldb indice
+fieldb vertex
+uint:fieldb ; normal
+end
+
+begin file {file}_{mesh}.mesh
+mesh
+float:fieldb uint4:tangent
+float4:fieldb uint:bitangent
+end
+
+begin file {scene}-{mesh}.mesh
+
+entryb ; mesh
+end

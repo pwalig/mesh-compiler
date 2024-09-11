@@ -75,10 +75,10 @@ void unit_testing::run()
 
 	// ========== INTERPRETER SUCCESS DEEP TESTS ==========
 
-	formatInterpreterSuccessTest<deepUnit>::info inf;
+	formatInterpreterSuccessTest<deepUnit>::info dinf;
 	
-	deepUnit uni1; // mesh unit
-	uni1.name = "mesh";
+	deepUnit duni1; // mesh unit
+	duni1.name = "mesh";
 	
 	mesh_compiler::compileBuffer buff1; // index buffer
 	buff1.count_type = mesh_compiler::counting_type::per_indice;
@@ -97,7 +97,7 @@ void unit_testing::run()
 	buff1.fields.push_back(mesh_compiler::compileField(
 		mesh_compiler::type::mc_unsigned_int, mesh_compiler::value::indice, &val, 1)
 	);
-	uni1.buffers.push_back(buff1);
+	duni1.buffers.push_back(buff1);
 	
 	mesh_compiler::compileBuffer buff2; // vertex buffer
 	buff2.count_type = mesh_compiler::counting_type::per_vertex;
@@ -116,55 +116,132 @@ void unit_testing::run()
 	buff2.fields.push_back(mesh_compiler::compileField(
 		mesh_compiler::type::mc_float, mesh_compiler::value::vertex, &val, 1)
 	);
-	uni1.buffers.push_back(buff2);
+	duni1.buffers.push_back(buff2);
 
-	inf.helper_units.push_back(uni1);
+	dinf.helper_units.push_back(duni1);
 
-	deepUnit uni2; // file unit
-	uni2.name = "{file}_{mesh}.mesh";
+	deepUnit duni2; // file unit
+	duni2.name = "{file}_{mesh}.mesh";
 
 	char dat[4] = { 'm', 'e', 's', 'h' };
-	uni2.preamble.push_back(mesh_compiler::compileField(
+	duni2.preamble.push_back(mesh_compiler::compileField(
 		mesh_compiler::type::mc_unit, mesh_compiler::value::other_unit, dat, 4) // mesh unit
 	);
 
-	inf.file_units.push_back(uni2);
+	dinf.file_units.push_back(duni2);
 
 	formatInterpreterSuccessTest<deepUnit>(
 		"format-interpreter-success-deep-test-1-1",
-		"./unit-tests/format-interpreter-success/deep/1.format",
-		inf
+		"./unit-tests/format-interpreter-success/deep/1-1.format",
+		dinf
 	).run();
 
 	formatInterpreterSuccessTest<deepUnit>(
 		"format-interpreter-success-deep-test-1-2",
-		"./unit-tests/format-interpreter-success/deep/2.format",
-		inf
+		"./unit-tests/format-interpreter-success/deep/1-2.format",
+		dinf
 	).run();
 
 	formatInterpreterSuccessTest<deepUnit>(
 		"format-interpreter-success-deep-test-1-3",
-		"./unit-tests/format-interpreter-success/deep/3.format",
-		inf
+		"./unit-tests/format-interpreter-success/deep/1-3.format",
+		dinf
 	).run();
 
 	formatInterpreterSuccessTest<deepUnit>(
 		"format-interpreter-success-deep-test-1-4",
-		"./unit-tests/format-interpreter-success/deep/4.format",
-		inf
+		"./unit-tests/format-interpreter-success/deep/1-4.format",
+		dinf
 	).run();
 
 	formatInterpreterSuccessTest<deepUnit>(
 		"format-interpreter-success-deep-test-1-5",
-		"./unit-tests/format-interpreter-success/deep/5.format",
-		inf
+		"./unit-tests/format-interpreter-success/deep/1-5.format",
+		dinf
 	).run();
 
 	// ========== INTERPRETER SUCCESS TESTS ==========
 
+	formatInterpreterSuccessTest<unit>::info inf;
+	unit uni1;
+	uni1.name = "mesh";
+	uni1.preamble = 0;
+	uni1.buffers.push_back(4); // fieldb indice
+	uni1.buffers.push_back(5); // fieldb vertex float
+	uni1.buffers.push_back(3); // fieldb uv.0.x uv.0.y
+	uni1.buffers.push_back(4); // fieldb normal
+	inf.helper_units.push_back(uni1);
+	unit uni2;
+	uni2.name = "abc";
+	uni2.preamble = 1; // fields
+	uni2.buffers.push_back(4); // entryb indice
+	uni2.buffers.push_back(4); // entryb vertex
+	uni2.buffers.push_back(4); // entryb normal
+	inf.helper_units.push_back(uni2);
+	unit uni3;
+	uni3.name = "{file}_{mesh}.mesh";
+	uni3.preamble = 1; // mesh
+	uni3.buffers.push_back(4); // fieldb tangent
+	uni3.buffers.push_back(4); // fieldb bitangent
+	inf.file_units.push_back(uni3);
+	unit uni4;
+	uni4.name = "{scene}-{mesh}.mesh";
+	uni4.preamble = 0;
+	uni4.buffers.push_back(2); // entryb abc
+	inf.file_units.push_back(uni4);
+
+	formatInterpreterSuccessTest<unit>(
+		"format-interpreter-success-test-1-1",
+		"./unit-tests/format-interpreter-success/unit/1-1.format",
+		inf
+	).run();
+
+	formatInterpreterSuccessTest<unit>(
+		"format-interpreter-success-test-1-2",
+		"./unit-tests/format-interpreter-success/unit/1-2.format",
+		inf
+	).run();
+
+	formatInterpreterSuccessTest<unit>(
+		"format-interpreter-success-test-1-3",
+		"./unit-tests/format-interpreter-success/unit/1-3.format",
+		inf
+	).run();
+
+	formatInterpreterSuccessTest<unit>(
+		"format-interpreter-success-test-1-4",
+		"./unit-tests/format-interpreter-success/unit/1-4.format",
+		inf
+	).run();
+
+	formatInterpreterSuccessTest<unit>(
+		"format-interpreter-success-test-1-5",
+		"./unit-tests/format-interpreter-success/unit/1-5.format",
+		inf
+	).run();
 
 	// ========== INTERPRETER SUCCESS SHALLOW TESTS ==========
 
+	formatInterpreterSuccessTest<shallowUnit>::info sinf;
+	sinf.helper_units.push_back({"animation_channel"});
+	sinf.helper_units.push_back({"animation"});
+	sinf.helper_units.push_back({"skeleton"});
+	sinf.helper_units.push_back({"mesh"});
+	sinf.file_units.push_back({"{file}{mesh}.mesh"});
+	sinf.file_units.push_back({"{file}{skeleton}.skel"});
+	sinf.file_units.push_back({"{file}{animation}.anim"});
+
+	formatInterpreterSuccessTest<shallowUnit>(
+		"format-interpreter-success-shallow-test-1-1",
+		"./unit-tests/format-interpreter-success/shallow/1-1.format",
+		sinf
+	).run();
+
+	formatInterpreterSuccessTest<shallowUnit>(
+		"format-interpreter-success-shallow-test-1-2",
+		"./unit-tests/format-interpreter-success/shallow/1-2.format",
+		sinf
+	).run();
 
 	// ========== EXPORTED FILE TESTS ==========
 

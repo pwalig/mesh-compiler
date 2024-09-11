@@ -1,0 +1,33 @@
+begin animation_channel
+
+fieldb ; rotation_key rotation_timestamp
+end
+
+begin animation
+
+fieldb ; animation_channel
+end
+
+begin skeleton
+
+fieldb ; offset_matrix
+end
+
+begin mesh
+
+fieldb ; indice
+fieldb ; vertex
+fieldb ; normal
+end
+
+begin file {file}{mesh}.mesh
+mesh
+end
+
+begin file {file}{skeleton}.skel
+skeleton
+end
+
+begin file {file}{animation}.anim
+animation
+end

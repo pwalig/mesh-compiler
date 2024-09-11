@@ -139,8 +139,8 @@ void unit_testing::formatInterpreterSuccessTest<T>::run(const bool& for_debug)
 
             // helper units
             if (expected.helper_units.size() != ci.units.size()) throw failedTestException(name, "different amount of helper units");
+            std::vector<bool> found(expected.helper_units.size(), false);
             for (const auto& uni : ci.units) {
-                std::vector<bool> found(expected.helper_units.size(), false);
                 for (int i = 0; i < expected.helper_units.size(); ++i) {
                     if (expected.helper_units[i].name == uni.first) {
                         if (found[i]) throw failedTestException(name, "helper unit found twice");
@@ -148,10 +148,9 @@ void unit_testing::formatInterpreterSuccessTest<T>::run(const bool& for_debug)
                         if (expected.helper_units[i] != uni.second) throw failedTestException(name, "helper unit differs in structure");
                     }
                 }
-                for (const bool& f : found) {
-                    if (!f) throw failedTestException(name, "expected helper unit not found");
-                }
-
+            }
+            for (const bool& f : found) {
+                if (!f) throw failedTestException(name, "expected helper unit not found");
             }
 
         }
