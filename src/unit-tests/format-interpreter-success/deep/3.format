@@ -1,0 +1,9 @@
+begin mesh
+
+fieldb indice.0 indice.1 indice.2
+fieldb vertex.x vertex.y vertex.z
+end
+
+begin file {file}_{mesh}.mesh
+mesh
+end

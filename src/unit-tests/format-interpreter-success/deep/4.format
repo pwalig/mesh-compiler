@@ -1,0 +1,9 @@
+begin mesh
+
+uint4:fieldb uint4:i.0 unsigned_int:i.1 i.2
+unsigned_int4:fieldb ; vertex
+end
+
+begin file {file}_{mesh}.mesh
+mesh
+end

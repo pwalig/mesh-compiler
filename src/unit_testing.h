@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <fstream>
+#include <iostream>
 #include "meshReader.h"
 #include "meshCompiler.h"
 
@@ -50,24 +51,41 @@ public:
         void run(const bool& for_debug = false) override;
     };
 
+    class deepUnit {
+    public:
+        std::string name;
+        std::vector<mesh_compiler::compileField> preamble;
+        std::vector<mesh_compiler::compileBuffer> buffers;
+
+        bool operator==(const mesh_compiler::compileUnit& other);
+        bool operator!=(const mesh_compiler::compileUnit& other);
+    };
+
+    class unit {
+    public:
+        std::string name;
+        size_t preamble;
+        std::vector<size_t> buffers;
+
+        bool operator==(const mesh_compiler::compileUnit& other);
+        bool operator!=(const mesh_compiler::compileUnit& other);
+    };
+
+    class shallowUnit {
+    public:
+        std::string name;
+
+        bool operator==(const mesh_compiler::compileUnit& other);
+        bool operator!=(const mesh_compiler::compileUnit& other);
+    };
+
+    template <typename T>
     class formatInterpreterSuccessTest : public test {
     public:
-        class unit {
-        public:
-            std::string name;
-            std::vector<mesh_compiler::compileField> preamble;
-            std::vector<mesh_compiler::compileBuffer> buffers;
-
-            bool operator==(const mesh_compiler::compileUnit& other);
-            bool operator!=(const mesh_compiler::compileUnit& other);
-        };
         class info {
         public:
-            std::vector<unit> file_units;
-            std::vector<unit> helper_units;
-
-            bool operator==(const mesh_compiler::compilationInfo& other);
-            bool operator!=(const mesh_compiler::compilationInfo& other);
+            std::vector<T> file_units;
+            std::vector<T> helper_units;
         };
         std::string format_file;
         info expected;
@@ -96,4 +114,50 @@ inline unit_testing::bufferedObject<T, U>::bufferedObject(std::ifstream& file, c
     for (int i = 0; i < preamble[0]; ++i) {
         buffers.push_back(preambledBuffer(file));
     }
+}
+
+template <typename T>
+unit_testing::formatInterpreterSuccessTest<T>::formatInterpreterSuccessTest(
+    const std::string& name, const std::string& format_file, const info& expected) :
+    test(name), format_file(format_file), expected(expected) {}
+
+template <typename T>
+void unit_testing::formatInterpreterSuccessTest<T>::run(const bool& for_debug)
+{
+    if (for_debug) mesh_compiler::compilationInfo ci(format_file, true);
+    else {
+        try {
+            mesh_compiler::compilationInfo ci(format_file);
+            //if (expected != ci) throw failedTestException(name, "resulting compilation info differs from expected");
+
+            // file units
+            if (expected.file_units.size() != ci.file_units.size()) throw failedTestException(name, "different amounts of file units");
+            for (int i = 0; i < ci.file_units.size(); ++i) {
+                if (expected.file_units[i].name != ci.file_units[i].output_file) throw failedTestException(name, "different file unit file name");
+                if (expected.file_units[i] != ci.file_units[i]) throw failedTestException(name, "file unit differs in structure");
+            }
+
+            // helper units
+            if (expected.helper_units.size() != ci.units.size()) throw failedTestException(name, "different amount of helper units");
+            for (const auto& uni : ci.units) {
+                std::vector<bool> found(expected.helper_units.size(), false);
+                for (int i = 0; i < expected.helper_units.size(); ++i) {
+                    if (expected.helper_units[i].name == uni.first) {
+                        if (found[i]) throw failedTestException(name, "helper unit found twice");
+                        found[i] = true;
+                        if (expected.helper_units[i] != uni.second) throw failedTestException(name, "helper unit differs in structure");
+                    }
+                }
+                for (const bool& f : found) {
+                    if (!f) throw failedTestException(name, "expected helper unit not found");
+                }
+
+            }
+
+        }
+        catch (mesh_compiler::formatInterpreterException& e) {
+            throw failedTestException(name, "format file compilation failed, but it was expected to succeed");
+        }
+    }
+    std::cout << name << " passed\n";
 }

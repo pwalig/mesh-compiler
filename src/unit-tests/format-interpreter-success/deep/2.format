@@ -1,0 +1,9 @@
+begin mesh
+
+uint:fieldb uint:indice
+uint:fieldb float:vertex
+end
+
+begin file {file}_{mesh}.mesh
+mesh
+end

@@ -1,0 +1,9 @@
+begin mesh
+
+fieldb ; indice
+fieldb v.r v.g v.b
+end
+
+begin file {file}_{mesh}.mesh
+mesh
+end
