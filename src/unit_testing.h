@@ -38,9 +38,14 @@ public:
 
     class test {
     public:
+        enum class run_mode {
+            run,
+            debug,
+            skip
+        };
         std::string name;
         test(const std::string& name);
-        virtual void run(const bool& for_debug = false) = 0;
+        virtual void run(const run_mode& mode = run_mode::run) = 0;
     };
 
     class formatInterpreterFailTest : public test {
@@ -48,7 +53,7 @@ public:
         std::string format_file;
         std::string expected_message;
         formatInterpreterFailTest(const std::string& name, const std::string& format_file, const std::string& expected_message);
-        void run(const bool& for_debug = false) override;
+        void run(const run_mode& mode = run_mode::run) override;
     };
 
     class deepUnit {
@@ -90,7 +95,7 @@ public:
         std::string format_file;
         info expected;
         formatInterpreterSuccessTest(const std::string& name, const std::string& format_file, const info& expected);
-        void run(const bool& for_debug = false) override;
+        void run(const run_mode& mode = run_mode::run) override;
     };
 
     static void run();
@@ -122,9 +127,10 @@ unit_testing::formatInterpreterSuccessTest<T>::formatInterpreterSuccessTest(
     test(name), format_file(format_file), expected(expected) {}
 
 template <typename T>
-void unit_testing::formatInterpreterSuccessTest<T>::run(const bool& for_debug)
+void unit_testing::formatInterpreterSuccessTest<T>::run(const run_mode& mode)
 {
-    if (for_debug) mesh_compiler::compilationInfo ci(format_file, true);
+    if (mode == run_mode::skip) std::cout << name << " skipped\n";
+    else if (mode == run_mode::debug) mesh_compiler::compilationInfo ci(format_file, true);
     else {
         try {
             mesh_compiler::compilationInfo ci(format_file);

@@ -10,9 +10,10 @@ unit_testing::formatInterpreterFailTest::formatInterpreterFailTest(
 	const std::string& name, const std::string& format_file, const std::string& expected_message) :
 	test(name), format_file(format_file), expected_message(expected_message) {}
 
-void unit_testing::formatInterpreterFailTest::run(const bool& for_debug)
+void unit_testing::formatInterpreterFailTest::run(const run_mode& mode)
 {
-	if (for_debug) mesh_compiler::compilationInfo ci(format_file, true);
+	if (mode == run_mode::skip) std::cout << name << " skipped\n";
+	else if (mode == run_mode::debug) mesh_compiler::compilationInfo ci(format_file, true);
 	else {
 		try {
 			mesh_compiler::compilationInfo ci(format_file);
@@ -31,6 +32,8 @@ void unit_testing::run()
 {
 	std::cout << "RUNNING TESTS...\n";
 
+	test::run_mode mode = test::run_mode::run;
+
 	// ========== INTERPRETER FAIL TESTS ==========
 
 	formatInterpreterFailTest(
@@ -39,7 +42,7 @@ void unit_testing::run()
 		mesh_compiler::formatInterpreterException::make_message(
 			mesh_compiler::formatInterpreterException::error_code::unknown_statement,
 			1, "fidouaof")
-	).run();
+	).run(mode);
 
 	formatInterpreterFailTest(
 		"format-interpreter-fail-test-2",
@@ -47,7 +50,7 @@ void unit_testing::run()
 		mesh_compiler::formatInterpreterException::make_message(
 			mesh_compiler::formatInterpreterException::error_code::no_unit_name,
 			1, "begin")
-	).run();
+	).run(mode);
 
 	formatInterpreterFailTest(
 		"format-interpreter-fail-test-3",
@@ -55,7 +58,7 @@ void unit_testing::run()
 		mesh_compiler::formatInterpreterException::make_message(
 			mesh_compiler::formatInterpreterException::error_code::no_file_name,
 			1, "begin file")
-	).run();
+	).run(mode);
 
 	formatInterpreterFailTest(
 		"format-interpreter-fail-test-4",
@@ -63,7 +66,7 @@ void unit_testing::run()
 		mesh_compiler::formatInterpreterException::make_message(
 			mesh_compiler::formatInterpreterException::error_code::unit_redefinition,
 			6, "begin a")
-	).run();
+	).run(mode);
 
 	formatInterpreterFailTest(
 		"format-interpreter-fail-test-5",
@@ -71,7 +74,7 @@ void unit_testing::run()
 		mesh_compiler::formatInterpreterException::make_message(
 			mesh_compiler::formatInterpreterException::error_code::unknown_statement,
 			2, "feojpa")
-	).run();
+	).run(mode);
 
 	// ========== INTERPRETER SUCCESS DEEP TESTS ==========
 
@@ -134,31 +137,31 @@ void unit_testing::run()
 		"format-interpreter-success-deep-test-1-1",
 		"./unit-tests/format-interpreter-success/deep/1-1.format",
 		dinf
-	).run();
+	).run(mode);
 
 	formatInterpreterSuccessTest<deepUnit>(
 		"format-interpreter-success-deep-test-1-2",
 		"./unit-tests/format-interpreter-success/deep/1-2.format",
 		dinf
-	).run();
+	).run(mode);
 
 	formatInterpreterSuccessTest<deepUnit>(
 		"format-interpreter-success-deep-test-1-3",
 		"./unit-tests/format-interpreter-success/deep/1-3.format",
 		dinf
-	).run();
+	).run(mode);
 
 	formatInterpreterSuccessTest<deepUnit>(
 		"format-interpreter-success-deep-test-1-4",
 		"./unit-tests/format-interpreter-success/deep/1-4.format",
 		dinf
-	).run();
+	).run(mode);
 
 	formatInterpreterSuccessTest<deepUnit>(
 		"format-interpreter-success-deep-test-1-5",
 		"./unit-tests/format-interpreter-success/deep/1-5.format",
 		dinf
-	).run();
+	).run(mode);
 
 	// ========== INTERPRETER SUCCESS TESTS ==========
 
@@ -194,31 +197,31 @@ void unit_testing::run()
 		"format-interpreter-success-test-1-1",
 		"./unit-tests/format-interpreter-success/unit/1-1.format",
 		inf
-	).run();
+	).run(mode);
 
 	formatInterpreterSuccessTest<unit>(
 		"format-interpreter-success-test-1-2",
 		"./unit-tests/format-interpreter-success/unit/1-2.format",
 		inf
-	).run();
+	).run(mode);
 
 	formatInterpreterSuccessTest<unit>(
 		"format-interpreter-success-test-1-3",
 		"./unit-tests/format-interpreter-success/unit/1-3.format",
 		inf
-	).run();
+	).run(mode);
 
 	formatInterpreterSuccessTest<unit>(
 		"format-interpreter-success-test-1-4",
 		"./unit-tests/format-interpreter-success/unit/1-4.format",
 		inf
-	).run();
+	).run(mode);
 
 	formatInterpreterSuccessTest<unit>(
 		"format-interpreter-success-test-1-5",
 		"./unit-tests/format-interpreter-success/unit/1-5.format",
 		inf
-	).run();
+	).run(mode);
 
 	// ========== INTERPRETER SUCCESS SHALLOW TESTS ==========
 
@@ -235,13 +238,13 @@ void unit_testing::run()
 		"format-interpreter-success-shallow-test-1-1",
 		"./unit-tests/format-interpreter-success/shallow/1-1.format",
 		sinf
-	).run();
+	).run(mode);
 
 	formatInterpreterSuccessTest<shallowUnit>(
 		"format-interpreter-success-shallow-test-1-2",
 		"./unit-tests/format-interpreter-success/shallow/1-2.format",
 		sinf
-	).run();
+	).run(mode);
 
 	// ========== EXPORTED FILE TESTS ==========
 
