@@ -5,8 +5,9 @@
 #include <assimpReader.h>
 #include <NotImplemented.h>
 
+std::string mesh_compiler::version = "v2.0.0";
+
 // ========== DEFINES AND MAPS ==========
-#define mc_version "v2.0.0"
 
 std::map<std::string, mesh_compiler::value> mesh_compiler::preambleMap = {
     {"buffu", value::buffers_per_unit },
@@ -1275,7 +1276,7 @@ mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, 
 {
     std::ifstream formatFile(format_file, std::ios::in);
     if (!formatFile) {
-        throw formatInterpreterException(formatInterpreterException::error_code::cannot_open_file, format_file);
+        throw std::runtime_error("could not open file: " + format_file);
     }
 
     size_t line_num = 0;
@@ -1344,20 +1345,27 @@ void mesh_compiler::run(int argc, char** argv)
 void mesh_compiler::runOnce(const std::vector<std::string>& args)
 {
     if (args.size() == 1 && (args[0] == "-v" || args[0] == "--version")) {
-        std::cout << mc_version << std::endl;
+        std::cout << version << std::endl;
         return;
     }
-#ifdef _DEBUG
-    compile(args);
-#else
     try {
         compile(args);
     }
     catch (std::runtime_error& e) {
         std::cout << e.what() << std::endl;
     }
-#endif
 }
+
+#ifdef _DEBUG
+void mesh_compiler::runOnceDebug(const std::vector<std::string>& args)
+{
+    if (args.size() == 1 && (args[0] == "-v" || args[0] == "--version")) {
+        std::cout << version << std::endl;
+        return;
+    }
+    compile(args);
+}
+#endif // _DEBUG
 
 void mesh_compiler::compile(const std::vector<std::string>& args)
 {
@@ -1368,27 +1376,25 @@ void mesh_compiler::compile(const std::vector<std::string>& args)
 
     std::string format_file = ".format";
     std::string output_file = "{file}_{mesh}.mesh";
+    bool format_specified = false;
+    bool output_specified = false;
     bool debug_messages = false;
 
     for (int i = 1; i < siz; ++i) {
         if (args[i] == "-f") {
             ++i;
-            if (i == siz) {
-                throw std::runtime_error("error: unspecified format file: -f <format file path>");
-            }
+            if (i == siz) throw std::runtime_error("unspecified format file: -f <format file path>");
+            if (format_specified) throw std::runtime_error("format file specified more than once");
             format_file = args[i];
         }
         else if (args[i] == "-o") {
             ++i;
-            if (i == siz) {
-                throw std::runtime_error("error: unspecified output file: -o <output file path>");
-            }
+            if (i == siz) throw std::runtime_error("unspecified output file: -o <output file path>");
+            if (output_specified) throw std::runtime_error("output file specified more than once");
             output_file = args[i];
         }
         else if (args[i] == "-d") {
-            if (debug_messages) {
-                throw std::runtime_error("error: -d flag encountered more than once");
-            }
+            if (debug_messages) throw std::runtime_error("-d flag specified more than once");
             debug_messages = true;
         }
         else if (i == 1) format_file = args[i];

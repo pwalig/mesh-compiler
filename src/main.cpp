@@ -6,12 +6,12 @@
 #endif
 
 int main(int argc, char** argv) {
-#ifdef tests_included
+#ifdef _DEBUG
     unit_testing::run();
     mainTest();
 #else
     mesh_compiler::run(argc, argv);
-#endif // tests_included
+#endif // _DEBUG
 
     return 0;
 }

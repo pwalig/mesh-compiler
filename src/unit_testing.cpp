@@ -1,4 +1,6 @@
+#ifdef _DEBUG
 #include "unit_testing.h"
+#include <sstream>
 
 unit_testing::failedTestException::failedTestException(
 	const std::string& test_name, const std::string& fail_reason) :
@@ -26,6 +28,27 @@ void unit_testing::formatInterpreterFailTest::run(const run_mode& mode)
 		}
 		throw failedTestException(name, "compilation succeded, but was not supposed to");
 	}
+}
+
+unit_testing::programRunTest::programRunTest(
+	const std::string& name, const std::vector<std::string>& call_arguments, const std::string& expected_response) :
+	test(name), call_arguments(call_arguments), expected(expected_response) {}
+
+void unit_testing::programRunTest::run(const run_mode& mode)
+{
+	if (mode == run_mode::skip) std::cout << name << " skipped\n";
+	else if (mode == run_mode::debug) mesh_compiler::runOnceDebug(call_arguments);
+	else {
+		std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
+		std::stringstream strCout;
+		std::cout.rdbuf(strCout.rdbuf());
+
+		mesh_compiler::runOnce(call_arguments);
+		if (strCout.str() != expected) throw failedTestException(name, "program output was different than expected");
+
+		std::cout.rdbuf(oldCoutStreamBuf);
+	}
+	std::cout << name << " passed\n";
 }
 
 void unit_testing::run()
@@ -247,6 +270,39 @@ void unit_testing::run()
 	).run(mode);
 
 	// ========== EXPORTED FILE TESTS ==========
+	
+
+	// ========== PROGRAM RUN TESTS ==========
+
+	programRunTest(
+		"program-run-test-1",
+		{"-v"},
+		mesh_compiler::version + "\n"
+	).run(mode);
+
+	programRunTest(
+		"program-run-test-2",
+		{"--version"},
+		mesh_compiler::version + "\n"
+	).run(mode);
+
+	programRunTest(
+		"program-run-test-3",
+		{},
+		"source file not specified\n"
+	).run(mode);
+
+	programRunTest(
+		"program-run-test-4",
+		{ "yeet.fbx", "-f" },
+		"unspecified format file: -f <format file path>\n"
+	).run(mode);
+
+	programRunTest(
+		"program-run-test-5",
+		{ "cube.obj", "-o" },
+		"unspecified output file: -o <output file path>\n"
+	).run(mode);
 
 	std::cout << "ALL TESTS PASSED\n";
 }
@@ -285,3 +341,5 @@ bool unit_testing::shallowUnit::operator!=(const mesh_compiler::compileUnit& oth
 {
 	return false;
 }
+
+#endif _DEBUG

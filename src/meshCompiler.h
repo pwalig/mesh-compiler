@@ -14,6 +14,8 @@ public:
 
     friend class unit_testing;
 
+    static std::string version;
+
 private:
 
 // ========== TYPES ==========
@@ -255,6 +257,9 @@ private:
 public:
     static void run(int argc, char** argv);
     static void runOnce(const std::vector<std::string>& args);
+#ifdef _DEBUG
+    static void runOnceDebug(const std::vector<std::string>& args);
+#endif // _DEBUG
 
 private:
     static void compile(const std::vector<std::string>& args);

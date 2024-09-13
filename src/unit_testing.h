@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _DEBUG
 #include <vector>
 #include <fstream>
 #include <iostream>
@@ -98,6 +99,15 @@ public:
         void run(const run_mode& mode = run_mode::run) override;
     };
 
+    class programRunTest : public test {
+    public:
+        std::vector<std::string> call_arguments;
+        std::string expected;
+
+        programRunTest(const std::string& name, const std::vector<std::string>& call_arguments, const std::string& expected_response);
+        void run(const run_mode& mode = run_mode::run);
+    };
+
     static void run();
 };
 
@@ -166,3 +176,5 @@ void unit_testing::formatInterpreterSuccessTest<T>::run(const run_mode& mode)
     }
     std::cout << name << " passed\n";
 }
+
+#endif // _DEBUG

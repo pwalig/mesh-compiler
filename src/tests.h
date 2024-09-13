@@ -1,5 +1,5 @@
-#ifndef tests_included
-#define tests_included
+#pragma once
+#ifdef _DEBUG
 
 #include <vector>
 
@@ -23,4 +23,4 @@ void readMesh(const aiScene* scene, mesh& me);
 
 void mainTest();
 
-#endif // tests_included
+#endif // _DEBUG
