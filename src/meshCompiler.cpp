@@ -1374,9 +1374,7 @@ void mesh_compiler::compile(const std::vector<std::string>& args)
     }
 
     std::string format_file = ".format";
-    std::string output_file = "{file}_{mesh}.mesh";
     bool format_specified = false;
-    bool output_specified = false;
     bool debug_messages = false;
 
     for (int i = 1; i < siz; ++i) {
@@ -1386,18 +1384,11 @@ void mesh_compiler::compile(const std::vector<std::string>& args)
             if (format_specified) throw std::runtime_error("format file specified more than once");
             format_file = args[i];
         }
-        else if (args[i] == "-o") {
-            ++i;
-            if (i == siz) throw std::runtime_error("unspecified output file: -o <output file path>");
-            if (output_specified) throw std::runtime_error("output file specified more than once");
-            output_file = args[i];
-        }
         else if (args[i] == "-d") {
             if (debug_messages) throw std::runtime_error("-d flag specified more than once");
             debug_messages = true;
         }
         else if (i == 1) format_file = args[i];
-        else if (i == 2 && !debug_messages) output_file = args[i];
     }
     try {
         try {

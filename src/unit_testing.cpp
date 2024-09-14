@@ -279,10 +279,25 @@ void unit_testing::run()
 	obj.buffers.push_back(buff);
 	buff.fields = { 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0 };
 	obj.buffers.push_back(buff);
+
 	meshCompilerTest<float, unsigned int>(
-		"mesh-compiler-test-1",
+		"mesh-compiler-test-1-1",
 		"./unit-tests/mesh-compiler/1/test.obj",
-		"./unit-tests/mesh-compiler/1/.format",
+		"./unit-tests/mesh-compiler/1/1.format",
+		obj
+	).run(mode);
+
+	meshCompilerTest<float, unsigned int>(
+		"mesh-compiler-test-1-2",
+		"./unit-tests/mesh-compiler/1/test.obj",
+		"./unit-tests/mesh-compiler/1/2.format",
+		obj
+	).run(mode);
+
+	meshCompilerTest<float, unsigned int>(
+		"mesh-compiler-test-1-3",
+		"./unit-tests/mesh-compiler/1/test.obj",
+		"./unit-tests/mesh-compiler/1/3.format",
 		obj
 	).run(mode);
 	
@@ -315,8 +330,8 @@ void unit_testing::run()
 
 	programRunTest(
 		"program-run-test-5",
-		{ "cube.obj", "-o" },
-		"unspecified output file: -o <output file path>\n"
+		{ "cube.obj", "-d", "-d"},
+		"-d flag specified more than once\n"
 	).run(mode);
 
 	std::cout << "ALL TESTS PASSED\n";

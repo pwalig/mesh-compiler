@@ -238,6 +238,7 @@ inline void unit_testing::meshCompilerTest<T, U>::run(const run_mode& mode)
         }
         bufferedObject<T, U> output(file);
         file.close();
+        std::remove("./unit-tests/mesh-compiler/out.mesh");
         if (output != expected) throw failedTestException(name, "read object differs from expected");
 
         std::cout << name << " passed\n";

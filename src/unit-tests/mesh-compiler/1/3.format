@@ -1,0 +1,9 @@
+begin mesh
+uint:buffu
+uint4:fieldb v.x vert.y vertex.z
+unsigned_int4:fieldb normal.x n.y n.z
+end
+
+begin file unit-tests/mesh-compiler/out.mesh
+mesh
+end
