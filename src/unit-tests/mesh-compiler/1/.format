@@ -1,0 +1,9 @@
+begin mesh
+buffu
+fieldb vertex
+fieldb normal
+end
+
+begin file unit-tests/mesh-compiler/out.mesh
+mesh
+end

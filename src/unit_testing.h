@@ -24,7 +24,10 @@ public:
         std::vector<U> preamble;
         std::vector<T> fields;
 
-        preambledBuffer(std::ifstream& file, const size_t& other_values_count = 0); // reads buffer size(true) or field count(false), then other values, then fields
+        preambledBuffer() = default;
+        preambledBuffer(std::ifstream& file);
+        bool operator==(const preambledBuffer<T, U>& other);
+        bool operator!=(const preambledBuffer<T, U>& other);
     };
     
     template <typename T, typename U>
@@ -34,7 +37,10 @@ public:
         std::vector<preambledBuffer<T, U>> buffers;
 
 
-        bufferedObject(std::ifstream& file, const size_t& other_preamble_values_count = 0);
+        bufferedObject() = default;
+        bufferedObject(std::ifstream& file);
+        bool operator==(const bufferedObject<T, U>& other);
+        bool operator!=(const bufferedObject<T, U>& other);
     };
 
     class test {
@@ -99,11 +105,19 @@ public:
         void run(const run_mode& mode = run_mode::run) override;
     };
 
+    template <typename T, typename U>
+    class meshCompilerTest : public test {
+    public:
+        bufferedObject<T, U> expected;
+        std::vector<std::string> call_arguments;
+        meshCompilerTest(const std::string& name, const std::string& input_file, const std::string& format_file, const bufferedObject<T, U>& expected_output);
+        void run(const run_mode& mode = run_mode::run) override;
+    };
+
     class programRunTest : public test {
     public:
         std::vector<std::string> call_arguments;
         std::string expected;
-
         programRunTest(const std::string& name, const std::vector<std::string>& call_arguments, const std::string& expected_response);
         void run(const run_mode& mode = run_mode::run);
     };
@@ -112,23 +126,51 @@ public:
 };
 
 template<typename T, typename U>
-inline unit_testing::preambledBuffer<T, U>::preambledBuffer(std::ifstream& file, const size_t& other_values_count)
+inline unit_testing::preambledBuffer<T, U>::preambledBuffer(std::ifstream& file)
 {
-    preamble.resize(other_values_count + 1);
+    preamble.resize(1);
     file.read((char*)preamble.data(), sizeof(U) * preamble.size());
 
     mesh_reader::readBuffer<T, U>(file, fields, preamble[0]);
 }
 
 template<typename T, typename U>
-inline unit_testing::bufferedObject<T, U>::bufferedObject(std::ifstream& file, const size_t& other_preamble_values_count)
+inline bool unit_testing::preambledBuffer<T, U>::operator==(const preambledBuffer<T, U>& other)
 {
-    preamble.resize(other_preamble_values_count + 1);
+    return (this->preamble == other.preamble && this->fields == other.fields);
+}
+
+template<typename T, typename U>
+inline bool unit_testing::preambledBuffer<T, U>::operator!=(const preambledBuffer<T, U>& other)
+{
+    return !(*this == other);
+}
+
+template<typename T, typename U>
+inline unit_testing::bufferedObject<T, U>::bufferedObject(std::ifstream& file)
+{
+    preamble.resize(1);
     file.read((char*)preamble.data(), sizeof(U) * preamble.size());
 
     for (int i = 0; i < preamble[0]; ++i) {
-        buffers.push_back(preambledBuffer(file));
+        buffers.push_back(preambledBuffer<T, U>(file));
     }
+}
+
+template<typename T, typename U>
+inline bool unit_testing::bufferedObject<T, U>::operator==(const bufferedObject<T, U>& other)
+{
+    if (this->buffers.size() != other.buffers.size())
+    for (int i = 0; i < this->buffers.size(); ++i) {
+        if (this->buffers[i] != other.buffers[i]) return false;
+    }
+    return (this->preamble == other.preamble);
+}
+
+template<typename T, typename U>
+inline bool unit_testing::bufferedObject<T, U>::operator!=(const bufferedObject<T, U>& other)
+{
+    return !(*this == other);
 }
 
 template <typename T>
@@ -173,8 +215,33 @@ void unit_testing::formatInterpreterSuccessTest<T>::run(const run_mode& mode)
         catch (mesh_compiler::formatInterpreterException& e) {
             throw failedTestException(name, "format file compilation failed, but it was expected to succeed");
         }
+        std::cout << name << " passed\n";
     }
-    std::cout << name << " passed\n";
+}
+
+template<typename T, typename U>
+inline unit_testing::meshCompilerTest<T, U>::meshCompilerTest(
+    const std::string& name, const std::string& input_file, const std::string& format_file, const bufferedObject<T, U>& expected_output) :
+    test(name), call_arguments({input_file, format_file}), expected(expected_output) {}
+
+template<typename T, typename U>
+inline void unit_testing::meshCompilerTest<T, U>::run(const run_mode& mode)
+{
+    if (mode == run_mode::skip) std::cout << name << " skipped\n";
+    else if (mode == run_mode::debug) mesh_compiler::runOnceDebug(call_arguments);
+    else {
+        mesh_compiler::runOnce(call_arguments);
+
+        std::ifstream file("./unit-tests/mesh-compiler/out.mesh", std::ios::in | std::ios::binary);
+        if (!file) {
+            throw std::runtime_error("could not open file: ./unit-tests/mesh-compiler/out.mesh");
+        }
+        bufferedObject<T, U> output(file);
+        file.close();
+        if (output != expected) throw failedTestException(name, "read object differs from expected");
+
+        std::cout << name << " passed\n";
+    }
 }
 
 #endif // _DEBUG

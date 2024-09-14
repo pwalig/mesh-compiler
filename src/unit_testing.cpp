@@ -47,8 +47,8 @@ void unit_testing::programRunTest::run(const run_mode& mode)
 		if (strCout.str() != expected) throw failedTestException(name, "program output was different than expected");
 
 		std::cout.rdbuf(oldCoutStreamBuf);
+		std::cout << name << " passed\n";
 	}
-	std::cout << name << " passed\n";
 }
 
 void unit_testing::run()
@@ -270,6 +270,21 @@ void unit_testing::run()
 	).run(mode);
 
 	// ========== EXPORTED FILE TESTS ==========
+
+	bufferedObject<float, unsigned int> obj;
+	obj.preamble.push_back(2);
+	preambledBuffer<float, unsigned int> buff;
+	buff.preamble.push_back(15);
+	buff.fields = { 1, 0, 1, 1, 0, -1, -1, 0, -1, -1, 0, -2, -1, 0, 1 };
+	obj.buffers.push_back(buff);
+	buff.fields = { 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0 };
+	obj.buffers.push_back(buff);
+	meshCompilerTest<float, unsigned int>(
+		"mesh-compiler-test-1",
+		"./unit-tests/mesh-compiler/1/test.obj",
+		"./unit-tests/mesh-compiler/1/.format",
+		obj
+	).run(mode);
 	
 
 	// ========== PROGRAM RUN TESTS ==========
