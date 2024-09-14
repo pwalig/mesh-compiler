@@ -115,7 +115,6 @@ private:
     class formatInterpreterException : public std::exception {
     public:
         enum class error_code {
-            cannot_open_file,
             unknown_statement,
             no_suffix,
             invalid_suffix,

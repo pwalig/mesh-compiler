@@ -451,7 +451,6 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
 // ========== EXCEPTIONS ==========
 
 std::map<mesh_compiler::formatInterpreterException::error_code, std::string> mesh_compiler::formatInterpreterException::errorMessagesMap = {
-    {formatInterpreterException::error_code::cannot_open_file, "could not open file"},
     {formatInterpreterException::error_code::unknown_statement, "unknown statement"},
     {formatInterpreterException::error_code::no_suffix, "field suffix not provided"},
     {formatInterpreterException::error_code::invalid_suffix, "invalid field suffix"},

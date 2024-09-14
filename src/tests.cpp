@@ -1,3 +1,5 @@
+#ifdef _DEBUG
+
 #include "tests.h"
 
 #include <iostream>
@@ -117,3 +119,5 @@ void mainTest() {
     printMesh(me2);
     std::cout << "Binary read time: " << elapsed_seconds2.count() << '\n';
 }
+
+#endif // _DEBUG
