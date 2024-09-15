@@ -1383,12 +1383,16 @@ void mesh_compiler::compile(const std::vector<std::string>& args)
             if (i == siz) throw std::runtime_error("unspecified format file: -f <format file path>");
             if (format_specified) throw std::runtime_error("format file specified more than once");
             format_file = args[i];
+            format_specified = true;
         }
         else if (args[i] == "-d") {
             if (debug_messages) throw std::runtime_error("-d flag specified more than once");
             debug_messages = true;
         }
-        else if (i == 1) format_file = args[i];
+        else if (i == 1) {
+            format_file = args[i];
+            format_specified = true;
+        }
     }
     try {
         try {
@@ -1435,7 +1439,7 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
             try {
                 std::ofstream fout(fu.output_file, std::ios::out | std::ios::binary);
                 if (!fout) {
-                    throw std::runtime_error("compilation error: cannot open file: " + fu.output_file);
+                    throw std::runtime_error("cannot open file: " + fu.output_file);
                 }
                 fu.put(fout, scene->mMeshes[i]);
                 fout.close();

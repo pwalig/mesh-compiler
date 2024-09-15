@@ -334,6 +334,12 @@ void unit_testing::run()
 		"-d flag specified more than once\n"
 	).run(mode);
 
+	programRunTest(
+		"program-run-test-6",
+		{ "file.fbx", "f.format", "-f", "f1.format"},
+		"format file specified more than once\n"
+	).run(mode);
+
 	std::cout << "ALL TESTS PASSED\n";
 }
 
