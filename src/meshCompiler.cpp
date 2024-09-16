@@ -1431,7 +1431,21 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
 
     // find name and extension
     std::string orig_name = fu.output_file;
-    if (fu.count_type == counting_type::per_mesh) {
+    if (fu.count_type == counting_type::per_scene) {
+        try {
+            std::ofstream fout(fu.output_file, std::ios::out | std::ios::binary);
+            if (!fout) {
+                throw std::runtime_error("cannot open file: " + fu.output_file);
+            }
+            fu.put(fout, scene);
+            fout.close();
+        }
+        catch (meshCompilerException& e) {
+            std::cout << e.what() << std::endl;
+            std::cout << "compilation of scene: " << scene->mName.C_Str() << " ended up with errors.\n";
+        }
+    }
+    else if (fu.count_type == counting_type::per_mesh) {
         int errors = 0;
         for (int i = 0; i < scene->mNumMeshes; ++i) {
             size_t found = fu.output_file.find("{mesh}");
@@ -1457,5 +1471,88 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
             return;
         }
     }
-    else throw meshCompilerException("for now units of count types other than per_mesh are unsupported: count type was: " + countingTypeNamesMap[fu.count_type]);
+    else if (fu.count_type == counting_type::per_skeleton) {
+        int errors = 0;
+        for (int i = 0; i < scene->mNumSkeletons; ++i) {
+            size_t found = fu.output_file.find("{skeleton}");
+            if (found != std::string::npos) fu.output_file.replace(found, 10, scene->mSkeletons[i]->mName.C_Str());
+            try {
+                std::ofstream fout(fu.output_file, std::ios::out | std::ios::binary);
+                if (!fout) {
+                    throw std::runtime_error("cannot open file: " + fu.output_file);
+                }
+                fu.put(fout, scene->mSkeletons[i]);
+                fout.close();
+            }
+            catch (meshCompilerException& e) {
+                std::cout << e.what() << std::endl;
+                std::cout << "compilation of skeleton: " << scene->mSkeletons[i]->mName.C_Str() << " ended up with errors.\n";
+                errors += 1;
+            }
+            fu.output_file = orig_name; // go back to original name
+        }
+        if (errors != 0) {
+            std::cout << "scene compilation ended with errors\n";
+            printf("compiled %d out of %d skeletons\n", scene->mNumSkeletons - errors, scene->mNumSkeletons);
+            return;
+        }
+    }
+    else if (fu.count_type == counting_type::per_animation) {
+        int errors = 0;
+        for (int i = 0; i < scene->mNumAnimations; ++i) {
+            size_t found = fu.output_file.find("{animation}");
+            if (found != std::string::npos) fu.output_file.replace(found, 11, scene->mAnimations[i]->mName.C_Str());
+            try {
+                std::ofstream fout(fu.output_file, std::ios::out | std::ios::binary);
+                if (!fout) {
+                    throw std::runtime_error("cannot open file: " + fu.output_file);
+                }
+                fu.put(fout, scene->mAnimations[i]);
+                fout.close();
+            }
+            catch (meshCompilerException& e) {
+                std::cout << e.what() << std::endl;
+                std::cout << "compilation of animation: " << scene->mAnimations[i]->mName.C_Str() << " ended up with errors.\n";
+                errors += 1;
+            }
+            fu.output_file = orig_name; // go back to original name
+        }
+        if (errors != 0) {
+            std::cout << "scene compilation ended with errors\n";
+            printf("compiled %d out of %d animations\n", scene->mNumAnimations - errors, scene->mNumAnimations);
+            return;
+        }
+    }
+    else if (fu.count_type == counting_type::per_animation_channel) {
+        for (int i = 0; i < scene->mNumAnimations; ++i) {
+            int errors = 0;
+            size_t found = fu.output_file.find("{animation}");
+            if (found != std::string::npos) fu.output_file.replace(found, 11, scene->mAnimations[i]->mName.C_Str());
+            std::string orig_name2 = fu.output_file;
+            for (int j = 0; j < scene->mAnimations[i]->mNumChannels; ++i) {
+                size_t found = fu.output_file.find("{channel}");
+                if (found != std::string::npos) fu.output_file.replace(found, 9, scene->mAnimations[i]->mChannels[j]->mNodeName.C_Str());
+                try {
+                    std::ofstream fout(fu.output_file, std::ios::out | std::ios::binary);
+                    if (!fout) {
+                        throw std::runtime_error("cannot open file: " + fu.output_file);
+                    }
+                    fu.put(fout, scene->mAnimations[i]->mChannels[j]);
+                    fout.close();
+                }
+                catch (meshCompilerException& e) {
+                    std::cout << e.what() << std::endl;
+                    std::cout << "compilation of animation channel: " << scene->mAnimations[i]->mChannels[j]->mNodeName.C_Str() << " ended up with errors.\n";
+                    errors += 1;
+                }
+                fu.output_file = orig_name2;
+            }
+            fu.output_file = orig_name; // go back to original name
+            if (errors != 0) {
+                std::cout << "animation compilation ended with errors\n";
+                printf("compiled %d out of %d animation channels\n", scene->mAnimations[i]->mNumChannels - errors, scene->mAnimations[i]->mNumChannels);
+                return;
+            }
+        }
+    }
 }
