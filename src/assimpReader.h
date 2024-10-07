@@ -3,6 +3,7 @@
 #include <functional>
 #include <vector>
 #include <limits>
+#include <array>
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>

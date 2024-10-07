@@ -896,6 +896,12 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiAnimation* ani
 
 void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
 {
+    assimp::meshWeights<int, float, MAX_BONE_INFLUENCE> mw(mesh);
+    put(file, mesh, mw);
+}
+
+void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh, const assimp::meshWeights<int, float, MAX_BONE_INFLUENCE>& mw)
+{
     if (this->count_type != counting_type::per_mesh) throw meshCompilerException("invalid compilation unit for this object");
     // fill counts
     for (compileBuffer& buffer : this->buffers) {
@@ -909,7 +915,7 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
 
     // preamble
     for (const compileField& field : this->preamble) {
-        if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, mesh);
+        if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, mesh, mw);
         else field.put(file, *this);
     }
 
@@ -918,7 +924,7 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
 
         // buffer preamble
         for (const compileField& field : buffer.preamble) {
-            if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, mesh);
+            if (field.vtype == value::other_unit) (*unitsMap)[field.get_otherUnitName()].put(file, mesh, mw);
             else field.put(file, buffer);
         }
 
@@ -950,6 +956,12 @@ void mesh_compiler::compileUnit::put(std::ofstream& file, const aiMesh* mesh)
                     break;
                 case value::vertex_color:
                     writeConst(file, mesh->mColors[field.data[0]][j][field.data[1]], field.stype);
+                    break;
+                case value::bone_id:
+                    writeConst(file, mw.vertices[j].bone_ids[field.data[0]], field.stype);
+                    break;
+                case value::bone_weight:
+                    writeConst(file, mw.vertices[j].weights[field.data[0]], field.stype);
                     break;
                 default:
                     throw std::logic_error("invalid value");

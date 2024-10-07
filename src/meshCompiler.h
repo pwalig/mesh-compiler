@@ -5,6 +5,9 @@
 #include <stdexcept>
 #include <fstream>
 #include <assimp/scene.h>
+#include "assimpReader.h"
+
+#define MAX_BONE_INFLUENCE 4
 
 class mesh_compiler {
 public:
@@ -50,6 +53,8 @@ private:
         bitangent,
         uv,
         vertex_color,
+        bone_id,
+        bone_weight,
 
         offset_matrix,
 
@@ -220,6 +225,7 @@ private:
         void put(std::ofstream& file, const aiSkeleton* skeleton);
         void put(std::ofstream& file, const aiAnimation* animation);
         void put(std::ofstream& file, const aiMesh* mesh);
+        void put(std::ofstream& file, const aiMesh* mesh, const assimp::meshWeights<int, float, MAX_BONE_INFLUENCE>& mw);
         void put(std::ofstream& file, const aiScene* scene);
 
         bool operator==(const compileUnit& other) const;
