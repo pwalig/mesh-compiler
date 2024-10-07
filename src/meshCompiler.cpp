@@ -39,6 +39,8 @@ std::map<std::string, mesh_compiler::value> mesh_compiler::fieldsMap = {
     { "b", value::bitangent },
     { "bitangent", value::bitangent},
     { "vertex_color", value::vertex_color },
+    { "bone_id", value::bone_id },
+    { "bone_weight", value::bone_weight },
 
     { "off_matr", value::offset_matrix },
     { "off_matrix", value::offset_matrix },
@@ -142,6 +144,8 @@ std::map<mesh_compiler::value, std::string> mesh_compiler::valueNamesMap = {
     { value::bitangent, "bitangent"},
     { value::uv, "uv" },
     { value::vertex_color, "vertex_color"},
+    { value::bone_id, "bone_id"},
+    { value::bone_weight, "bone_weight"},
 
     { value::offset_matrix, "offset_matrix"},
 
@@ -195,12 +199,16 @@ mesh_compiler::type mesh_compiler::getDefaultValueType(const value& v)
     case value::indice:
         return mc_unsigned_int;
 
+    case value::bone_id:
+        return mc_int;
+
     case value::vertex:
     case value::normal:
     case value::tangent:
     case value::bitangent:
     case value::uv:
     case value::vertex_color:
+    case value::bone_weight:
     case value::position_key:
     case value::rotation_key:
     case value::scale_key:
@@ -243,6 +251,8 @@ mesh_compiler::counting_type mesh_compiler::getFieldCount(const value& t) {
     case value::bitangent:
     case value::uv:
     case value::vertex_color:
+    case value::bone_id:
+    case value::bone_weight:
         return counting_type::per_vertex;
 
     case value::offset_matrix:
@@ -324,6 +334,10 @@ std::vector<unsigned short> mesh_compiler::getMaxSuffixes(const value& t)
         return out;
     case value::rotation_key:
         out.push_back(4);
+        return out;
+    case value::bone_id:
+    case value::bone_weight:
+        out.push_back(MAX_BONE_INFLUENCE);
         return out;
     case value::uv:
         out.push_back(8);
