@@ -27,15 +27,9 @@ void printMesh(const mesh& m) {
     std::cout << "\n bitangents: ";
     for (const float& vert : m.bitangents) std::cout << vert << " ";
     std::cout << "\n indexes: ";
-    for (const std::array<int, MAX_BONE_INFLUENCE> vert : m.bone_indexes) {
-        for (int i = 0; i < MAX_BONE_INFLUENCE; ++i) std::cout << vert[i] << " ";
-        std::cout << "| ";
-    }
+    for (const int vert : m.bone_indexes) std::cout << vert << " ";
     std::cout << "\n weights: ";
-    for (const std::array<float, MAX_BONE_INFLUENCE> vert : m.bone_weights) {
-        for (int i = 0; i < MAX_BONE_INFLUENCE; ++i) std::cout << vert[i] << " ";
-        std::cout << "| ";
-    }
+    for (const float vert : m.bone_weights) std::cout << vert << " ";
     std::cout << std::endl;
 }
 
@@ -46,12 +40,17 @@ void readMeshFile(const std::string& filepath, mesh& me) {
         exit(1);
     }
 
+    unsigned short max_bones;
+    fin.read((char*) & max_bones, sizeof(unsigned short));
+
     mesh_reader::readBuffer<unsigned int, unsigned int>(fin, me.indices);
     mesh_reader::readBuffer<float, unsigned int>(fin, me.verts);
     mesh_reader::readBuffer<float, unsigned int>(fin, me.normals);
     mesh_reader::readBuffer<float, unsigned int>(fin, me.uvs);
     mesh_reader::readBuffer<float, unsigned int>(fin, me.tangents);
     mesh_reader::readBuffer<float, unsigned int>(fin, me.bitangents);
+    mesh_reader::readBuffer<int, unsigned int>(fin, me.bone_indexes);
+    mesh_reader::readBuffer<float, unsigned int>(fin, me.bone_weights);
 
     fin.close();
 }
@@ -85,8 +84,10 @@ void readMesh(const aiScene* scene, mesh& me) {
         if (m->HasBones()) {
             assimp::meshWeights<int, float, MAX_BONE_INFLUENCE> mw(m);
             for (int i = 0; i < m->mNumVertices; ++i) {
-                me.bone_indexes.push_back(mw.vertices[i].bone_ids);
-                me.bone_weights.push_back(mw.vertices[i].weights);
+                for (int j = 0; j < MAX_BONE_INFLUENCE; ++j) {
+                    me.bone_indexes.push_back(mw.vertices[i].bone_ids[j]);
+                    me.bone_weights.push_back(mw.vertices[i].weights[j]);
+                }
             }
             assimp::skeleton skeleton(m);
             std::cout << "skeleton: ";
@@ -113,7 +114,7 @@ void mainTest() {
     std::cout << "Assimp read time: " << elapsed_seconds.count() << '\n';
 
     std::vector<std::string> args;
-    args.push_back("test/test.obj");
+    args.push_back("test/bones2.fbx");
     args.push_back("test/.format");
     args.push_back("test/out.mesh");
     args.push_back("-d");
