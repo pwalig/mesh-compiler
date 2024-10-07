@@ -26,6 +26,16 @@ void printMesh(const mesh& m) {
     for (const float& vert : m.tangents) std::cout << vert << " ";
     std::cout << "\n bitangents: ";
     for (const float& vert : m.bitangents) std::cout << vert << " ";
+    std::cout << "\n indexes: ";
+    for (const std::array<int, MAX_BONE_INFLUENCE> vert : m.bone_indexes) {
+        for (int i = 0; i < MAX_BONE_INFLUENCE; ++i) std::cout << vert[i] << " ";
+        std::cout << "| ";
+    }
+    std::cout << "\n weights: ";
+    for (const std::array<float, MAX_BONE_INFLUENCE> vert : m.bone_weights) {
+        for (int i = 0; i < MAX_BONE_INFLUENCE; ++i) std::cout << vert[i] << " ";
+        std::cout << "| ";
+    }
     std::cout << std::endl;
 }
 
@@ -72,6 +82,19 @@ void readMesh(const aiScene* scene, mesh& me) {
                 me.indices.push_back(m->mFaces[i].mIndices[j]);
             }
         }
+        if (m->HasBones()) {
+            assimp::meshWeights<int, float, MAX_BONE_INFLUENCE> mw(m);
+            for (int i = 0; i < m->mNumVertices; ++i) {
+                me.bone_indexes.push_back(mw.vertices[i].bone_ids);
+                me.bone_weights.push_back(mw.vertices[i].weights);
+            }
+            assimp::skeleton skeleton(m);
+            std::cout << "skeleton: ";
+            for (const assimp::skeleton::bone& b : skeleton.bones) {
+                std::cout << b.position.x << " " << b.position.y << " " << b.position.z << " | ";
+            }
+            std::cout << "\n";
+        }
     }
 }
 
@@ -79,7 +102,7 @@ void mainTest() {
     std::function<void(const aiScene* scene)> nothing = [](const aiScene* scene) {};
     mesh me;
     const auto start{ std::chrono::steady_clock::now() };
-    assimp::readFile("test/test.obj", std::bind(readMesh, std::placeholders::_1, std::ref(me)));
+    assimp::readFile("test/bones2.fbx", std::bind(readMesh, std::placeholders::_1, std::ref(me)));
     //ReadFile("Ghost2.glb", nothing);
     const auto end{ std::chrono::steady_clock::now() };
     const std::chrono::duration<double> elapsed_seconds{ end - start };

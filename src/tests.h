@@ -1,7 +1,10 @@
 #pragma once
 #ifdef _DEBUG
 
+#define MAX_BONE_INFLUENCE 4
+
 #include <vector>
+#include <array>
 
 #include <assimp/scene.h>
 
@@ -13,6 +16,8 @@ struct mesh {
     std::vector<float> normals;
     std::vector<float> tangents;
     std::vector<float> bitangents;
+    std::vector<std::array<int, MAX_BONE_INFLUENCE>> bone_indexes;
+    std::vector<std::array<float, MAX_BONE_INFLUENCE>> bone_weights;
 };
 
 void printMesh(const mesh& m);
