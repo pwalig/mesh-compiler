@@ -66,23 +66,16 @@ namespace assimp {
     template<typename T, typename U, unsigned int MAX>
     inline void meshWeights<T, U, MAX>::vertex::setData(const T& bone_id, const U& weight)
     {
-        unsigned int min_id = MAX+1;
-        U min_weight = std::numeric_limits<U>::max();
-
-        for (int i = 0; i < MAX; ++i)
-        {
-            if (this->weights[i] < min_weight) {
-                min_weight = this->weights[i];
-                min_id = i;
-            }
-            if (this->bone_ids[i] < 0)
-            {
-                this->setData(bone_id, weight, i);
+        for (int i = 0; i < MAX; ++i) {
+            if (weight > this->weights[i]) {
+                for (int j = MAX - 1; j > i; --j) {
+                    this->weights[j] = this->weights[j-1];
+                    this->bone_ids[j] = this->bone_ids[j-1];
+                }
+                this->weights[i] = weight;
+                this->bone_ids[i] = bone_id;
                 return;
             }
-        }
-        if (weight > min_weight) {
-            this->setData(bone_id, weight, min_id);
         }
     }
 
