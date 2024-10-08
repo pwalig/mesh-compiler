@@ -5,7 +5,7 @@
 #include <assimpReader.h>
 #include <NotImplemented.h>
 
-std::string mesh_compiler::version = "v2.0.0";
+std::string mesh_compiler::version = "v2.1.0";
 
 // ========== DEFINES AND MAPS ==========
 
