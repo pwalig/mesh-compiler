@@ -481,6 +481,7 @@ std::map<mesh_compiler::formatInterpreterException::error_code, std::string> mes
     {formatInterpreterException::error_code::no_unit_name, "unit name unspecified"},
     {formatInterpreterException::error_code::no_file_name, "file name unspecified"},
     {formatInterpreterException::error_code::unit_redefinition, "unit redefinition"},
+    {formatInterpreterException::error_code::name_keyword_collision, "unit name collides with keyword"},
     {formatInterpreterException::error_code::no_end, "end key word expected"},
     {formatInterpreterException::error_code::unknown, "unknown error"}
 };
@@ -1325,6 +1326,8 @@ mesh_compiler::compilationInfo::compilationInfo(const std::string& format_file, 
             }
             else {
                 if (units.find(word) != units.end()) throw formatInterpreterException(formatInterpreterException::error_code::unit_redefinition, line_num, arg);
+                if (preambleMap.find(word) != preambleMap.end()) throw formatInterpreterException(formatInterpreterException::error_code::name_keyword_collision, line_num, arg);
+                if (fieldsMap.find(word) != fieldsMap.end()) throw formatInterpreterException(formatInterpreterException::error_code::name_keyword_collision, line_num, arg);
                 this->units.emplace(word, compileUnit(formatFile, line_num, &units));
                 if (this->debug_messages) {
                     std::cout << word << " ";

@@ -136,6 +136,7 @@ private:
             no_unit_name,
             no_file_name,
             unit_redefinition,
+            name_keyword_collision,
             no_end,
             unknown
         };

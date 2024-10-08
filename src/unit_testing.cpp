@@ -99,6 +99,22 @@ void unit_testing::run()
 			2, "feojpa")
 	).run(mode);
 
+	formatInterpreterFailTest(
+		"format-interpreter-fail-test-6",
+		"./unit-tests/format-interpreter-fail/6.format",
+		mesh_compiler::formatInterpreterException::make_message(
+			mesh_compiler::formatInterpreterException::error_code::name_keyword_collision,
+			1, "begin buffu")
+	).run(mode);
+
+	formatInterpreterFailTest(
+		"format-interpreter-fail-test-7",
+		"./unit-tests/format-interpreter-fail/7.format",
+		mesh_compiler::formatInterpreterException::make_message(
+			mesh_compiler::formatInterpreterException::error_code::name_keyword_collision,
+			1, "begin vertex")
+	).run(mode);
+
 	// ========== INTERPRETER SUCCESS DEEP TESTS ==========
 
 	formatInterpreterSuccessTest<deepUnit>::info dinf;
