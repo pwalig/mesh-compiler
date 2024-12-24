@@ -35,11 +35,12 @@ namespace assimp {
         class bone {
         public:
             bone();
-            bone(const aiMatrix4x4 offset_matrix);
+            bone(const aiBone* b);
             aiMatrix4x4 offset_matrix;
             aiVector3D position;
             aiVector3D rotation;
             aiVector3D scale;
+            const std::string name;
             void setData(const aiMatrix4x4 offset_matrix);
         };
         skeleton(const aiMesh* mesh);
@@ -108,9 +109,9 @@ namespace assimp {
     inline skeleton::bone::bone()
     {}
 
-    inline skeleton::bone::bone(const aiMatrix4x4 offset_matrix)
+    inline skeleton::bone::bone(const aiBone* b) : name(b->mName.C_Str())
     {
-        this->setData(offset_matrix);
+        this->setData(b->mOffsetMatrix);
     }
 
     inline void skeleton::bone::setData(const aiMatrix4x4 offset_matrix)
@@ -123,7 +124,7 @@ namespace assimp {
     {
         for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
         {
-            bone b(mesh->mBones[boneIndex]->mOffsetMatrix);
+            bone b(mesh->mBones[boneIndex]);
             bones.push_back(b);
         }
     }

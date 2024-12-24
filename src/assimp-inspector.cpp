@@ -28,14 +28,18 @@ void assimp::printMesh(const aiMesh* m, bool detailed)
             std::cout << "\n";
         }
         assimp::skeleton skeleton(m);
-        std::cout << "\tskeleton: ";
+        std::cout << "\tbones: " << skeleton.bones.size() << "\n";
         if (detailed) {
             for (const assimp::skeleton::bone& b : skeleton.bones) {
-                std::cout << " | (" << b.position.x << " ; "
-                    << b.position.y << " ; " << b.position.z << ")";
+                std::cout << "\t\tname: " << b.name << "\n";
+                std::cout << "\t\tposition: (" << b.position.x << " ; "
+                    << b.position.y << " ; " << b.position.z << ")\n";
+                std::cout << "\t\trotations: (" << b.rotation.x << " ; "
+                    << b.rotation.y << " ; " << b.rotation.z << ")\n";
+                std::cout << "\t\tscale: (" << b.scale.x << " ; "
+                    << b.scale.y << " ; " << b.scale.z << ")\n";
             }
         }
-        std::cout << "\n";
     }
 }
 
@@ -55,7 +59,6 @@ void assimp::printAnimation(const aiAnimation* a, bool detailed)
     std::cout << "\tchannels: " << a->mNumChannels << "\n";
     for (int j = 0; j < a->mNumChannels; ++j) {
         aiNodeAnim* c = a->mChannels[j];
-        std::cout << "\t\tid: " << j << "\n";
         std::cout << "\t\tname: " << c->mNodeName.C_Str() << "\n";
         std::cout << "\t\tposition keys: " << c->mNumPositionKeys << "\n";
         for (int k = 0; k < c->mNumPositionKeys && detailed; ++k) {
