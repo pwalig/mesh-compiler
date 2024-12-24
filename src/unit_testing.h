@@ -152,7 +152,7 @@ inline unit_testing::bufferedObject<T, U>::bufferedObject(std::ifstream& file)
     preamble.resize(1);
     file.read((char*)preamble.data(), sizeof(U) * preamble.size());
 
-    for (int i = 0; i < preamble[0]; ++i) {
+    for (unsigned int i = 0; i < preamble[0]; ++i) {
         buffers.push_back(preambledBuffer<T, U>(file));
     }
 }
@@ -212,7 +212,7 @@ void unit_testing::formatInterpreterSuccessTest<T>::run(const run_mode& mode)
             }
 
         }
-        catch (mesh_compiler::formatInterpreterException& e) {
+        catch (mesh_compiler::formatInterpreterException&) {
             throw failedTestException(name, "format file compilation failed, but it was expected to succeed");
         }
         std::cout << name << " passed\n";

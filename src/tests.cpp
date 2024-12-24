@@ -60,7 +60,7 @@ void readMesh(const aiScene* scene, mesh& me) {
     if (scene->mNumMeshes > 0) {
         aiMesh* m = scene->mMeshes[0];
         std::cout << m->mName.C_Str() << std::endl;
-        for (int i = 0; i < m->mNumVertices; ++i) {
+        for (unsigned int i = 0; i < m->mNumVertices; ++i) {
             me.verts.push_back(m->mVertices[i].x);
             me.verts.push_back(m->mVertices[i].y);
             me.verts.push_back(m->mVertices[i].z);
@@ -78,13 +78,13 @@ void readMesh(const aiScene* scene, mesh& me) {
             me.bitangents.push_back(m->mBitangents[i].z);
         }
         for (int i = 0; i < m->mNumFaces; ++i) {
-            for (int j = 0; j < m->mFaces[i].mNumIndices; ++j) {
+            for (unsigned int j = 0; j < m->mFaces[i].mNumIndices; ++j) {
                 me.indices.push_back(m->mFaces[i].mIndices[j]);
             }
         }
         if (m->HasBones()) {
             assimp::meshWeights<int, float, MAX_BONE_INFLUENCE> mw(m);
-            for (int i = 0; i < m->mNumVertices; ++i) {
+            for (unsigned int i = 0; i < m->mNumVertices; ++i) {
                 for (int j = 0; j < MAX_BONE_INFLUENCE; ++j) {
                     me.bone_indexes.push_back(mw.vertices[i].bone_ids[j]);
                     me.bone_weights.push_back(mw.vertices[i].weights[j]);

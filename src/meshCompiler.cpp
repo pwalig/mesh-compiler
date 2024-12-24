@@ -2,8 +2,8 @@
 #include <iostream>
 #include <sstream>
 #include <map>
-#include <assimpReader.h>
-#include <NotImplemented.h>
+#include "assimpReader.h"
+#include "NotImplemented.h"
 
 std::string mesh_compiler::version = "v2.1.0";
 
@@ -383,7 +383,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
         try {
             data.s = std::stoi(val);
         }
-        catch (std::exception& e) {
+        catch (std::exception&) {
             throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
@@ -392,7 +392,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
         try {
             data.i = std::stoi(val);
         }
-        catch (std::exception& e) {
+        catch (std::exception&) {
             throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
@@ -401,7 +401,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
         try {
             data.l = std::stol(val);
         }
-        catch (std::exception& e) {
+        catch (std::exception&) {
             throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
@@ -410,7 +410,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
         try {
             data.ll = std::stoll(val);
         }
-        catch (std::exception& e) {
+        catch (std::exception&) {
             throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
@@ -418,7 +418,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
         try {
             data.f = std::stof(val);
         }
-        catch (std::exception& e) {
+        catch (std::exception&) {
             throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
@@ -426,7 +426,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
         try {
             data.d = std::stod(val);
         }
-        catch (std::exception& e) {
+        catch (std::exception&) {
             throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
@@ -434,7 +434,7 @@ void mesh_compiler::copyConstantToMemory(void* dst, const type& t, const std::st
         try {
             data.ld = std::stold(val);
         }
-        catch (std::exception& e) {
+        catch (std::exception&) {
             throw formatInterpreterException(formatInterpreterException::error_code::invalid_const_value);
         }
         break;
@@ -1476,7 +1476,7 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
     }
     else if (fu.count_type == counting_type::per_mesh) {
         int errors = 0;
-        for (int i = 0; i < scene->mNumMeshes; ++i) {
+        for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
             size_t found = fu.output_file.find("{mesh}");
             if (found != std::string::npos) fu.output_file.replace(found, 6, scene->mMeshes[i]->mName.C_Str());
             try {
@@ -1528,7 +1528,7 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
     }
     else if (fu.count_type == counting_type::per_animation) {
         int errors = 0;
-        for (int i = 0; i < scene->mNumAnimations; ++i) {
+        for (unsigned int i = 0; i < scene->mNumAnimations; ++i) {
             size_t found = fu.output_file.find("{animation}");
             if (found != std::string::npos) fu.output_file.replace(found, 11, scene->mAnimations[i]->mName.C_Str());
             try {
@@ -1553,12 +1553,12 @@ void mesh_compiler::compileScene(const aiScene* scene, fileUnit fu)
         }
     }
     else if (fu.count_type == counting_type::per_animation_channel) {
-        for (int i = 0; i < scene->mNumAnimations; ++i) {
+        for (unsigned int i = 0; i < scene->mNumAnimations; ++i) {
             int errors = 0;
             size_t found = fu.output_file.find("{animation}");
             if (found != std::string::npos) fu.output_file.replace(found, 11, scene->mAnimations[i]->mName.C_Str());
             std::string orig_name2 = fu.output_file;
-            for (int j = 0; j < scene->mAnimations[i]->mNumChannels; ++i) {
+            for (unsigned int j = 0; j < scene->mAnimations[i]->mNumChannels; ++i) {
                 size_t found = fu.output_file.find("{channel}");
                 if (found != std::string::npos) fu.output_file.replace(found, 9, scene->mAnimations[i]->mChannels[j]->mNodeName.C_Str());
                 try {
