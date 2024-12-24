@@ -141,6 +141,9 @@
   <ItemGroup>
     <ClCompile Include="assimp-inspector.cpp" />
     <ClCompile Include="assimpReader.cpp" />
+    <ClCompile Include="core\ctype.cpp" />
+    <ClCompile Include="core\stype.cpp" />
+    <ClCompile Include="core\vtype.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshCompiler.cpp" />
     <ClCompile Include="tests.cpp" />
@@ -149,6 +152,10 @@
   <ItemGroup>
     <ClInclude Include="assimp-inspector.h" />
     <ClInclude Include="assimpReader.h" />
+    <ClInclude Include="core\ctype.h" />
+    <ClInclude Include="core\max-bone-influence.h" />
+    <ClInclude Include="core\stype.h" />
+    <ClInclude Include="core\vtype.h" />
     <ClInclude Include="meshCompiler.h" />
     <ClInclude Include="meshReader.h" />
     <ClInclude Include="tests.h" />
