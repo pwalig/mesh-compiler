@@ -12,6 +12,7 @@
 #include "meshCompiler.h"
 #include "meshReader.h"
 #include "assimpReader.h"
+#include "assimp-inspector.h"
 
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";
@@ -104,6 +105,7 @@ void mainTest() {
     mesh me;
     const auto start{ std::chrono::steady_clock::now() };
     assimp::readFile("test/bones2.fbx", std::bind(readMesh, std::placeholders::_1, std::ref(me)));
+    assimp::readFile("test/anim-test.glb", std::bind(assimp::printScene, std::placeholders::_1, true));
     //ReadFile("Ghost2.glb", nothing);
     const auto end{ std::chrono::steady_clock::now() };
     const std::chrono::duration<double> elapsed_seconds{ end - start };
