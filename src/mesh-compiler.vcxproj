@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -141,8 +141,11 @@
   <ItemGroup>
     <ClCompile Include="assimp-inspector.cpp" />
     <ClCompile Include="assimpReader.cpp" />
+    <ClCompile Include="core\compilation-info.cpp" />
+    <ClCompile Include="core\field.cpp" />
     <ClCompile Include="core\ctype.cpp" />
     <ClCompile Include="core\stype.cpp" />
+    <ClCompile Include="core\unit.cpp" />
     <ClCompile Include="core\vtype.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshCompiler.cpp" />
@@ -152,9 +155,15 @@
   <ItemGroup>
     <ClInclude Include="assimp-inspector.h" />
     <ClInclude Include="assimpReader.h" />
+    <ClInclude Include="core\buffer.h" />
+    <ClInclude Include="core\compilation-info.h" />
+    <ClInclude Include="core\field.h" />
     <ClInclude Include="core\ctype.h" />
+    <ClInclude Include="core\file-access-interface\meshI.h" />
+    <ClInclude Include="core\file-access-interface\sceneI.h" />
     <ClInclude Include="core\max-bone-influence.h" />
     <ClInclude Include="core\stype.h" />
+    <ClInclude Include="core\unit.h" />
     <ClInclude Include="core\vtype.h" />
     <ClInclude Include="meshCompiler.h" />
     <ClInclude Include="meshReader.h" />
