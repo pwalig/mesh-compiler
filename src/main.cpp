@@ -1,5 +1,5 @@
 #include "meshCompiler.h"
-#include "assimpReader.h"
+#include "assimp-integration/reader.h"
 #ifdef _DEBUG
 #include "tests.h"
 #include "unit_testing.h"

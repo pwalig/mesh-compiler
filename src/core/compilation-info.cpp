@@ -1,5 +1,5 @@
 #include "compilation-info.h"
-#include "../assimpReader.h"
+#include "../assimp-integration/reader.h"
 
 void mc::compilationInfo::compileFile(const std::string& filename) {
     for (fileUnit& fu : file_units) {

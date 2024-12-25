@@ -11,8 +11,8 @@
 
 #include "meshCompiler.h"
 #include "meshReader.h"
-#include "assimpReader.h"
-#include "assimp-inspector.h"
+#include "assimp-integration/reader.h"
+#include "assimp-integration/inspector.h"
 
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";

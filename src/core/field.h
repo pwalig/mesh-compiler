@@ -11,7 +11,7 @@ namespace mc {
 	public:
 		stype::code s;
 
-		virtual void output(std::ofstream& file, const Inode* node) const = 0;
+		virtual void output(std::ofstream& file, const Inode::ptr node) const = 0;
 
 		template<typename T>
 		T getSize() const;

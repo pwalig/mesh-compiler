@@ -139,11 +139,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="assimp-inspector.cpp" />
-    <ClCompile Include="assimpReader.cpp" />
+    <ClCompile Include="assimp-integration\inspector.cpp" />
+    <ClCompile Include="assimp-integration\meshNode.cpp" />
+    <ClCompile Include="assimp-integration\sceneNode.cpp" />
+    <ClCompile Include="assimp-integration\reader.cpp" />
+    <ClCompile Include="assimp-integration\vertexNode.cpp" />
     <ClCompile Include="core\buffer.cpp" />
     <ClCompile Include="core\compilation-info.cpp" />
     <ClCompile Include="core\fields\ufield.cpp" />
+    <ClCompile Include="core\Inode.cpp" />
     <ClCompile Include="core\types\ctype.cpp" />
     <ClCompile Include="core\types\ptype.cpp" />
     <ClCompile Include="core\types\stype.cpp" />
@@ -155,8 +159,11 @@
     <ClCompile Include="unit_testing.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="assimp-inspector.h" />
-    <ClInclude Include="assimpReader.h" />
+    <ClInclude Include="assimp-integration\inspector.h" />
+    <ClInclude Include="assimp-integration\meshNode.h" />
+    <ClInclude Include="assimp-integration\sceneNode.h" />
+    <ClInclude Include="assimp-integration\reader.h" />
+    <ClInclude Include="assimp-integration\vertexNode.h" />
     <ClInclude Include="core\any-type-value.h" />
     <ClInclude Include="core\buffer.h" />
     <ClInclude Include="core\compilation-info.h" />

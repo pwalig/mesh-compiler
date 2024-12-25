@@ -35,7 +35,7 @@ namespace mc {
 
         extern const std::unordered_map<std::string, code> codes;
         extern const std::unordered_map<code, std::string> names;
-        extern const std::unordered_map<code, std::vector<unsigned int>> maxSuffixes;
+        extern const std::unordered_map<code, std::vector<unsigned short>> maxSuffixes;
         extern const std::unordered_map<code, stype::code> default_stypes;
         extern const std::unordered_map<code, ctype::code> ctypes;
 	}

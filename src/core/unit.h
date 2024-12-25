@@ -14,21 +14,21 @@ namespace mc {
 		std::vector<buffer> buffers;
 		ctype::code c;
 
-		void output(std::ofstream& file, const Inode* node);
+		void output(std::ofstream& file, const Inode::ptr node);
 
 		template<typename T>
-		T getSize(const Inode* node) const;
+		T getSize(const Inode::ptr node) const;
 		template<typename T>
-		T getEntriesCount(const Inode* node) const;
+		T getEntriesCount(const Inode::ptr node) const;
 		template<typename T>
-		T getFieldsCount(const Inode* node) const;
+		T getFieldsCount(const Inode::ptr node) const;
 	};
 
 	class fileUnit : public unit {
 	public:
 		std::string output_file;
 
-		void compile(const Inode* node);
+		void compile(const Inode::ptr node);
 
 		void changeName(const std::string& pattern, const std::string& newName);
 		void withChangedName(
@@ -46,7 +46,7 @@ namespace mc {
 	}
 
 	template<typename T>
-	inline T unit::getSize(const Inode* node) const
+	inline T unit::getSize(const Inode::ptr node) const
 	{
 		T siz = 0;
 		for (const buffer& buff : buffers)
@@ -54,7 +54,7 @@ namespace mc {
 		return siz;
 	}
 	template<typename T>
-	inline T unit::getEntriesCount(const Inode* node) const
+	inline T unit::getEntriesCount(const Inode::ptr node) const
 	{
 		T siz = 0;
 		for (const buffer& buff : buffers)
@@ -62,7 +62,7 @@ namespace mc {
 		return siz;
 	}
 	template<typename T>
-	inline T unit::getFieldsCount(const Inode* node) const
+	inline T unit::getFieldsCount(const Inode::ptr node) const
 	{
 		T siz = 0;
 		for (const buffer& buff : buffers)

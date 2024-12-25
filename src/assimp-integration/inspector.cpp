@@ -1,6 +1,6 @@
-#include "assimp-inspector.h"
+#include "inspector.h"
 #include <iostream>
-#include "assimpReader.h"
+#include "reader.h"
 
 #define MAX_BONE_INFLUENCE 4
 

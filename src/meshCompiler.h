@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <assimp/scene.h>
-#include "assimpReader.h"
+#include "assimp-integration/reader.h"
 
 #define MAX_BONE_INFLUENCE 4
 

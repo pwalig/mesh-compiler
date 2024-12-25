@@ -1,7 +1,7 @@
 #include "buffer.h"
 #include "fields/pfield.h"
 
-void mc::buffer::output(std::ofstream& file, const Inode* node)
+void mc::buffer::output(std::ofstream& file, const Inode::ptr node)
 {
     size_t count = node->getChildNodeCount(c);
 

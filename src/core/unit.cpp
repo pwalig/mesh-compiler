@@ -5,7 +5,7 @@
 #include "fields/pfield.h"
 
 
-void mc::unit::output(std::ofstream& file, const Inode* node)
+void mc::unit::output(std::ofstream& file, const Inode::ptr node)
 {
     assert(c == node->c);
 
@@ -21,7 +21,7 @@ void mc::unit::output(std::ofstream& file, const Inode* node)
     }
 }
 
-void mc::fileUnit::compile(const Inode* node)
+void mc::fileUnit::compile(const Inode::ptr node)
 {
     std::string orig_name = output_file;
     changeName(ctype::patterns.at(node->c), node->getName());

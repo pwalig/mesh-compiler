@@ -2,7 +2,6 @@
 #include <iostream>
 #include <sstream>
 #include <map>
-#include "assimpReader.h"
 #include "NotImplemented.h"
 
 std::string mesh_compiler::version = "v2.1.0";

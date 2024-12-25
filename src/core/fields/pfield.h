@@ -23,13 +23,13 @@ namespace mc {
 	class bpfield : public sfield<T>, public Ibpfield {
 	public:
 
-		std::vector<T> evaluate(const Inode* node) const override;
+		std::vector<T> evaluate(const Inode::ptr node) const override;
 
 		oop_ptr_template_child_define(field, bpfield)
 	};
 
 	template<typename T>
-	inline std::vector<T> bpfield<T>::evaluate(const Inode* node) const
+	inline std::vector<T> bpfield<T>::evaluate(const Inode::ptr node) const
 	{
 		std::vector<T> out;
 
@@ -68,13 +68,13 @@ namespace mc {
 	class pfield : public bpfield<T>, public Ipfield {
 	public:
 
-		std::vector<T> evaluate(const Inode* node) const override;
+		std::vector<T> evaluate(const Inode::ptr node) const override;
 
 		oop_ptr_template_child_define(field, pfield)
 	};
 
 	template<typename T>
-	inline std::vector<T> pfield<T>::evaluate(const Inode* node) const
+	inline std::vector<T> pfield<T>::evaluate(const Inode::ptr node) const
 	{
 		std::vector<T> out;
 

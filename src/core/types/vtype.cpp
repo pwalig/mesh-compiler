@@ -73,32 +73,32 @@ const std::unordered_map<mc::vtype::code, std::string> mc::vtype::names = {
     { ticks_per_second, "ticks_per_second"},
 };
 
-const std::unordered_map<mc::vtype::code, std::vector<unsigned int>> mc::vtype::maxSuffixes = {
+const std::unordered_map<mc::vtype::code, std::vector<unsigned short>> mc::vtype::maxSuffixes = {
 
-    {position_key_timestamp, std::vector<unsigned int>()},
-    {rotation_key_timestamp, std::vector<unsigned int>()},
-    {scale_key_timestamp, std::vector<unsigned int>()},
-    {duration, std::vector<unsigned int>()},
-    {ticks_per_second, std::vector<unsigned int>()},
+    {position_key_timestamp, std::vector<unsigned short>()},
+    {rotation_key_timestamp, std::vector<unsigned short>()},
+    {scale_key_timestamp, std::vector<unsigned short>()},
+    {duration, std::vector<unsigned short>()},
+    {ticks_per_second, std::vector<unsigned short>()},
 
-    {indice, std::vector<unsigned int>({3})},
-    {vertex, std::vector<unsigned int>({3})},
-    {normal, std::vector<unsigned int>({3})},
-    {tangent, std::vector<unsigned int>({3})},
-    {bitangent, std::vector<unsigned int>({3})},
-    {position_key, std::vector<unsigned int>({3})},
-    {scale_key, std::vector<unsigned int>({3})},
+    {indice, std::vector<unsigned short>({3})},
+    {vertex, std::vector<unsigned short>({3})},
+    {normal, std::vector<unsigned short>({3})},
+    {tangent, std::vector<unsigned short>({3})},
+    {bitangent, std::vector<unsigned short>({3})},
+    {position_key, std::vector<unsigned short>({3})},
+    {scale_key, std::vector<unsigned short>({3})},
 
-    {rotation_key, std::vector<unsigned int>({4})},
+    {rotation_key, std::vector<unsigned short>({4})},
 
-    {bone_id, std::vector<unsigned int>({MAX_BONE_INFLUENCE})},
-    {bone_weight, std::vector<unsigned int>({MAX_BONE_INFLUENCE})},
+    {bone_id, std::vector<unsigned short>({MAX_BONE_INFLUENCE})},
+    {bone_weight, std::vector<unsigned short>({MAX_BONE_INFLUENCE})},
 
-    {uv, std::vector<unsigned int>({8, 3})},
+    {uv, std::vector<unsigned short>({8, 3})},
 
-    {vertex_color, std::vector<unsigned int>({8, 4})},
+    {vertex_color, std::vector<unsigned short>({8, 4})},
 
-    {offset_matrix, std::vector<unsigned int>({4, 4})}
+    {offset_matrix, std::vector<unsigned short>({4, 4})}
 };
 
 const std::unordered_map<mc::vtype::code, mc::stype::code> mc::vtype::default_stypes = {

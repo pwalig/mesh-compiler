@@ -21,7 +21,7 @@
     <ClCompile Include="meshCompiler.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="assimpReader.cpp">
+    <ClCompile Include="assimp-integration\reader.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="tests.cpp">
@@ -30,7 +30,7 @@
     <ClCompile Include="unit_testing.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="assimp-inspector.cpp">
+    <ClCompile Include="assimp-integration\inspector.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="core\types\stype.cpp">
@@ -57,6 +57,18 @@
     <ClCompile Include="core\fields\ufield.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="assimp-integration\sceneNode.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="assimp-integration\meshNode.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="assimp-integration\vertexNode.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="core\Inode.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="meshReader.h">
@@ -68,7 +80,7 @@
     <ClInclude Include="tests.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="assimpReader.h">
+    <ClInclude Include="assimp-integration\reader.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="NotImplemented.h">
@@ -77,7 +89,7 @@
     <ClInclude Include="unit_testing.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="assimp-inspector.h">
+    <ClInclude Include="assimp-integration\inspector.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="core\types\stype.h">
@@ -132,6 +144,15 @@
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="core\fields\cfield.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="assimp-integration\sceneNode.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="assimp-integration\meshNode.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="assimp-integration\vertexNode.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>

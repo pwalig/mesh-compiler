@@ -9,13 +9,13 @@ namespace mc {
 		const vtype::code v;
 		const std::vector<unsigned short> suffixes;
 
-		std::vector<T> evaluate(const Inode* node) const override;
+		std::vector<T> evaluate(const Inode::ptr node) const override;
 
 		oop_ptr_template_child_define(field, vfield)
 	};
 
 	template<typename T>
-	inline std::vector<T> vfield<T>::evaluate(const Inode* node) const
+	inline std::vector<T> vfield<T>::evaluate(const Inode::ptr node) const
 	{
 		std::vector<T> out;
 		std::vector<anyType::value> vals = node->getValues(v, s, suffixes);
