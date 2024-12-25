@@ -1,5 +1,6 @@
 #pragma once
 #include "sfield.h"
+#include <fstream>
 
 namespace mc {
 	template<typename T>

@@ -2,7 +2,7 @@
 #include "Inode.h"
 #include <fstream>
 #include <oop_ptr.h>
-#include "stype.h"
+#include "types/stype.h"
 
 namespace mc {
 	class unit;

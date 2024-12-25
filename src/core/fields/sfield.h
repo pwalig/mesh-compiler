@@ -1,6 +1,6 @@
 #pragma once
-#include "field.h"
-#include "Inode.h"
+#include "../field.h"
+#include "../Inode.h"
 
 namespace mc {
 	template<typename T>

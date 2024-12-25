@@ -3,6 +3,7 @@
 #include "field.h"
 #include <fstream>
 #include "Inode.h"
+#include "types/ctype.h"
 
 namespace mc {
 	class buffer {

@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include "ctype.h"
-#include "vtype.h"
-#include "stype.h"
+#include "types/vtype.h"
+#include "types/stype.h"
 #include "any-type-value.h"
 
 namespace mc {

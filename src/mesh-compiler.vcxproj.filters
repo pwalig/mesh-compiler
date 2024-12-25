@@ -33,13 +33,13 @@
     <ClCompile Include="assimp-inspector.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="core\stype.cpp">
+    <ClCompile Include="core\types\stype.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="core\ctype.cpp">
+    <ClCompile Include="core\types\ctype.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="core\vtype.cpp">
+    <ClCompile Include="core\types\vtype.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
     <ClCompile Include="core\compilation-info.cpp">
@@ -74,13 +74,13 @@
     <ClInclude Include="assimp-inspector.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\stype.h">
+    <ClInclude Include="core\types\stype.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\vtype.h">
+    <ClInclude Include="core\types\vtype.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\ctype.h">
+    <ClInclude Include="core\types\ctype.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="core\max-bone-influence.h">
@@ -107,16 +107,16 @@
     <ClInclude Include="core\Inode.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\sfield.h">
+    <ClInclude Include="core\fields\sfield.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\vfield.h">
+    <ClInclude Include="core\fields\vfield.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="core\any-type-value.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\pfield.h">
+    <ClInclude Include="core\fields\pfield.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>

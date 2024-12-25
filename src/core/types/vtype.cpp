@@ -1,5 +1,5 @@
 #include "vtype.h"
-#include "max-bone-influence.h"
+#include "../max-bone-influence.h"
 
 const std::unordered_map<std::string, mc::vtype::code> mc::vtype::preambleCodes = {
     {"buffu", buffers_per_unit },
