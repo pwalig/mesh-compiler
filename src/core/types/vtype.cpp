@@ -1,19 +1,7 @@
 #include "vtype.h"
 #include "../max-bone-influence.h"
 
-const std::unordered_map<std::string, mc::vtype::code> mc::vtype::preambleCodes = {
-    {"buffu", buffers_per_unit },
-    {"buffs", buffer_size },
-    {"entryu", entries_per_unit },
-    {"entryb", entries_per_buffer },
-    {"entrys", entry_size },
-    {"fieldu", fields_per_unit },
-    {"fieldb", fields_per_buffer },
-    {"fielde", fields_per_entry },
-    {"fields", field_size }
-};
-
-const std::unordered_map<std::string, mc::vtype::code> mc::vtype::fieldCodes = {
+const std::unordered_map<std::string, mc::vtype::code> mc::vtype::codes = {
     { "i", indice},
     { "indice", indice},
 
@@ -62,9 +50,6 @@ const std::unordered_map<std::string, mc::vtype::code> mc::vtype::fieldCodes = {
 const std::unordered_map<mc::vtype::code, std::string> mc::vtype::names = {
     { null, "null"},
 
-    { constant, "const"},
-    { other_unit, "other_unit"},
-
     { indice, "indice" },
     { vertex, "vertex"},
     { normal, "normal"},
@@ -86,17 +71,6 @@ const std::unordered_map<mc::vtype::code, std::string> mc::vtype::names = {
 
     { duration, "duration"},
     { ticks_per_second, "ticks_per_second"},
-
-    { unit_size, "units" },
-    { buffer_size, "buffs" },
-    { buffers_per_unit, "buffu" },
-    { entry_size, "entrys" },
-    { entries_per_unit, "entryu" },
-    { entries_per_buffer, "entryb" },
-    { field_size, "fields"},
-    { fields_per_unit, "fieldu" },
-    { fields_per_buffer, "fieldb"},
-    { fields_per_entry, "fielde" }
 };
 
 const std::unordered_map<mc::vtype::code, std::vector<unsigned int>> mc::vtype::maxSuffixes = {
@@ -148,18 +122,7 @@ const std::unordered_map<mc::vtype::code, mc::stype::code> mc::vtype::default_st
     {rotation_key_timestamp, stype::float8},
     {scale_key_timestamp, stype::float8},
     {duration, stype::float8},
-    {ticks_per_second, stype::float8},
-
-    {unit_size, stype::uint4},
-    {buffer_size, stype::uint4},
-    {buffers_per_unit, stype::uint4},
-    {entry_size, stype::uint4},
-    {entries_per_unit, stype::uint4},
-    {entries_per_buffer, stype::uint4},
-    {field_size, stype::uint4},
-    {fields_per_unit, stype::uint4},
-    {fields_per_entry, stype::uint4},
-    {fields_per_buffer, stype::uint4}
+    {ticks_per_second, stype::float8}
 };
 
 const std::unordered_map<mc::vtype::code, mc::ctype::code> mc::vtype::ctypes = {
@@ -186,7 +149,5 @@ const std::unordered_map<mc::vtype::code, mc::ctype::code> mc::vtype::ctypes = {
     {scale_key_timestamp, ctype::per_scale_keyframe},
 
     {duration, ctype::per_animation_channel},
-    {ticks_per_second, ctype::per_animation_channel},
-
-    {constant, ctype::null}
+    {ticks_per_second, ctype::per_animation_channel}
 };

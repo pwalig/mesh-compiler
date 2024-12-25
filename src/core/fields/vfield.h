@@ -12,7 +12,7 @@ namespace mc {
 		void output(std::ofstream& file, const Inode* node, const unit* u) const override;
 		T evaluate(const Inode* node, const unit* u) const override;
 
-		oop_ptr_template_child_define(field, vfield);
+		oop_ptr_template_child_define(field, vfield)
 	};
 
 	template<typename T>

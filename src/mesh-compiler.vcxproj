@@ -144,6 +144,7 @@
     <ClCompile Include="core\buffer.cpp" />
     <ClCompile Include="core\compilation-info.cpp" />
     <ClCompile Include="core\types\ctype.cpp" />
+    <ClCompile Include="core\types\ptype.cpp" />
     <ClCompile Include="core\types\stype.cpp" />
     <ClCompile Include="core\unit.cpp" />
     <ClCompile Include="core\types\vtype.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="core\file-access-interface\sceneI.h" />
     <ClInclude Include="core\Inode.h" />
     <ClInclude Include="core\max-bone-influence.h" />
+    <ClInclude Include="core\types\ptype.h" />
     <ClInclude Include="core\types\stype.h" />
     <ClInclude Include="core\unit.h" />
     <ClInclude Include="core\fields\sfield.h" />
