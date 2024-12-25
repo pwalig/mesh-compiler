@@ -9,22 +9,19 @@ namespace mc {
 		const vtype::code v;
 		const std::vector<unsigned short> suffixes;
 
-		void output(std::ofstream& file, const Inode* node, const unit* u) const override;
-		T evaluate(const Inode* node, const unit* u) const override;
+		std::vector<T> evaluate(const Inode* node) const override;
 
 		oop_ptr_template_child_define(field, vfield)
 	};
 
 	template<typename T>
-	inline void vfield<T>::output(std::ofstream& file, const Inode* node, const unit* u) const
+	inline std::vector<T> vfield<T>::evaluate(const Inode* node) const
 	{
-		T val = evaluate(node, u);
-		file.write((char*)(&val), sizeof(T));
-	}
-
-	template<typename T>
-	inline T vfield<T>::evaluate(const Inode* node, const unit* u) const
-	{
-		return anyType::getValue<T>(node->getValue(v, stype::getCode<T>(), suffixes));
+		std::vector<T> out;
+		std::vector<anyType::value> vals = node->getValues(v, s, suffixes);
+		for (anyType::value& v : vals) {
+			out.push_back(anyType::getValue<T>(v));
+		}
+		return out;
 	}
 }

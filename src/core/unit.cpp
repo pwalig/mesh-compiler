@@ -2,6 +2,7 @@
 #include <deque>
 #include "Inode.h"
 #include <cassert>
+#include "fields/pfield.h"
 
 
 void mc::unit::output(std::ofstream& file, const Inode* node)
@@ -9,11 +10,14 @@ void mc::unit::output(std::ofstream& file, const Inode* node)
     assert(c == node->c);
 
     for (field::ptr& f : preamble) {
-        f->output(file, node, this);
+        if (f.gettable<Ipfield>()) {
+            f.get<Ipfield>()->u = this;
+        }
+        f->output(file, node);
     }
 
     for (buffer buff : buffers) {
-        buff.output(file, node, this);
+        buff.output(file, node);
     }
 }
 

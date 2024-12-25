@@ -14,7 +14,12 @@ namespace mc {
 
 		virtual anyType::value getValue(
 			vtype::code v, stype::code s,
-			const std::vector<unsigned int>& suffixes = { 0 }
+			const std::vector<unsigned short>& suffixes = std::vector<unsigned short>()
+		) const = 0;
+
+		virtual std::vector<anyType::value> getValues(
+			vtype::code v, stype::code s,
+			const std::vector<unsigned short>& suffixes = std::vector<unsigned short>()
 		) const = 0;
 
 		virtual size_t getChildNodeCount(ctype::code counting_type) const = 0;

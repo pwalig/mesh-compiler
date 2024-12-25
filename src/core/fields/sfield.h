@@ -4,10 +4,19 @@
 
 namespace mc {
 	template<typename T>
-	class sfield : public field {
+	class sfield : virtual public field {
 	public:
-		virtual T evaluate(const Inode* node, const unit* u) const = 0;
+		void output(std::ofstream& file, const Inode* node) const override;
+		virtual std::vector<T> evaluate(const Inode* node) const = 0;
 
 		oop_ptr_base_declare(field) = 0;
 	};
+	template<typename T>
+	inline void sfield<T>::output(std::ofstream& file, const Inode* node) const
+	{
+		std::vector<T> val = evaluate(node);
+		for (T& v : val) {
+			file.write((char*)(&v), sizeof(T));
+		}
+	}
 }

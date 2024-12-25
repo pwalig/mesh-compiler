@@ -13,12 +13,12 @@ namespace mc {
 
 		ctype::code c;
 
-		void output(std::ofstream& file, const Inode* node, const unit* u);
+		void output(std::ofstream& file, const Inode* node);
 
 		template<typename T>
 		T getEntrySize() const;
 		template<typename T>
-		T getSize(T count) const;
+		T getSize(const Inode* node) const;
 	};
 
 	template<typename T>
@@ -30,8 +30,8 @@ namespace mc {
 		return siz;
 	}
 	template<typename T>
-	inline T buffer::getSize(T count) const
+	inline T buffer::getSize(const Inode* node) const
 	{
-		return getEntrySize<T>() * count;
+		return getEntrySize<T>() * node->getCount();
 	}
 }

@@ -15,6 +15,13 @@ namespace mc {
 		ctype::code c;
 
 		void output(std::ofstream& file, const Inode* node);
+
+		template<typename T>
+		T getSize(const Inode* node) const;
+		template<typename T>
+		T getEntriesCount(const Inode* node) const;
+		template<typename T>
+		T getFieldsCount(const Inode* node) const;
 	};
 
 	class fileUnit : public unit {
@@ -36,5 +43,30 @@ namespace mc {
 		inline code getCode<mc::unit>() { return unit; }
 		template<>
 		inline code getCode<mc::fileUnit>() { return unit; }
+	}
+
+	template<typename T>
+	inline T unit::getSize(const Inode* node) const
+	{
+		T siz = 0;
+		for (const buffer& buff : buffers)
+			siz += buff.getSize(node->getChildNodeOfType(buff.c));
+		return siz;
+	}
+	template<typename T>
+	inline T unit::getEntriesCount(const Inode* node) const
+	{
+		T siz = 0;
+		for (const buffer& buff : buffers)
+			siz += node->getChildNodeCount(buff.c);
+		return siz;
+	}
+	template<typename T>
+	inline T unit::getFieldsCount(const Inode* node) const
+	{
+		T siz = 0;
+		for (const buffer& buff : buffers)
+			siz += buff.fields.size() * node->getChildNodeCount(buff.c);
+		return siz;
 	}
 }
