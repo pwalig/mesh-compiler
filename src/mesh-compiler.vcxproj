@@ -143,7 +143,6 @@
     <ClCompile Include="assimpReader.cpp" />
     <ClCompile Include="core\buffer.cpp" />
     <ClCompile Include="core\compilation-info.cpp" />
-    <ClCompile Include="core\field.cpp" />
     <ClCompile Include="core\ctype.cpp" />
     <ClCompile Include="core\stype.cpp" />
     <ClCompile Include="core\unit.cpp" />
@@ -156,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="assimp-inspector.h" />
     <ClInclude Include="assimpReader.h" />
+    <ClInclude Include="core\any-type-value.h" />
     <ClInclude Include="core\buffer.h" />
     <ClInclude Include="core\compilation-info.h" />
     <ClInclude Include="core\field.h" />
@@ -166,6 +166,8 @@
     <ClInclude Include="core\max-bone-influence.h" />
     <ClInclude Include="core\stype.h" />
     <ClInclude Include="core\unit.h" />
+    <ClInclude Include="core\sfield.h" />
+    <ClInclude Include="core\vfield.h" />
     <ClInclude Include="core\vtype.h" />
     <ClInclude Include="meshCompiler.h" />
     <ClInclude Include="meshReader.h" />

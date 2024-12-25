@@ -3,20 +3,15 @@
 #include "vtype.h"
 #include "Inode.h"
 #include <fstream>
+#include <oop_ptr.h>
 
 namespace mc {
 	class field {
 	public:
-		const stype::code s;
-		const vtype::code v;
+		virtual void output(std::ofstream& file, const Inode* node) const = 0;
 
-		field(const stype::code& st, const vtype::code& vt, const void* data_source);
-		field(const stype::code& st, const vtype::code& vt,
-			const void* data_source, const size_t& data_amount);
+		oop_ptr_base_declare(field) = 0;
 
-		virtual void output(std::ofstream& file, const Inode* node) = 0;
-
-	private:
-		std::vector<char> data;
+		using ptr = oop_ptr<field>;
 	};
 }

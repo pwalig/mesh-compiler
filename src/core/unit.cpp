@@ -8,7 +8,7 @@ void mc::unit::output(std::ofstream& file, const Inode* node)
 {
     assert(c == node->c);
 
-    for (field* f : preamble) {
+    for (field::ptr& f : preamble) {
         f->output(file, node);
     }
 

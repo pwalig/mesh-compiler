@@ -2,6 +2,8 @@
 #include <string>
 #include "ctype.h"
 #include "vtype.h"
+#include "stype.h"
+#include "any-type-value.h"
 
 namespace mc {
 	class Inode {
@@ -12,6 +14,11 @@ namespace mc {
 
 		virtual void writeValue(
 			std::ofstream& file, vtype::code v, stype::code s,
+			const std::vector<unsigned int>& suffixes = { 0 }
+		) const = 0;
+
+		virtual anyType::value getValue(
+			vtype::code v, stype::code s,
 			const std::vector<unsigned int>& suffixes = { 0 }
 		) const = 0;
 

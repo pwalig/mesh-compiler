@@ -7,8 +7,8 @@
 namespace mc {
 	class buffer {
 	public:
-		std::vector<field*> preamble;
-		std::vector<field*> fields;
+		std::vector<field::ptr> preamble;
+		std::vector<field::ptr> fields;
 
 		ctype::code c;
 

@@ -10,7 +10,7 @@
 namespace mc {
 	class unit {
 	public:
-		std::vector<field*> preamble;
+		std::vector<field::ptr> preamble;
 		std::vector<buffer> buffers;
 		ctype::code c;
 
@@ -30,4 +30,11 @@ namespace mc {
 			const std::function<void(fileUnit*)>& func
 		);
 	};
+
+	namespace stype {
+		template<>
+		inline code getCode<mc::unit>() { return unit; }
+		template<>
+		inline code getCode<mc::fileUnit>() { return unit; }
+	}
 }
