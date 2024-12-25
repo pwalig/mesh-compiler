@@ -9,11 +9,11 @@ void mc::unit::output(std::ofstream& file, const Inode* node)
     assert(c == node->c);
 
     for (field::ptr& f : preamble) {
-        f->output(file, node);
+        f->output(file, node, this);
     }
 
     for (buffer buff : buffers) {
-        buff.output(file, node);
+        buff.output(file, node, this);
     }
 }
 

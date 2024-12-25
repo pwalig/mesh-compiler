@@ -1,17 +1,29 @@
 #pragma once
-#include "stype.h"
-#include "vtype.h"
 #include "Inode.h"
 #include <fstream>
 #include <oop_ptr.h>
+#include "stype.h"
 
 namespace mc {
+	class unit;
+
 	class field {
 	public:
-		virtual void output(std::ofstream& file, const Inode* node) const = 0;
+		stype::code s;
+
+		virtual void output(std::ofstream& file, const Inode* node, const unit* u) const = 0;
+
+		template<typename T>
+		T getSize() const;
 
 		oop_ptr_base_declare(field) = 0;
 
 		using ptr = oop_ptr<field>;
 	};
+
+	template<typename T>
+	inline T field::getSize() const
+	{
+		return stype::sizes.at(s);
+	}
 }

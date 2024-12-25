@@ -12,11 +12,6 @@ namespace mc {
 		virtual std::string getName() const = 0;
 		virtual size_t getCount() const = 0;
 
-		virtual void writeValue(
-			std::ofstream& file, vtype::code v, stype::code s,
-			const std::vector<unsigned int>& suffixes = { 0 }
-		) const = 0;
-
 		virtual anyType::value getValue(
 			vtype::code v, stype::code s,
 			const std::vector<unsigned int>& suffixes = { 0 }
