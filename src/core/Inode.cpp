@@ -1,6 +1,10 @@
 #include "Inode.h"
 
 
+mc::Inode::Inode(ctype::code counting_type) : c(counting_type)
+{
+}
+
 std::vector<mc::anyType::value> mc::Inode::getValues(mc::vtype::code v, mc::stype::code s, const std::vector<unsigned short>& suffixes) const
 {
     std::vector<mc::anyType::value> res;

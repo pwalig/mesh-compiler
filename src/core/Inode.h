@@ -11,7 +11,9 @@ namespace mc {
 	public:
 		using ptr = oop_ptr<Inode>;
 
-		ctype::code c;
+		const ctype::code c;
+
+		Inode(ctype::code counting_type);
 		virtual std::string getName() const = 0;
 		virtual size_t getCount() const = 0;
 

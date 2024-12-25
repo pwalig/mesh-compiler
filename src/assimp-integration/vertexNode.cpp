@@ -1,6 +1,7 @@
 #include "vertexNode.h"
 
-assimp::vertexNode::vertexNode(const aiMesh* mesh_, unsigned long id_) : mesh(mesh_), id(id_)
+assimp::vertexNode::vertexNode(const aiMesh* mesh_, unsigned long id_) :
+    mesh(mesh_), id(id_), mc::Inode(mc::ctype::per_vertex)
 {
 }
 
@@ -39,6 +40,7 @@ mc::anyType::value assimp::vertexNode::getValue(mc::vtype::code v, mc::stype::co
         mc::anyType::setValue(va, mesh->mColors[id][suffixes[0]][suffixes[1]], s);
         break;
     default:
+        throw std::logic_error("invalid value type");
         break;
     }
     return va;

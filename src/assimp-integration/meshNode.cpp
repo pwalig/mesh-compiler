@@ -1,7 +1,8 @@
 #include "meshNode.h"
 #include "vertexNode.h"
 
-assimp::meshNode::meshNode(const aiScene* scene_, const aiMesh* mesh_) : scene(scene_), mesh(mesh_)
+assimp::meshNode::meshNode(const aiScene* scene_, const aiMesh* mesh_) :
+    scene(scene_), mesh(mesh_), mc::Inode(mc::ctype::per_mesh)
 {
 }
 
@@ -34,6 +35,7 @@ size_t assimp::meshNode::getChildNodeCount(mc::ctype::code counting_type) const
         return mesh->mNumBones;
         break;
     default:
+        throw std::logic_error("invalid counting type");
         break;
     }
 }
@@ -50,6 +52,7 @@ mc::Inode::ptr assimp::meshNode::getChildNodeOfType(mc::ctype::code counting_typ
     case mc::ctype::per_mesh_bone:
         break;
     default:
+        throw std::logic_error("invalid counting type");
         break;
     }
 }

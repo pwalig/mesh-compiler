@@ -1,7 +1,9 @@
 #include "sceneNode.h"
 #include "meshNode.h"
+#include "animationNode.h"
 
-assimp::sceneNode::sceneNode(const aiScene* scene_) : scene(scene_)
+assimp::sceneNode::sceneNode(const aiScene* scene_) :
+    scene(scene_), mc::Inode(mc::ctype::per_scene)
 {
 }
 
@@ -17,7 +19,7 @@ size_t assimp::sceneNode::getCount() const
 
 mc::anyType::value assimp::sceneNode::getValue(mc::vtype::code v, mc::stype::code s, const std::vector<unsigned short>& suffixes) const
 {
-    return mc::anyType::value();
+    throw std::logic_error("no values");
 }
 
 size_t assimp::sceneNode::getChildNodeCount(mc::ctype::code counting_type) const
@@ -34,6 +36,7 @@ size_t assimp::sceneNode::getChildNodeCount(mc::ctype::code counting_type) const
         return scene->mNumAnimations;
         break;
     default:
+        throw std::logic_error("invalid counting type");
         break;
     }
 }
@@ -48,8 +51,10 @@ mc::Inode::ptr assimp::sceneNode::getChildNodeOfType(mc::ctype::code counting_ty
     case mc::ctype::per_skeleton:
         break;
     case mc::ctype::per_animation:
+        return mc::Inode::ptr(new animationNode(scene, scene->mAnimations[id]));
         break;
     default:
+        throw std::logic_error("invalid counting type");
         break;
     }
 }
