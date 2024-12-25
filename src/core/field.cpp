@@ -21,3 +21,7 @@ mc::field::field(
         memcpy(data.data(), data_source, data_amount);
     }
 }
+
+void mc::field::output(std::ofstream& file, const Inode* node)
+{
+}

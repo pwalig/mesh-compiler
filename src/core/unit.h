@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <assimp/scene.h>
+#include "Inode.h"
 #include <fstream>
 #include <functional>
 #include "field.h"
@@ -10,19 +10,20 @@
 namespace mc {
 	class unit {
 	public:
-		std::vector<field*> preable;
+		std::vector<field*> preamble;
 		std::vector<buffer> buffers;
 		ctype::code c;
 
-		void outputScene(const std::ofstream& file, const aiScene* scene);
+		void output(std::ofstream& file, const Inode* node);
 	};
 
 	class fileUnit : public unit {
 	public:
 		std::string output_file;
 
-		void compile(const aiScene* scene);
+		void compile(const Inode* node);
 
+		void changeName(const std::string& pattern, const std::string& newName);
 		void withChangedName(
 			const std::string& pattern,
 			const std::string& newName,

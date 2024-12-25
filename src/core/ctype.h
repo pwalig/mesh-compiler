@@ -26,5 +26,6 @@ namespace mc {
 
         extern const std::unordered_map<code, code> parents;
         extern const std::unordered_map<code, std::string> names;
+        extern const std::unordered_map<code, std::string> patterns;
 	}
 }

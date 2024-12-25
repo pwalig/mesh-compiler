@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="assimp-inspector.cpp" />
     <ClCompile Include="assimpReader.cpp" />
+    <ClCompile Include="core\buffer.cpp" />
     <ClCompile Include="core\compilation-info.cpp" />
     <ClCompile Include="core\field.cpp" />
     <ClCompile Include="core\ctype.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="core\ctype.h" />
     <ClInclude Include="core\file-access-interface\meshI.h" />
     <ClInclude Include="core\file-access-interface\sceneI.h" />
+    <ClInclude Include="core\Inode.h" />
     <ClInclude Include="core\max-bone-influence.h" />
     <ClInclude Include="core\stype.h" />
     <ClInclude Include="core\unit.h" />
