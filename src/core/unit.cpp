@@ -18,6 +18,7 @@ void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm)
     }
 
     for (buffer buff : buffers) {
+        if (pm == printMode::plainText) file << "\n";
         buff.output(file, node, pm);
     }
 }

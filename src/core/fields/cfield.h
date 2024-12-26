@@ -6,10 +6,11 @@ namespace mc {
 	class cfield : public sfield<T> {
 	public:
 		const T value;
+		cfield(T val) : value(val) {}
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
 
-		oop_ptr_template_child_define(field, vfield)
+		oop_ptr_template_child_define(field, cfield)
 	};
 
 	template<typename T>
