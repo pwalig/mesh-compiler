@@ -45,13 +45,13 @@ mc::Inode::ptr assimp::animationChannelNode::getChildNodeOfType(mc::ctype::code 
     switch (counting_type)
     {
     case mc::ctype::per_position_keyframe:
-        return mc::Inode::ptr(channel->mPositionKeys[id]);
+        //return mc::Inode::ptr(channel->mPositionKeys[id]);
         break;
     case mc::ctype::per_rotation_keyframe:
-        return mc::Inode::ptr(channel->mRotationKeys[id]);
+        //return mc::Inode::ptr(channel->mRotationKeys[id]);
         break;
     case mc::ctype::per_scale_keyframe:
-        return mc::Inode::ptr(channel->mScalingKeys[id]);
+        //return mc::Inode::ptr(channel->mScalingKeys[id]);
         break;
     default:
         throw std::logic_error("invalid counting type");

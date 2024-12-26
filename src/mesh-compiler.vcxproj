@@ -139,7 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="assimp-integration\animationChannelNode.cpp" />
+    <ClCompile Include="assimp-integration\animationNode.cpp" />
+    <ClCompile Include="assimp-integration\faceNode.cpp" />
     <ClCompile Include="assimp-integration\inspector.cpp" />
+    <ClCompile Include="assimp-integration\meshBoneNode.cpp" />
     <ClCompile Include="assimp-integration\meshNode.cpp" />
     <ClCompile Include="assimp-integration\sceneNode.cpp" />
     <ClCompile Include="assimp-integration\reader.cpp" />
@@ -159,7 +163,11 @@
     <ClCompile Include="unit_testing.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="assimp-integration\animationChannelNode.h" />
+    <ClInclude Include="assimp-integration\animationNode.h" />
+    <ClInclude Include="assimp-integration\faceNode.h" />
     <ClInclude Include="assimp-integration\inspector.h" />
+    <ClInclude Include="assimp-integration\meshBoneNode.h" />
     <ClInclude Include="assimp-integration\meshNode.h" />
     <ClInclude Include="assimp-integration\sceneNode.h" />
     <ClInclude Include="assimp-integration\reader.h" />
@@ -171,6 +179,7 @@
     <ClInclude Include="core\fields\pfield.h" />
     <ClInclude Include="core\field.h" />
     <ClInclude Include="core\fields\ufield.h" />
+    <ClInclude Include="core\printMode.h" />
     <ClInclude Include="core\types\ctype.h" />
     <ClInclude Include="core\file-access-interface\meshI.h" />
     <ClInclude Include="core\file-access-interface\sceneI.h" />

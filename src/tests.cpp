@@ -13,6 +13,9 @@
 #include "meshReader.h"
 #include "assimp-integration/reader.h"
 #include "assimp-integration/inspector.h"
+#include "core/compilation-info.h"
+#include "core/fields/vfield.h"
+#include "core/fields/pfield.h"
 
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";
@@ -144,6 +147,37 @@ void mainTest() {
     std::cout << "Indices Count: " << me2.indices.size() / 3 << '\n';
     printMesh(me2);
     std::cout << "Binary read time: " << elapsed_seconds2.count() << '\n';
+
+
+    mc::compilationInfo ci;
+    mc::fileUnit fu;
+    fu.c = mc::ctype::per_mesh;
+    fu.output_file = "test/{mesh}.txt";
+    fu.mode = mc::printMode::plainText;
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield<unsigned int>(mc::ptype::buffers_per_unit)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield<unsigned int>(mc::ptype::buffer_size)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield<unsigned int>(mc::ptype::entries_per_unit)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield<unsigned int>(mc::ptype::entries_per_buffer)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield<unsigned int>(mc::ptype::entry_size)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield<unsigned int>(mc::ptype::fields_per_unit)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield<unsigned int>(mc::ptype::fields_per_buffer)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield<unsigned int>(mc::ptype::fields_per_entry)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield<unsigned int>(mc::ptype::field_size)));
+    mc::buffer buff;
+    buff.c = mc::ctype::per_vertex;
+    buff.preamble.push_back(mc::field::ptr(new mc::bpfield<unsigned int>(mc::ptype::buffer_size)));
+    buff.preamble.push_back(mc::field::ptr(new mc::bpfield<unsigned int>(mc::ptype::entries_per_buffer)));
+    buff.preamble.push_back(mc::field::ptr(new mc::bpfield<unsigned int>(mc::ptype::entry_size)));
+    buff.preamble.push_back(mc::field::ptr(new mc::bpfield<unsigned int>(mc::ptype::fields_per_buffer)));
+    buff.preamble.push_back(mc::field::ptr(new mc::bpfield<unsigned int>(mc::ptype::fields_per_entry)));
+    buff.preamble.push_back(mc::field::ptr(new mc::bpfield<unsigned int>(mc::ptype::field_size)));
+    buff.fields.push_back(mc::field::ptr(new mc::vfield<float>(mc::vtype::vertex, { 0 })));
+    buff.fields.push_back(mc::field::ptr(new mc::vfield<float>(mc::vtype::vertex, { 1 })));
+    fu.buffers.push_back(buff);
+    fu.buffers.push_back(buff);
+    ci.file_units.push_back(fu);
+
+    ci.compileFile("test/cube.obj");
 }
 
 #endif // _DEBUG

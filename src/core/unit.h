@@ -5,6 +5,7 @@
 #include <functional>
 #include "field.h"
 #include "buffer.h"
+#include "printMode.h"
 
 
 namespace mc {
@@ -14,7 +15,7 @@ namespace mc {
 		std::vector<buffer> buffers;
 		ctype::code c;
 
-		void output(std::ofstream& file, const Inode::ptr node);
+		void output(std::ofstream& file, const Inode::ptr node, printMode pm);
 
 		template<typename T>
 		T getSize(const Inode::ptr node) const;
@@ -26,7 +27,9 @@ namespace mc {
 
 	class fileUnit : public unit {
 	public:
+
 		std::string output_file;
+		printMode mode = printMode::binary;
 
 		void compile(const Inode::ptr node);
 

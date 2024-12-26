@@ -1,7 +1,7 @@
 #include "buffer.h"
 #include "fields/pfield.h"
 
-void mc::buffer::output(std::ofstream& file, const Inode::ptr node)
+void mc::buffer::output(std::ofstream& file, const Inode::ptr node, mc::printMode pm)
 {
     size_t count = node->getChildNodeCount(c);
 
@@ -9,12 +9,12 @@ void mc::buffer::output(std::ofstream& file, const Inode::ptr node)
         if (f.gettable<Ibpfield>()) {
             f.get<Ibpfield>()->buff = this;
         }
-        f->output(file, node);
+        f->output(file, node->getChildNodeOfType(c, 0), pm);
     }
 
     for (size_t i = 0; i < count; ++i) {
         for (field::ptr& f : fields) {
-            f->output(file, node->getChildNodeOfType(c, i));
+            f->output(file, node->getChildNodeOfType(c, i), pm);
         }
     }
 }

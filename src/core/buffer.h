@@ -13,7 +13,7 @@ namespace mc {
 
 		ctype::code c;
 
-		void output(std::ofstream& file, const Inode::ptr node);
+		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm);
 
 		template<typename T>
 		T getEntrySize() const;

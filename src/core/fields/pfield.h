@@ -9,21 +9,27 @@ namespace mc {
 	class Ibpfield : virtual public field {
 	public:
 		const ptype::code p;
-		buffer* buff;
+		const buffer* buff;
+		Ibpfield(ptype::code pt) : p(pt), buff(nullptr) {}
 		oop_ptr_base_declare(field) = 0;
 	};
 
-	class Ipfield : public Ibpfield {
+	class Ipfield : virtual public field {
 	public:
-		unit* u;
+		const ptype::code p;
+		const unit* u;
+		const buffer* buff;
+		Ipfield(ptype::code pt) : p(pt), u(nullptr), buff(nullptr) {}
 		oop_ptr_base_declare(field) = 0;
 	};
 
 	template<typename T>
 	class bpfield : public sfield<T>, public Ibpfield {
 	public:
+		bpfield(ptype::code pt) : Ibpfield(pt) {}
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
+		std::vector<T> evaluate1(const Inode::ptr node, const buffer* buffe) const;
 
 		oop_ptr_template_child_define(field, bpfield)
 	};
@@ -31,29 +37,35 @@ namespace mc {
 	template<typename T>
 	inline std::vector<T> bpfield<T>::evaluate(const Inode::ptr node) const
 	{
+		return evaluate1(node, buff);
+	}
+
+	template<typename T>
+	inline std::vector<T> bpfield<T>::evaluate1(const Inode::ptr node, const buffer* buffe) const
+	{
 		std::vector<T> out;
 
 		switch (p)
 		{
 		case ptype::buffer_size:
-			out.push_back(buff->getSize<T>(node));
+			out.push_back(buffe->getSize<T>(node));
 			break;
 		case ptype::entry_size:
-			out.push_back(buff->getEntrySize<T>());
+			out.push_back(buffe->getEntrySize<T>());
 			break;
 		case ptype::entries_per_buffer:
 			out.push_back(node->getCount());
 			break;
 		case ptype::field_size:
-			for (const field::ptr& f : buff->fields) {
+			for (const field::ptr& f : buffe->fields) {
 				out.push_back(f->getSize<T>());
 			}
 			break;
 		case ptype::fields_per_entry:
-			out.push_back(buff->fields.size());
+			out.push_back(buffe->fields.size());
 			break;
 		case ptype::fields_per_buffer:
-			out.push_back(buff->fields.size() * node->getCount());
+			out.push_back(buffe->fields.size() * node->getCount());
 			break;
 		default:
 			throw std::logic_error("invalid ptype");
@@ -67,6 +79,7 @@ namespace mc {
 	template<typename T>
 	class pfield : public bpfield<T>, public Ipfield {
 	public:
+		pfield(ptype::code pt) : bpfield<T>(pt), Ipfield(pt) {}
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
 
@@ -87,7 +100,7 @@ namespace mc {
 			out.push_back(u->getEntriesCount<T>(node));
 			break;
 		case ptype::fields_per_unit:
-			out.push_back(u->getFieldsCount<T>());
+			out.push_back(u->getFieldsCount<T>(node));
 			break;
 		case ptype::buffer_size:
 		case ptype::entry_size:
@@ -96,8 +109,7 @@ namespace mc {
 		case ptype::fields_per_entry:
 		case ptype::fields_per_buffer:
 			for (const buffer& b : u->buffers) {
-				buff = &b;
-				std::vector<T> res = this->bpfield<T>::evaluate(node);
+				std::vector<T> res = this->bpfield<T>::evaluate1(node->getChildNodeOfType(b.c, 0), &b);
 				out.insert(out.end(), res.begin(), res.end());
 			}
 			break;

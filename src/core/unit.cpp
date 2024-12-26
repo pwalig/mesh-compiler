@@ -3,9 +3,10 @@
 #include "Inode.h"
 #include <cassert>
 #include "fields/pfield.h"
+#include <iostream>
 
 
-void mc::unit::output(std::ofstream& file, const Inode::ptr node)
+void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm)
 {
     assert(c == node->c);
 
@@ -13,16 +14,18 @@ void mc::unit::output(std::ofstream& file, const Inode::ptr node)
         if (f.gettable<Ipfield>()) {
             f.get<Ipfield>()->u = this;
         }
-        f->output(file, node);
+        f->output(file, node, pm);
     }
 
     for (buffer buff : buffers) {
-        buff.output(file, node);
+        buff.output(file, node, pm);
     }
 }
 
 void mc::fileUnit::compile(const Inode::ptr node)
 {
+    std::cout << "compiling node of name: " << node->getName() << "\n";
+
     std::string orig_name = output_file;
     changeName(ctype::patterns.at(node->c), node->getName());
 
@@ -31,7 +34,7 @@ void mc::fileUnit::compile(const Inode::ptr node)
         if (!fout) {
             throw std::runtime_error("cannot open file: " + output_file);
         }
-        output(fout, node);
+        output(fout, node, mode);
         fout.close();
     }
 
