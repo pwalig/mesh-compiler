@@ -6,6 +6,25 @@
 #include <iostream>
 
 
+mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
+{
+    assert(json.IsObject());
+
+    assert(json.HasMember("preamble"));
+    const rapidjson::Value& p = json["preamble"];
+    assert(p.IsArray());
+    for (rapidjson::SizeType i = 0; i < p.Size(); i++) {
+        preamble.push_back(field::getPtr(p[i]));
+    }
+
+    assert(json.HasMember("buffers"));
+    const rapidjson::Value& b = json["buffers"];
+    assert(b.IsArray());
+    for (rapidjson::SizeType i = 0; i < b.Size(); i++) {
+        buffers.push_back(buffer(b[i]));
+    }
+}
+
 void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm)
 {
     assert(c == node->c);
@@ -21,6 +40,10 @@ void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm)
         if (pm == printMode::plainText) file << "\n";
         buff.output(file, node, pm);
     }
+}
+
+mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(json["output_file"].GetString())
+{
 }
 
 void mc::fileUnit::compile(const Inode::ptr node)

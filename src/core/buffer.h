@@ -4,6 +4,7 @@
 #include <fstream>
 #include "Inode.h"
 #include "types/ctype.h"
+#include <rapidjson/document.h>
 
 namespace mc {
 	class buffer {
@@ -12,6 +13,9 @@ namespace mc {
 		std::vector<field::ptr> fields;
 
 		ctype::code c;
+
+		buffer() = default;
+		buffer(const rapidjson::Value& json);
 
 		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm);
 

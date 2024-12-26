@@ -81,6 +81,9 @@
     <ClCompile Include="assimp-integration\animationChannelNode.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="core\field.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="meshReader.h">

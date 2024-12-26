@@ -2,6 +2,27 @@
 #include "../assimp-integration/reader.h"
 #include "../assimp-integration/sceneNode.h"
 #include <iostream>
+#include <rapidjson/istreamwrapper.h>
+
+mc::compilationInfo::compilationInfo(const std::string& filename)
+{
+    std::ifstream file(filename);
+    size_t pos = filename.find_last_of('.');
+    if (filename.substr(pos, filename.size() - pos) == "json") {
+        rapidjson::IStreamWrapper isw(file);
+        rapidjson::Document document;
+        document.ParseStream(isw);
+        assert(document.IsObject());
+
+        const rapidjson::Value& funits = document["objects"];
+        assert(funits.IsArray());
+        file_units.reserve(funits.Size());
+
+        for (rapidjson::SizeType i = 0; i < funits.Size(); i++) {
+            file_units.push_back(mc::fileUnit(funits[i]));
+        }
+    }
+}
 
 void mc::compilationInfo::compileFile(const std::string& filename) {
     std::cout << "compiling file: " << filename << "\n";

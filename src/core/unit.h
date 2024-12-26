@@ -6,6 +6,7 @@
 #include "field.h"
 #include "buffer.h"
 #include "printMode.h"
+#include <rapidjson/document.h>
 
 
 namespace mc {
@@ -14,6 +15,9 @@ namespace mc {
 		std::vector<field::ptr> preamble;
 		std::vector<buffer> buffers;
 		ctype::code c;
+
+		unit() = default;
+		unit(const rapidjson::Value& json);
 
 		void output(std::ofstream& file, const Inode::ptr node, printMode pm);
 
@@ -30,6 +34,9 @@ namespace mc {
 
 		std::string output_file;
 		printMode mode = printMode::binary;
+
+		fileUnit() = default;
+		fileUnit(const rapidjson::Value& json);
 
 		void compile(const Inode::ptr node);
 

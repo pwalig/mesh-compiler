@@ -4,6 +4,7 @@
 #include <oop_ptr.h>
 #include "types/stype.h"
 #include "printMode.h"
+#include <rapidjson/document.h>
 
 namespace mc {
 	class unit;
@@ -19,6 +20,8 @@ namespace mc {
 		virtual ~field() {}
 
 		using ptr = oop_ptr<field>;
+
+		static ptr getPtr(const rapidjson::Value& json);
 
 	private:
 		virtual size_t getSize1() const = 0;
