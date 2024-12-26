@@ -151,6 +151,7 @@
     <ClCompile Include="core\buffer.cpp" />
     <ClCompile Include="core\compilation-info.cpp" />
     <ClCompile Include="core\field.cpp" />
+    <ClCompile Include="core\fields\cfield.cpp" />
     <ClCompile Include="core\fields\ufield.cpp" />
     <ClCompile Include="core\Inode.cpp" />
     <ClCompile Include="core\types\ctype.cpp" />

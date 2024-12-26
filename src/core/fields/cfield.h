@@ -13,6 +13,8 @@ namespace mc {
 		oop_ptr_template_child_define(field, cfield)
 	};
 
+	static field::ptr getCFieldPtr(stype::code s, anyType::value);
+
 	template<typename T>
 	inline std::vector<T> cfield<T>::evaluate(const Inode::ptr node) const
 	{
