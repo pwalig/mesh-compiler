@@ -14,12 +14,22 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
         document.ParseStream(isw);
         assert(document.IsObject());
 
-        const rapidjson::Value& funits = document["objects"];
-        assert(funits.IsArray());
-        file_units.reserve(funits.Size());
+        const rapidjson::Value& junits = document["units"];
+        assert(junits.IsArray());
+        file_units.reserve(junits.Size());
 
-        for (rapidjson::SizeType i = 0; i < funits.Size(); i++) {
-            file_units.push_back(mc::fileUnit(funits[i]));
+        for (rapidjson::SizeType i = 0; i < junits.Size(); i++) {
+            const rapidjson::Value& junit = junits[i];
+            assert(junit.HasMember("output_file") || junit.HasMember("name"));
+            if (junit.HasMember("output_file")) {
+                assert(junit["output_file"].IsString());
+                file_units.push_back(mc::fileUnit(junit));
+            }
+            else {
+                assert(junit["name"].IsString());
+                units.insert({ junit["name"].GetString(), mc::unit(junit) });
+                file_units.push_back(mc::fileUnit(junit));
+            }
         }
     }
 }

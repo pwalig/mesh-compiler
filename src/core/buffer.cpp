@@ -5,18 +5,28 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
 {
     assert(json.IsObject());
 
-    assert(json.HasMember("preamble"));
-    const rapidjson::Value& p = json["preamble"];
-    assert(p.IsArray());
-    for (rapidjson::SizeType i = 0; i < p.Size(); i++) {
-        preamble.push_back(field::getPtr(p[i]));
-    }
-
     assert(json.HasMember("fields"));
     const rapidjson::Value& f = json["fields"];
     assert(f.IsArray());
     for (rapidjson::SizeType i = 0; i < f.Size(); i++) {
         fields.push_back(field::getPtr(f[i]));
+        ctype::code ct = fields.back()->getCountingType();
+        if (ct != ctype::null) {
+            if (c == ctype::null) c = ct;
+            else if (c != ct) throw std::runtime_error("conflicting counting types in unit preamble");
+        }
+    }
+
+    assert(json.HasMember("preamble"));
+    const rapidjson::Value& p = json["preamble"];
+    assert(p.IsArray());
+    for (rapidjson::SizeType i = 0; i < p.Size(); i++) {
+        preamble.push_back(field::getPtr(p[i]));
+        ctype::code ct = preamble.back()->getCountingType();
+        if (ct != ctype::null) {
+            if (c == ctype::null) c = ct;
+            else if (c != ct) throw std::runtime_error("conflicting counting types in unit preamble");
+        }
     }
 }
 

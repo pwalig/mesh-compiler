@@ -30,6 +30,7 @@ namespace mc {
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
 		std::vector<T> evaluate1(const Inode::ptr node, const buffer* buffe) const;
+		ctype::code getCountingType() const override;
 
 		oop_ptr_template_child_define(field, bpfield)
 	};
@@ -75,6 +76,12 @@ namespace mc {
 		return out;
 	}
 
+	template<typename T>
+	inline ctype::code bpfield<T>::getCountingType() const
+	{
+		return ctype::null;
+	}
+
 
 	template<typename T>
 	class pfield : public bpfield<T>, public Ipfield {
@@ -82,6 +89,7 @@ namespace mc {
 		pfield(ptype::code pt) : bpfield<T>(pt), Ipfield(pt) {}
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
+		ctype::code getCountingType() const override;
 
 		oop_ptr_template_child_define(field, pfield)
 	};
@@ -119,5 +127,10 @@ namespace mc {
 		}
 
 		return out;
+	}
+	template<typename T>
+	inline ctype::code pfield<T>::getCountingType() const
+	{
+		return ctype::null;
 	}
 }

@@ -12,6 +12,7 @@ namespace mc {
 			const std::vector<unsigned short>& suffixes_);
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
+		ctype::code getCountingType() const override;
 
 		oop_ptr_template_child_define(field, vfield)
 	};
@@ -31,5 +32,10 @@ namespace mc {
 			out.push_back(anyType::getValue<T>(v));
 		}
 		return out;
+	}
+	template<typename T>
+	inline ctype::code vfield<T>::getCountingType() const
+	{
+		return vtype::ctypes.at(v);
 	}
 }

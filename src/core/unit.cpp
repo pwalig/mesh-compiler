@@ -15,6 +15,11 @@ mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
     assert(p.IsArray());
     for (rapidjson::SizeType i = 0; i < p.Size(); i++) {
         preamble.push_back(field::getPtr(p[i]));
+        ctype::code ct = preamble.back()->getCountingType();
+        if (ct != ctype::null) {
+            if (c == ctype::null) c = ct;
+            else if (c != ct) throw std::runtime_error("conflicting counting types in unit preamble");
+        }
     }
 
     assert(json.HasMember("buffers"));
@@ -22,6 +27,11 @@ mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
     assert(b.IsArray());
     for (rapidjson::SizeType i = 0; i < b.Size(); i++) {
         buffers.push_back(buffer(b[i]));
+        ctype::code ct = ctype::parents.at(buffers.back().c);
+        if (ct != ctype::null) {
+            if (c == ctype::null) c = ct;
+            else if (c != ct) throw std::runtime_error("buffer counting type conflicts with unit's counting type");
+        }
     }
 }
 

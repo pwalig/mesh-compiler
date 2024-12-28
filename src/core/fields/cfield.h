@@ -9,6 +9,7 @@ namespace mc {
 		cfield(T val) : value(val) {}
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
+		ctype::code getCountingType() const override;
 
 		oop_ptr_template_child_define(field, cfield)
 	};
@@ -19,5 +20,10 @@ namespace mc {
 	inline std::vector<T> cfield<T>::evaluate(const Inode::ptr node) const
 	{
 		return std::vector<T>(1, value);
+	}
+	template<typename T>
+	inline ctype::code cfield<T>::getCountingType() const
+	{
+		return ctype::null;
 	}
 }

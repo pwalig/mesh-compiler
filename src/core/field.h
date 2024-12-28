@@ -5,6 +5,7 @@
 #include "types/stype.h"
 #include "printMode.h"
 #include <rapidjson/document.h>
+#include "ctype.h"
 
 namespace mc {
 	class unit;
@@ -15,6 +16,8 @@ namespace mc {
 
 		template<typename T>
 		T getSize() const;
+
+		virtual mc::ctype::code getCountingType() const = 0;
 
 		oop_ptr_base_declare(field) = 0;
 		virtual ~field() {}
