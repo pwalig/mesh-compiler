@@ -38,7 +38,7 @@ namespace mc {
 	template<typename T>
 	inline std::vector<T> bpfield<T>::evaluate(const Inode::ptr node) const
 	{
-		return evaluate1(node, buff);
+		return evaluate1(node->getChildNodeOfType(buff->c, 0), buff);
 	}
 
 	template<typename T>

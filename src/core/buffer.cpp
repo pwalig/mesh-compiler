@@ -17,6 +17,8 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
         }
     }
 
+    if (c == ctype::null) throw std::runtime_error("buffer of unknown counting type");
+
     assert(json.HasMember("preamble"));
     const rapidjson::Value& p = json["preamble"];
     assert(p.IsArray());
@@ -25,7 +27,7 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
         ctype::code ct = preamble.back()->getCountingType();
         if (ct != ctype::null) {
             if (c == ctype::null) c = ct;
-            else if (c != ct) throw std::runtime_error("conflicting counting types in unit preamble");
+            else if (ctype::parents.at(c) != ct) throw std::runtime_error("conflicting counting types in unit preamble");
         }
     }
 }
@@ -38,7 +40,7 @@ void mc::buffer::output(std::ofstream& file, const Inode::ptr node, mc::printMod
         if (f.gettable<Ibpfield>()) {
             f.get<Ibpfield>()->buff = this;
         }
-        f->output(file, node->getChildNodeOfType(c, 0), pm);
+        f->output(file, node, pm);
     }
 
     for (size_t i = 0; i < count; ++i) {
