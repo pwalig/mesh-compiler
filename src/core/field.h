@@ -12,6 +12,12 @@ namespace mc {
 
 	class field {
 	public:
+		enum class location {
+			main_preamble,
+			buffer_preamble,
+			buffer_field
+		};
+
 		virtual void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm) const = 0;
 
 		template<typename T>
@@ -24,7 +30,7 @@ namespace mc {
 
 		using ptr = oop_ptr<field>;
 
-		static ptr getPtr(const rapidjson::Value& json);
+		static ptr getPtr(const rapidjson::Value& json, location loc);
 
 	private:
 		virtual size_t getSize1() const = 0;

@@ -9,7 +9,7 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
     const rapidjson::Value& f = json["fields"];
     assert(f.IsArray());
     for (rapidjson::SizeType i = 0; i < f.Size(); i++) {
-        fields.push_back(field::getPtr(f[i]));
+        fields.push_back(field::getPtr(f[i], field::location::buffer_preamble));
         ctype::code ct = fields.back()->getCountingType();
         if (ct != ctype::null) {
             if (c == ctype::null) c = ct;
@@ -23,7 +23,7 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
     const rapidjson::Value& p = json["preamble"];
     assert(p.IsArray());
     for (rapidjson::SizeType i = 0; i < p.Size(); i++) {
-        preamble.push_back(field::getPtr(p[i]));
+        preamble.push_back(field::getPtr(p[i], field::location::buffer_preamble));
         ctype::code ct = preamble.back()->getCountingType();
         if (ct != ctype::null) {
             if (c == ctype::null) c = ct;

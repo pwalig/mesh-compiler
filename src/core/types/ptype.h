@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <string>
 #include "stype.h"
+#include <unordered_set>
 
 namespace mc {
 	namespace ptype {
@@ -21,6 +22,7 @@ namespace mc {
 
         extern const std::unordered_map<code, std::string> names;
         extern const std::unordered_map<std::string, code> codes;
+        extern const std::unordered_set<code> buffer_allowed;
         extern const std::unordered_map<code, stype::code> default_stypes;
 	}
 }

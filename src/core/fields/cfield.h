@@ -1,5 +1,6 @@
 #pragma once
 #include "sfield.h"
+#include <rapidjson/document.h>
 
 namespace mc {
 	template<typename T>
@@ -14,7 +15,8 @@ namespace mc {
 		oop_ptr_template_child_define(field, cfield)
 	};
 
-	static field::ptr getCFieldPtr(stype::code s, anyType::value);
+	field::ptr getCFieldPtr(stype::code s, anyType::value);
+	field::ptr getCFieldPtr(const rapidjson::Value& json);
 
 	template<typename T>
 	inline std::vector<T> cfield<T>::evaluate(const Inode::ptr node) const

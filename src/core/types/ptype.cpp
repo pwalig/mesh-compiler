@@ -26,6 +26,15 @@ const std::unordered_map<mc::ptype::code, std::string> mc::ptype::names = {
     { fields_per_entry, "fielde" }
 };
 
+const std::unordered_set<mc::ptype::code> mc::ptype::buffer_allowed = {
+    buffer_size,
+    entries_per_buffer,
+    entry_size,
+    fields_per_buffer,
+    fields_per_entry,
+    field_size
+};
+
 const std::unordered_map<mc::ptype::code, mc::stype::code> mc::ptype::default_stypes = {
     {unit_size, stype::uint4},
     {buffer_size, stype::uint4},
