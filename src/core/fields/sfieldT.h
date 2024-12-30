@@ -4,7 +4,7 @@
 
 namespace mc {
 	template<typename T>
-	class sfield : virtual public field {
+	class sfieldT : virtual public field {
 	public:
 		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm) const override;
 		virtual std::vector<T> evaluate(const Inode::ptr node) const = 0;
@@ -15,7 +15,7 @@ namespace mc {
 		size_t getSize1() const override;
 	};
 	template<typename T>
-	inline void sfield<T>::output(std::ofstream& file, const Inode::ptr node, mc::printMode pm) const
+	inline void sfieldT<T>::output(std::ofstream& file, const Inode::ptr node, mc::printMode pm) const
 	{
 		std::vector<T> val = evaluate(node);
 		for (T& v : val) {
@@ -24,7 +24,7 @@ namespace mc {
 		}
 	}
 	template<typename T>
-	inline size_t sfield<T>::getSize1() const
+	inline size_t sfieldT<T>::getSize1() const
 	{
 		return sizeof(T);
 	}

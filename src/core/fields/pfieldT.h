@@ -1,5 +1,5 @@
 #pragma once
-#include "sfield.h"
+#include "sfieldT.h"
 #include "../types/ptype.h"
 #include "../buffer.h"
 #include "../unit.h"
@@ -25,25 +25,25 @@ namespace mc {
 	};
 
 	template<typename T>
-	class bpfield : public sfield<T>, public Ibpfield {
+	class bpfieldT : public sfieldT<T>, public Ibpfield {
 	public:
-		bpfield(ptype::code pt) : Ibpfield(pt) {}
+		bpfieldT(ptype::code pt) : Ibpfield(pt) {}
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
 		std::vector<T> evaluate1(const Inode::ptr node, const buffer* buffe) const;
 		ctype::code getCountingType() const override;
 
-		oop_ptr_template_child_define(field, bpfield)
+		oop_ptr_template_child_define(field, bpfieldT)
 	};
 
 	template<typename T>
-	inline std::vector<T> bpfield<T>::evaluate(const Inode::ptr node) const
+	inline std::vector<T> bpfieldT<T>::evaluate(const Inode::ptr node) const
 	{
 		return evaluate1(node->getChildNodeOfType(buff->c, 0), buff);
 	}
 
 	template<typename T>
-	inline std::vector<T> bpfield<T>::evaluate1(const Inode::ptr node, const buffer* buffe) const
+	inline std::vector<T> bpfieldT<T>::evaluate1(const Inode::ptr node, const buffer* buffe) const
 	{
 		std::vector<T> out;
 
@@ -78,25 +78,25 @@ namespace mc {
 	}
 
 	template<typename T>
-	inline ctype::code bpfield<T>::getCountingType() const
+	inline ctype::code bpfieldT<T>::getCountingType() const
 	{
 		return ctype::null;
 	}
 
 
 	template<typename T>
-	class pfield : public bpfield<T>, public Ipfield {
+	class pfieldT : public bpfieldT<T>, public Ipfield {
 	public:
-		pfield(ptype::code pt) : bpfield<T>(pt), Ipfield(pt) {}
+		pfieldT(ptype::code pt) : bpfieldT<T>(pt), Ipfield(pt) {}
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
 		ctype::code getCountingType() const override;
 
-		oop_ptr_template_child_define(field, pfield)
+		oop_ptr_template_child_define(field, pfieldT)
 	};
 
 	template<typename T>
-	inline std::vector<T> pfield<T>::evaluate(const Inode::ptr node) const
+	inline std::vector<T> pfieldT<T>::evaluate(const Inode::ptr node) const
 	{
 		std::vector<T> out;
 
@@ -118,7 +118,7 @@ namespace mc {
 		case ptype::fields_per_entry:
 		case ptype::fields_per_buffer:
 			for (const buffer& b : u->buffers) {
-				std::vector<T> res = this->bpfield<T>::evaluate1(node->getChildNodeOfType(b.c, 0), &b);
+				std::vector<T> res = this->bpfieldT<T>::evaluate1(node->getChildNodeOfType(b.c, 0), &b);
 				out.insert(out.end(), res.begin(), res.end());
 			}
 			break;
@@ -130,7 +130,7 @@ namespace mc {
 		return out;
 	}
 	template<typename T>
-	inline ctype::code pfield<T>::getCountingType() const
+	inline ctype::code pfieldT<T>::getCountingType() const
 	{
 		return ctype::null;
 	}

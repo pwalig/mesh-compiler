@@ -151,7 +151,7 @@
     <ClCompile Include="core\buffer.cpp" />
     <ClCompile Include="core\compilation-info.cpp" />
     <ClCompile Include="core\field.cpp" />
-    <ClCompile Include="core\fields\cfield.cpp" />
+    <ClCompile Include="core\fields\cfieldT.cpp" />
     <ClCompile Include="core\fields\ufield.cpp" />
     <ClCompile Include="core\Inode.cpp" />
     <ClCompile Include="core\types\ctype.cpp" />
@@ -177,8 +177,8 @@
     <ClInclude Include="core\any-type-value.h" />
     <ClInclude Include="core\buffer.h" />
     <ClInclude Include="core\compilation-info.h" />
-    <ClInclude Include="core\fields\cfield.h" />
-    <ClInclude Include="core\fields\pfield.h" />
+    <ClInclude Include="core\fields\cfieldT.h" />
+    <ClInclude Include="core\fields\pfieldT.h" />
     <ClInclude Include="core\field.h" />
     <ClInclude Include="core\fields\ufield.h" />
     <ClInclude Include="core\printMode.h" />
@@ -190,8 +190,8 @@
     <ClInclude Include="core\types\ptype.h" />
     <ClInclude Include="core\types\stype.h" />
     <ClInclude Include="core\unit.h" />
-    <ClInclude Include="core\fields\sfield.h" />
-    <ClInclude Include="core\fields\vfield.h" />
+    <ClInclude Include="core\fields\sfieldT.h" />
+    <ClInclude Include="core\fields\vfieldT.h" />
     <ClInclude Include="core\types\vtype.h" />
     <ClInclude Include="meshCompiler.h" />
     <ClInclude Include="meshReader.h" />

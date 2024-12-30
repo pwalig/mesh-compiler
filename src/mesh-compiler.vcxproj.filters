@@ -84,7 +84,7 @@
     <ClCompile Include="core\field.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="core\fields\cfield.cpp">
+    <ClCompile Include="core\fields\cfieldT.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>
@@ -143,16 +143,16 @@
     <ClInclude Include="core\Inode.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\fields\sfield.h">
+    <ClInclude Include="core\fields\sfieldT.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\fields\vfield.h">
+    <ClInclude Include="core\fields\vfieldT.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="core\any-type-value.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\fields\pfield.h">
+    <ClInclude Include="core\fields\pfieldT.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="core\types\ptype.h">
@@ -161,7 +161,7 @@
     <ClInclude Include="core\fields\ufield.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\fields\cfield.h">
+    <ClInclude Include="core\fields\cfieldT.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="assimp-integration\sceneNode.h">

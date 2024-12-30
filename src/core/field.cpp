@@ -1,7 +1,7 @@
 #include "field.h"
-#include "fields/cfield.h"
-#include "fields/pfield.h"
-#include "fields/vfield.h"
+#include "fields/cfieldT.h"
+#include "fields/pfieldT.h"
+#include "fields/vfieldT.h"
 
 mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 {
@@ -17,7 +17,7 @@ mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 
 		if (loc == location::main_preamble) {
 			if (ptype::codes.find(value) != ptype::codes.end()) {
-				return ptr(new pfield<unsigned int>(ptype::codes.at(value)));
+				return ptr(new pfieldT<unsigned int>(ptype::codes.at(value)));
 			}
 		}
 		else if (loc == location::buffer_preamble) {
@@ -26,7 +26,7 @@ mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 				ptype::code pc = ptype::codes.at(value);
 				if (ptype::buffer_allowed.find(pc) == ptype::buffer_allowed.end())
 					throw std::runtime_error("ptype unallowed in buffer preamble");
-				return ptr(new bpfield<unsigned int>(ptype::codes.at(value)));
+				return ptr(new bpfieldT<unsigned int>(ptype::codes.at(value)));
 			}
 		}
 		else {
