@@ -67,6 +67,13 @@ namespace mc {
         }
 
         template<typename T>
+        inline value getValue(stype::code s, T val) {
+            value v{};
+            setValue<T>(v, val, s);
+            return v;
+        }
+
+        template<typename T>
         inline T getValue(value v) {
             throw std::logic_error("not supported type");
         }
