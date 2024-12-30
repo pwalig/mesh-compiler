@@ -8,8 +8,9 @@ namespace mc {
 
 	class Ibpfield : virtual public field {
 	public:
-		const ptype::code p;
 		const buffer* buff;
+		const ptype::code p;
+
 		Ibpfield(ptype::code pt) : p(pt), buff(nullptr) {}
 		oop_ptr_base_declare(field) = 0;
 	};

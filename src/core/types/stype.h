@@ -5,7 +5,7 @@
 
 namespace mc {
     namespace stype {
-        enum code {
+        enum code : char {
             null,
             unit,
             char_,

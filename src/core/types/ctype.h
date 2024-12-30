@@ -4,7 +4,7 @@
 
 namespace mc {
 	namespace ctype { // counting type
-        enum code {
+        enum code : char {
             null,
 
             per_indice,

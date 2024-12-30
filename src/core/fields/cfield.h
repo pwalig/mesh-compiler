@@ -7,6 +7,7 @@ namespace mc {
 	class cfield : public sfield<T> {
 	public:
 		const T value;
+
 		cfield(T val) : value(val) {}
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;

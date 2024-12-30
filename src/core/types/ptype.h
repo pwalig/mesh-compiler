@@ -6,7 +6,7 @@
 
 namespace mc {
 	namespace ptype {
-		enum code {
+		enum code : char {
             null,
             unit_size,
             buffer_size,

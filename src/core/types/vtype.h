@@ -7,7 +7,7 @@
 
 namespace mc {
 	namespace vtype {
-		enum code {
+		enum code : char {
             null,
 
             indice,

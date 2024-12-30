@@ -6,8 +6,9 @@ namespace mc {
 	template<typename T>
 	class vfield : public sfield<T> {
 	public:
-		const vtype::code v;
 		const std::vector<unsigned short> suffixes;
+		const vtype::code v;
+
 		vfield(vtype::code value_type,
 			const std::vector<unsigned short>& suffixes_);
 
