@@ -1,5 +1,6 @@
 #pragma once
 #include "types/stype.h"
+#include <ostream>
 
 namespace mc {
     namespace anyType {
@@ -71,6 +72,142 @@ namespace mc {
             value v{};
             setValue<T>(v, val, s);
             return v;
+        }
+
+        inline void output(value v, stype::code s, std::ostream& os) {
+            switch (s)
+            {
+            case mc::stype::char_:
+                os << v.c;
+                break;
+            case mc::stype::int2:
+                os << v.s;
+                break;
+            case mc::stype::uint2:
+                os << v.us;
+                break;
+            case mc::stype::int4:
+                os << v.i;
+                break;
+            case mc::stype::uint4:
+                os << v.ui;
+                break;
+            case mc::stype::int8:
+                os << v.l;
+                break;
+            case mc::stype::uint8:
+                os << v.ul;
+                break;
+            case mc::stype::int16:
+                os << v.ll;
+                break;
+            case mc::stype::uint16:
+                os << v.ull;
+                break;
+            case mc::stype::float4:
+                os << v.f;
+                break;
+            case mc::stype::float8:
+                os << v.d;
+                break;
+            case mc::stype::float16:
+                os << v.ld;
+                break;
+            default:
+                throw std::logic_error("not supported type");
+                break;
+            }
+        }
+
+        inline void outputBinary(value v, stype::code s, std::ostream& os) {
+            switch (s)
+            {
+            case mc::stype::char_:
+                os.write((char*)(&v.c), sizeof(char));
+                break;
+            case mc::stype::int2:
+                os.write((char*)(&v.s), sizeof(short));
+                break;
+            case mc::stype::uint2:
+                os.write((char*)(&v.us), sizeof(unsigned short));
+                break;
+            case mc::stype::int4:
+                os.write((char*)(&v.i), sizeof(int));
+                break;
+            case mc::stype::uint4:
+                os.write((char*)(&v.ui), sizeof(unsigned int));
+                break;
+            case mc::stype::int8:
+                os.write((char*)(&v.l), sizeof(long));
+                break;
+            case mc::stype::uint8:
+                os.write((char*)(&v.ul), sizeof(unsigned long));
+                break;
+            case mc::stype::int16:
+                os.write((char*)(&v.ll), sizeof(long long));
+                break;
+            case mc::stype::uint16:
+                os.write((char*)(&v.ull), sizeof(unsigned long long));
+                break;
+            case mc::stype::float4:
+                os.write((char*)(&v.f), sizeof(float));
+                break;
+            case mc::stype::float8:
+                os.write((char*)(&v.d), sizeof(double));
+                break;
+            case mc::stype::float16:
+                os.write((char*)(&v.ld), sizeof(long double));
+                break;
+            default:
+                throw std::logic_error("not supported type");
+                break;
+            }
+        }
+
+        template<typename T>
+        inline T getValue(value v, stype::code s) {
+            switch (s)
+            {
+            case mc::stype::char_:
+                return (T)v.c;
+                break;
+            case mc::stype::int2:
+                return (T)v.s;
+                break;
+            case mc::stype::uint2:
+                return (T)v.us;
+                break;
+            case mc::stype::int4:
+                return (T)v.i;
+                break;
+            case mc::stype::uint4:
+                return (T)v.ui;
+                break;
+            case mc::stype::int8:
+                return (T)v.l;
+                break;
+            case mc::stype::uint8:
+                return (T)v.ul;
+                break;
+            case mc::stype::int16:
+                return (T)v.ll;
+                break;
+            case mc::stype::uint16:
+                return (T)v.ull;
+                break;
+            case mc::stype::float4:
+                return (T)v.f;
+                break;
+            case mc::stype::float8:
+                return (T)v.d;
+                break;
+            case mc::stype::float16:
+                return (T)v.ld;
+                break;
+            default:
+                throw std::logic_error("not supported type");
+                break;
+            }
         }
 
         template<typename T>

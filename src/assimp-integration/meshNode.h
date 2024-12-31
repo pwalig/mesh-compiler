@@ -21,6 +21,6 @@ namespace assimp {
 		size_t getChildNodeCount(mc::ctype::code counting_type) const;
 		mc::Inode::ptr getChildNodeOfType(mc::ctype::code counting_type, size_t id) const override;
 
-		oop_ptr_child_declare(mc::Inode, meshNode);
+		oop_ptr_child_declare(mc::Inode);
 	};
 }
