@@ -6,6 +6,7 @@ namespace mc {
 	class sfield : virtual public field {
 	public:
 		stype::code s;
+		sfield(stype::code st = stype::null);
 
 		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm) const override;
 		virtual std::vector<anyType::value> evaluate(const Inode::ptr node) const = 0;

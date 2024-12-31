@@ -1,6 +1,6 @@
 #include "cfieldT.h"
 
-mc::field::ptr mc::getCFieldPtr(stype::code s, anyType::value v)
+mc::field::ptr mc::getCFieldTPtr(stype::code s, anyType::value v)
 {
 	switch (s)
 	{
@@ -45,7 +45,7 @@ mc::field::ptr mc::getCFieldPtr(stype::code s, anyType::value v)
 	}
 }
 
-mc::field::ptr mc::getCFieldPtr(const rapidjson::Value& json)
+mc::field::ptr mc::getCFieldTPtr(const rapidjson::Value& json)
 {
 	assert(json.IsObject());
 	assert(json.HasMember("value"));

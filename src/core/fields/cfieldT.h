@@ -16,8 +16,8 @@ namespace mc {
 		oop_ptr_template_child_define(field, cfieldT)
 	};
 
-	field::ptr getCFieldPtr(stype::code s, anyType::value);
-	field::ptr getCFieldPtr(const rapidjson::Value& json);
+	field::ptr getCFieldTPtr(stype::code s, anyType::value);
+	field::ptr getCFieldTPtr(const rapidjson::Value& json);
 
 	template<typename T>
 	inline std::vector<T> cfieldT<T>::evaluate(const Inode::ptr node) const

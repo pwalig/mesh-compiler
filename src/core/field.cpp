@@ -9,7 +9,7 @@ mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 	assert(json.HasMember("value"));
 
 	if (json["value"].IsNumber()) {
-		return getCFieldPtr(json);
+		return getCFieldTPtr(json);
 	}
 	else {
 		assert(json["value"].IsString());

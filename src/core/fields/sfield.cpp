@@ -1,5 +1,7 @@
 #include "sfield.h"
 
+mc::sfield::sfield(stype::code st) : s(st) {}
+
 void mc::sfield::output(std::ofstream& file, const Inode::ptr node, mc::printMode pm) const
 {
 	std::vector<anyType::value> val = evaluate(node);
