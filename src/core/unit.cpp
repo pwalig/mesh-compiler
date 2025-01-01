@@ -4,6 +4,7 @@
 #include <cassert>
 #include "fields/pfieldT.h"
 #include <iostream>
+#include "fields/pfield.h"
 
 
 mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
@@ -40,9 +41,8 @@ void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm)
     assert(c == node->c);
 
     for (field::ptr& f : preamble) {
-        if (f.gettable<Ipfield>()) {
-            f.get<Ipfield>()->u = this;
-        }
+        if (f.gettable<Ipfield>()) f.get<Ipfield>()->u = this;
+        if (f.gettable<pfield>()) f.get<pfield>()->u = this;
         f->output(file, node, pm);
     }
 

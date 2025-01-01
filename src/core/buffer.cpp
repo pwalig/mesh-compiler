@@ -1,5 +1,6 @@
 #include "buffer.h"
 #include "fields/pfieldT.h"
+#include "fields/pfield.h"
 
 mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
 {
@@ -37,9 +38,8 @@ void mc::buffer::output(std::ofstream& file, const Inode::ptr node, mc::printMod
     size_t count = node->getChildNodeCount(c);
 
     for (field::ptr& f : preamble) {
-        if (f.gettable<Ibpfield>()) {
-            f.get<Ibpfield>()->buff = this;
-        }
+        if (f.gettable<Ibpfield>()) f.get<Ibpfield>()->buff = this;
+        if (f.gettable<bpfield>()) f.get<bpfield>()->buff = this;
         f->output(file, node, pm);
     }
 

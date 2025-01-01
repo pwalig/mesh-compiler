@@ -153,6 +153,7 @@
     <ClCompile Include="core\field.cpp" />
     <ClCompile Include="core\fields\cfield.cpp" />
     <ClCompile Include="core\fields\cfieldT.cpp" />
+    <ClCompile Include="core\fields\pfield.cpp" />
     <ClCompile Include="core\fields\sfield.cpp" />
     <ClCompile Include="core\fields\ufield.cpp" />
     <ClCompile Include="core\fields\vfield.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="core\fields\cfield.h" />
     <ClInclude Include="core\fields\cfieldT.h" />
     <ClInclude Include="core\fields\Ipfield.h" />
+    <ClInclude Include="core\fields\pfield.h" />
     <ClInclude Include="core\fields\pfieldT.h" />
     <ClInclude Include="core\field.h" />
     <ClInclude Include="core\fields\sfield.h" />

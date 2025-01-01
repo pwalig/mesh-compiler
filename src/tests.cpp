@@ -19,6 +19,7 @@
 #include "core/fields/cfieldT.h"
 #include "core/fields/cfield.h"
 #include "core/fields/vfield.h"
+#include "core/fields/pfield.h"
 
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";
@@ -158,10 +159,10 @@ void mainTest() {
     fu.output_file = "test/{mesh}.txt";
     fu.mode = mc::printMode::plainText;
     fu.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
-    fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::buffers_per_unit)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffers_per_unit)));
     fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::buffer_size)));
     fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::entries_per_unit)));
-    fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::entries_per_buffer)));
+    fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entries_per_buffer)));
     fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::entry_size)));
     fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::fields_per_unit)));
     fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::fields_per_buffer)));
@@ -170,7 +171,7 @@ void mainTest() {
     mc::buffer buff;
     buff.c = mc::ctype::per_vertex;
     buff.preamble.push_back(mc::field::ptr(new mc::cfieldT<int>(-30)));
-    buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::buffer_size)));
+    buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::buffer_size)));
     buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::entries_per_buffer)));
     buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::entry_size)));
     buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::fields_per_buffer)));
