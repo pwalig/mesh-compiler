@@ -14,6 +14,6 @@ namespace mc {
 		std::vector<anyType::value> evaluate(const Inode::ptr node) const override;
 		ctype::code getCountingType() const override;
 
-		oop_ptr_child_declare(field, vfield);
+		oop_ptr_child_declare(field);
 	};
 }

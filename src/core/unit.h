@@ -66,17 +66,17 @@ namespace mc {
 	template<typename T>
 	inline T unit::getEntriesCount(const Inode::ptr node) const
 	{
-		T siz = 0;
+		size_t siz = 0;
 		for (const buffer& buff : buffers)
 			siz += node->getChildNodeCount(buff.c);
-		return siz;
+		return (T)siz;
 	}
 	template<typename T>
 	inline T unit::getFieldsCount(const Inode::ptr node) const
 	{
-		T siz = 0;
+		size_t siz = 0;
 		for (const buffer& buff : buffers)
 			siz += buff.fields.size() * node->getChildNodeCount(buff.c);
-		return siz;
+		return (T)siz;
 	}
 }

@@ -56,7 +56,7 @@ namespace mc {
 			out.push_back(buffe->getEntrySize<T>());
 			break;
 		case ptype::entries_per_buffer:
-			out.push_back(node->getCount());
+			out.push_back((T)node->getCount());
 			break;
 		case ptype::field_size:
 			for (const field::ptr& f : buffe->fields) {
@@ -64,10 +64,10 @@ namespace mc {
 			}
 			break;
 		case ptype::fields_per_entry:
-			out.push_back(buffe->fields.size());
+			out.push_back((T)buffe->fields.size());
 			break;
 		case ptype::fields_per_buffer:
-			out.push_back(buffe->fields.size() * node->getCount());
+			out.push_back((T)(buffe->fields.size() * node->getCount()));
 			break;
 		default:
 			throw std::logic_error("invalid ptype");
@@ -103,7 +103,7 @@ namespace mc {
 		switch (p)
 		{
 		case ptype::buffers_per_unit:
-			out.push_back(u->buffers.size());
+			out.push_back((T)u->buffers.size());
 			break;
 		case ptype::entries_per_unit:
 			out.push_back(u->getEntriesCount<T>(node));

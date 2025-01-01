@@ -36,6 +36,6 @@ namespace mc {
 	template<typename T>
 	inline T buffer::getSize(const Inode::ptr node) const
 	{
-		return getEntrySize<T>() * node->getCount();
+		return getEntrySize<T>() * (T)node->getCount();
 	}
 }
