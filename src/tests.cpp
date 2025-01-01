@@ -18,6 +18,7 @@
 #include "core/fields/pfieldT.h"
 #include "core/fields/cfieldT.h"
 #include "core/fields/cfield.h"
+#include "core/fields/vfield.h"
 
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";
@@ -175,7 +176,7 @@ void mainTest() {
     buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::fields_per_buffer)));
     buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::fields_per_entry)));
     buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::field_size)));
-    buff.fields.push_back(mc::field::ptr(new mc::vfieldT<float>(mc::vtype::vertex, { 0 })));
+    buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 0 })));
     buff.fields.push_back(mc::field::ptr(new mc::vfieldT<float>(mc::vtype::vertex, { 1 })));
     buff.fields.push_back(mc::field::ptr(new mc::cfieldT<int>(-20)));
     fu.buffers.push_back(buff);

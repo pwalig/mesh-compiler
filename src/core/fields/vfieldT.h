@@ -29,6 +29,7 @@ namespace mc {
 	{
 		std::vector<T> out;
 		std::vector<anyType::value> vals = node->getValues(v, mc::stype::getCode<T>(), suffixes);
+		out.reserve(vals.size());
 		for (anyType::value& v : vals) {
 			out.push_back(anyType::getValue<T>(v));
 		}
