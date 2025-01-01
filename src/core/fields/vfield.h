@@ -15,5 +15,7 @@ namespace mc {
 		ctype::code getCountingType() const override;
 
 		oop_ptr_child_declare(field);
+
+		static field::ptr getPtr(const rapidjson::Value& json);
 	};
 }

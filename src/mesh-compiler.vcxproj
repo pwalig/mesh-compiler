@@ -157,6 +157,7 @@
     <ClCompile Include="core\fields\ufield.cpp" />
     <ClCompile Include="core\fields\vfield.cpp" />
     <ClCompile Include="core\Inode.cpp" />
+    <ClCompile Include="core\suffixes.cpp" />
     <ClCompile Include="core\types\ctype.cpp" />
     <ClCompile Include="core\types\ptype.cpp" />
     <ClCompile Include="core\types\stype.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="core\fields\ufield.h" />
     <ClInclude Include="core\fields\vfield.h" />
     <ClInclude Include="core\printMode.h" />
+    <ClInclude Include="core\suffixes.h" />
     <ClInclude Include="core\types\ctype.h" />
     <ClInclude Include="core\file-access-interface\meshI.h" />
     <ClInclude Include="core\file-access-interface\sceneI.h" />
