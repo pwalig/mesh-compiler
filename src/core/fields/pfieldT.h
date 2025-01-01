@@ -60,7 +60,7 @@ namespace mc {
 			break;
 		case ptype::field_size:
 			for (const field::ptr& f : buffe->fields) {
-				out.push_back(f->getSize<T>());
+				out.push_back((T)f->getSize());
 			}
 			break;
 		case ptype::fields_per_entry:

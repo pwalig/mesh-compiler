@@ -10,10 +10,8 @@ namespace mc {
 
 		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm) const override;
 		virtual std::vector<anyType::value> evaluate(const Inode::ptr node) const = 0;
+		size_t getSize() const override;
 
 		oop_ptr_base_declare(field) = 0;
-
-	private:
-		size_t getSize1() const override;
 	};
 }

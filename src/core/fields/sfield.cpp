@@ -16,7 +16,7 @@ void mc::sfield::output(std::ofstream& file, const Inode::ptr node, mc::printMod
 	}
 }
 
-size_t mc::sfield::getSize1() const
+size_t mc::sfield::getSize() const
 {
 	return stype::sizes.at(s);
 }

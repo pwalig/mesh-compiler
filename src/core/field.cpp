@@ -1,7 +1,7 @@
 #include "field.h"
 #include "fields/cfieldT.h"
 #include "fields/pfieldT.h"
-#include "fields/vfieldT.h"
+#include "fields/vfield.h"
 
 mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 {
@@ -32,7 +32,7 @@ mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 		else {
 			assert(loc == location::buffer_field);
 			assert(vtype::codes.find(value) != vtype::codes.end());
-			// return ptr(new vfield<float>(vtype::codes.at(value)));
+			return vfield::getPtr(json);
 		}
 
 	}

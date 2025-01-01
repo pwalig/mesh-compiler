@@ -8,11 +8,9 @@ namespace mc {
 	public:
 		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm) const override;
 		virtual std::vector<T> evaluate(const Inode::ptr node) const = 0;
+		size_t getSize() const override;
 
 		oop_ptr_base_declare(field) = 0;
-
-	private:
-		size_t getSize1() const override;
 	};
 	template<typename T>
 	inline void sfieldT<T>::output(std::ofstream& file, const Inode::ptr node, mc::printMode pm) const
@@ -24,7 +22,7 @@ namespace mc {
 		}
 	}
 	template<typename T>
-	inline size_t sfieldT<T>::getSize1() const
+	inline size_t sfieldT<T>::getSize() const
 	{
 		return sizeof(T);
 	}

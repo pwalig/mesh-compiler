@@ -28,10 +28,10 @@ namespace mc {
 	template<typename T>
 	inline T buffer::getEntrySize() const
 	{
-		T siz = 0;
+		size_t siz = 0;
 		for (const field::ptr& f : fields)
-			siz += f->getSize<T>();
-		return siz;
+			siz += f->getSize();
+		return (T)siz;
 	}
 	template<typename T>
 	inline T buffer::getSize(const Inode::ptr node) const
