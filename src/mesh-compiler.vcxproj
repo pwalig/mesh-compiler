@@ -183,6 +183,7 @@
     <ClInclude Include="core\compilation-info.h" />
     <ClInclude Include="core\fields\cfield.h" />
     <ClInclude Include="core\fields\cfieldT.h" />
+    <ClInclude Include="core\fields\Ipfield.h" />
     <ClInclude Include="core\fields\pfieldT.h" />
     <ClInclude Include="core\field.h" />
     <ClInclude Include="core\fields\sfield.h" />
