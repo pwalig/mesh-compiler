@@ -62,6 +62,30 @@ void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm)
     }
 }
 
+size_t mc::unit::getSize(const Inode::ptr node) const
+{
+    size_t siz = 0;
+    for (const buffer& buff : buffers)
+        siz += buff.getSize(node->getChildNodeOfType(buff.c, 0));
+    return siz;
+}
+
+size_t mc::unit::getEntriesCount(const Inode::ptr node) const
+{
+    size_t siz = 0;
+    for (const buffer& buff : buffers)
+        siz += node->getChildNodeCount(buff.c);
+    return siz;
+}
+
+size_t mc::unit::getFieldsCount(const Inode::ptr node) const
+{
+    size_t siz = 0;
+    for (const buffer& buff : buffers)
+        siz += buff.fields.size() * node->getChildNodeCount(buff.c);
+    return siz;
+}
+
 mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(json["output_file"].GetString())
 {
     std::string ftype = jsonTools::getAnyMember(json, {"print_mode", "printMode", "print-mode"});

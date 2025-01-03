@@ -12,10 +12,10 @@ std::vector<mc::anyType::value> mc::bpfield::evaluate1(const Inode::ptr node, co
 	switch (p)
 	{
 	case ptype::buffer_size:
-		out.push_back(anyType::getValue(s, buffe->getSize<size_t>(node)));
+		out.push_back(anyType::getValue(s, buffe->getSize(node)));
 		break;
 	case ptype::entry_size:
-		out.push_back(anyType::getValue(s, buffe->getEntrySize<size_t>()));
+		out.push_back(anyType::getValue(s, buffe->getEntrySize()));
 		break;
 	case ptype::entries_per_buffer:
 		out.push_back(anyType::getValue(s, node->getCount()));
@@ -54,10 +54,10 @@ std::vector<mc::anyType::value> mc::pfield::evaluate(const Inode::ptr node) cons
 		out.push_back(anyType::getValue(s, u->buffers.size()));
 		break;
 	case ptype::entries_per_unit:
-		out.push_back(anyType::getValue(s, u->getEntriesCount<size_t>(node)));
+		out.push_back(anyType::getValue(s, u->getEntriesCount(node)));
 		break;
 	case ptype::fields_per_unit:
-		out.push_back(anyType::getValue(s, u->getFieldsCount<size_t>(node)));
+		out.push_back(anyType::getValue(s, u->getFieldsCount(node)));
 		break;
 	case ptype::buffer_size:
 	case ptype::entry_size:

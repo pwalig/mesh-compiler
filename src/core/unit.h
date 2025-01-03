@@ -21,12 +21,9 @@ namespace mc {
 
 		void output(std::ofstream& file, const Inode::ptr node, printMode pm);
 
-		template<typename T>
-		T getSize(const Inode::ptr node) const;
-		template<typename T>
-		T getEntriesCount(const Inode::ptr node) const;
-		template<typename T>
-		T getFieldsCount(const Inode::ptr node) const;
+		size_t getSize(const Inode::ptr node) const;
+		size_t getEntriesCount(const Inode::ptr node) const;
+		size_t getFieldsCount(const Inode::ptr node) const;
 	};
 
 	class fileUnit : public unit {
@@ -53,30 +50,5 @@ namespace mc {
 		inline code getCode<mc::unit>() { return unit; }
 		template<>
 		inline code getCode<mc::fileUnit>() { return unit; }
-	}
-
-	template<typename T>
-	inline T unit::getSize(const Inode::ptr node) const
-	{
-		T siz = 0;
-		for (const buffer& buff : buffers)
-			siz += buff.getSize(node->getChildNodeOfType(buff.c));
-		return siz;
-	}
-	template<typename T>
-	inline T unit::getEntriesCount(const Inode::ptr node) const
-	{
-		size_t siz = 0;
-		for (const buffer& buff : buffers)
-			siz += node->getChildNodeCount(buff.c);
-		return (T)siz;
-	}
-	template<typename T>
-	inline T unit::getFieldsCount(const Inode::ptr node) const
-	{
-		size_t siz = 0;
-		for (const buffer& buff : buffers)
-			siz += buff.fields.size() * node->getChildNodeCount(buff.c);
-		return (T)siz;
 	}
 }

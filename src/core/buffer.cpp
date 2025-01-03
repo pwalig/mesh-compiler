@@ -53,3 +53,16 @@ void mc::buffer::output(std::ofstream& file, const Inode::ptr node, mc::printMod
         }
     }
 }
+
+size_t mc::buffer::getEntrySize() const
+{
+    size_t siz = 0;
+    for (const field::ptr& f : fields)
+        siz += f->getSize();
+    return siz;
+}
+
+size_t mc::buffer::getSize(const Inode::ptr node) const
+{
+    return getEntrySize() * node->getCount();
+}

@@ -19,23 +19,7 @@ namespace mc {
 
 		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm);
 
-		template<typename T>
-		T getEntrySize() const;
-		template<typename T>
-		T getSize(const Inode::ptr node) const;
+		size_t getEntrySize() const;
+		size_t getSize(const Inode::ptr node) const;
 	};
-
-	template<typename T>
-	inline T buffer::getEntrySize() const
-	{
-		size_t siz = 0;
-		for (const field::ptr& f : fields)
-			siz += f->getSize();
-		return (T)siz;
-	}
-	template<typename T>
-	inline T buffer::getSize(const Inode::ptr node) const
-	{
-		return getEntrySize<T>() * (T)node->getCount();
-	}
 }

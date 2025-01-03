@@ -29,10 +29,10 @@ namespace mc {
 		switch (p)
 		{
 		case ptype::buffer_size:
-			out.push_back(buffe->getSize<T>(node));
+			out.push_back((T)buffe->getSize(node));
 			break;
 		case ptype::entry_size:
-			out.push_back(buffe->getEntrySize<T>());
+			out.push_back((T)buffe->getEntrySize());
 			break;
 		case ptype::entries_per_buffer:
 			out.push_back((T)node->getCount());
@@ -85,10 +85,10 @@ namespace mc {
 			out.push_back((T)u->buffers.size());
 			break;
 		case ptype::entries_per_unit:
-			out.push_back(u->getEntriesCount<T>(node));
+			out.push_back((T)u->getEntriesCount(node));
 			break;
 		case ptype::fields_per_unit:
-			out.push_back(u->getFieldsCount<T>(node));
+			out.push_back((T)u->getFieldsCount(node));
 			break;
 		case ptype::buffer_size:
 		case ptype::entry_size:
