@@ -5,5 +5,6 @@
 
 namespace mc {
 	extern std::unordered_map<char, unsigned short> suffixes;
-	std::vector<unsigned short> extractSuffixes(std::string& vtype_plus);
+	std::string vtypeNoSuffix(const std::string& vtype_w_sfx);
+	std::vector<unsigned short> extractSuffixes(const std::string& vtype_w_sfx);
 }

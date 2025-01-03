@@ -8,7 +8,8 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
 {
     std::ifstream file(filename);
     size_t pos = filename.find_last_of('.');
-    if (filename.substr(pos, filename.size() - pos) == "json") {
+    std::string extension = filename.substr(pos + 1, filename.size() - pos);
+    if (extension == "json") {
         rapidjson::IStreamWrapper isw(file);
         rapidjson::Document document;
         document.ParseStream(isw);

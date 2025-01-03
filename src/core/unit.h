@@ -14,7 +14,7 @@ namespace mc {
 	public:
 		std::vector<field::ptr> preamble;
 		std::vector<buffer> buffers;
-		ctype::code c;
+		ctype::code c = ctype::null;
 
 		unit() = default;
 		unit(const rapidjson::Value& json);

@@ -153,10 +153,10 @@ void mainTest() {
     std::cout << "Binary read time: " << elapsed_seconds2.count() << '\n';
 
 
-    mc::compilationInfo ci;
+    mc::compilationInfo ci_c;
     mc::fileUnit fu;
     fu.c = mc::ctype::per_mesh;
-    fu.output_file = "test/{mesh}.txt";
+    fu.output_file = "test/{mesh}_code.txt";
     fu.mode = mc::printMode::plainText;
     fu.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
     fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffers_per_unit)));
@@ -182,9 +182,13 @@ void mainTest() {
     buff.fields.push_back(mc::field::ptr(new mc::cfieldT<int>(-20)));
     fu.buffers.push_back(buff);
     fu.buffers.push_back(buff);
-    ci.file_units.push_back(fu);
+    ci_c.file_units.push_back(fu);
 
-    ci.compileFile("test/cube.obj");
+    ci_c.compileFile("test/cube.obj");
+
+    mc::compilationInfo ci_j("test/format.json");
+
+    ci_j.compileFile("test/cube.obj");
 }
 
 #endif // _DEBUG

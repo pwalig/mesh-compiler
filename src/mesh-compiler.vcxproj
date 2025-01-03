@@ -164,6 +164,7 @@
     <ClCompile Include="core\types\stype.cpp" />
     <ClCompile Include="core\unit.cpp" />
     <ClCompile Include="core\types\vtype.cpp" />
+    <ClCompile Include="jsonTools.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="meshCompiler.cpp" />
     <ClCompile Include="tests.cpp" />
@@ -204,6 +205,7 @@
     <ClInclude Include="core\fields\sfieldT.h" />
     <ClInclude Include="core\fields\vfieldT.h" />
     <ClInclude Include="core\types\vtype.h" />
+    <ClInclude Include="jsonTools.h" />
     <ClInclude Include="meshCompiler.h" />
     <ClInclude Include="meshReader.h" />
     <ClInclude Include="tests.h" />

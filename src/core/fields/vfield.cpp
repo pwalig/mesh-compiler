@@ -26,6 +26,8 @@ mc::field::ptr mc::vfield::getPtr(const rapidjson::Value& json)
 
 	std::string vtype_str(json["value"].GetString());
 	auto suffixes = mc::extractSuffixes(vtype_str);
+	vtype_str = vtypeNoSuffix(vtype_str);
+	assert(vtype::codes.find(vtype_str) != vtype::codes.end());
 
 	return field::ptr(new vfield(stype::codes.at(json["type"].GetString()), vtype::codes.at(vtype_str), suffixes));
 }

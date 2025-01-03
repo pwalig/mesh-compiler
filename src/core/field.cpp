@@ -19,6 +19,7 @@ mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 			if (ptype::codes.find(value) != ptype::codes.end()) {
 				return ptr(new pfieldT<unsigned int>(ptype::codes.at(value)));
 			}
+			throw std::logic_error("unable to get field ptr");
 		}
 		else if (loc == location::buffer_preamble) {
 
@@ -28,14 +29,13 @@ mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 					throw std::runtime_error("ptype unallowed in buffer preamble");
 				return ptr(new bpfieldT<unsigned int>(ptype::codes.at(value)));
 			}
+			throw std::logic_error("unable to get field ptr");
 		}
 		else {
 			assert(loc == location::buffer_field);
-			assert(vtype::codes.find(value) != vtype::codes.end());
 			return vfield::getPtr(json);
 		}
-
 	}
 
-	return ptr();
+	throw std::logic_error("unable to get field ptr");
 }

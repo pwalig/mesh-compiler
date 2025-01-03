@@ -12,7 +12,6 @@ namespace mc {
 
 		compilationInfo() = default;
 		compilationInfo(const std::string& filename);
-		compilationInfo(const rapidjson::Value& json);
 
 		void compileFile(const std::string& filename);
 	};

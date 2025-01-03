@@ -5,7 +5,7 @@
 #include "fields/pfieldT.h"
 #include <iostream>
 #include "fields/pfield.h"
-
+#include "../jsonTools.h"
 
 mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
 {
@@ -54,6 +54,15 @@ void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm)
 
 mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(json["output_file"].GetString())
 {
+    std::string ftype = jsonTools::getAnyMember(json, {"print_mode", "printMode", "print-mode"});
+    if (ftype != "") {
+        assert(json[ftype.c_str()].IsString());
+        std::string omode = json[ftype.c_str()].GetString();
+        std::vector<std::string> available = { "plain_text", "plainText", "plain-text" };
+        if (std::find(available.begin(), available.end(), omode) != available.end()) mode = mc::printMode::plainText;
+        else if (omode == "binary") mode = mc::printMode::binary;
+        else throw std::logic_error("invalid printMode");
+    }
 }
 
 void mc::fileUnit::compile(const Inode::ptr node)
