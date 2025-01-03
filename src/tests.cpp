@@ -21,6 +21,7 @@
 #include "core/fields/vfield.h"
 #include "core/fields/pfield.h"
 #include "core/exceptions/jsonException.h"
+#include "core/exceptions/compileException.h"
 
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";
@@ -193,6 +194,9 @@ void mainTest() {
     }
     catch (mc::jsonException& je) {
         std::cout << je.what() << std::endl;
+    }
+    catch (mc::compileException& ce) {
+        std::cout << ce.what() << std::endl;
     }
 }
 
