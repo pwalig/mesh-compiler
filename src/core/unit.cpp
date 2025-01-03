@@ -7,6 +7,7 @@
 #include "fields/pfield.h"
 #include "../jsonTools.h"
 #include "exceptions/jsonException.h"
+#include "exceptions/compileException.h"
 
 mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
 {
@@ -84,7 +85,7 @@ void mc::fileUnit::compile(const Inode::ptr node)
     if (c == node->c) {
         std::ofstream fout(output_file, std::ios::out | std::ios::binary);
         if (!fout) {
-            throw std::runtime_error("cannot open file: " + output_file);
+            throw compileException("cannot open file: " + output_file);
         }
         output(fout, node, mode);
         fout.close();
@@ -95,7 +96,7 @@ void mc::fileUnit::compile(const Inode::ptr node)
         while (ctype::parents.at(nodeChild) != node->c) {
             nodeChild = ctype::parents.at(nodeChild);
             if (nodeChild == ctype::per_scene)
-                throw std::logic_error("nodes counting type is not an ancestor of this units counting type");
+                throw compileException("node's counting type is not an ancestor of this unit's counting type");
         }
 
 

@@ -2,9 +2,9 @@
 #include <stdexcept>
 
 namespace mc {
-	class jsonException : public std::logic_error {
+	class jsonException : public std::runtime_error {
 	public:
-		jsonException(const char* _Message) : logic_error(_Message) {}
-		jsonException(const std::string _Message) : logic_error(_Message) {}
+		jsonException(const char* _Message) : runtime_error(_Message) {}
+		jsonException(const std::string _Message) : runtime_error(_Message) {}
 	};
 }
