@@ -113,8 +113,8 @@ void mainTest() {
     std::function<void(const aiScene* scene)> nothing = [](const aiScene* scene) {};
     mesh me;
     const auto start{ std::chrono::steady_clock::now() };
-    assimp::readFile("test/bones2.fbx", std::bind(readMesh, std::placeholders::_1, std::ref(me)));
-    assimp::readFile("test/anim-test.glb", std::bind(assimp::printScene, std::placeholders::_1, true));
+    assimp::readFile("../test/bones2.fbx", std::bind(readMesh, std::placeholders::_1, std::ref(me)));
+    assimp::readFile("../test/anim-test.glb", std::bind(assimp::printScene, std::placeholders::_1, true));
     //ReadFile("Ghost2.glb", nothing);
     const auto end{ std::chrono::steady_clock::now() };
     const std::chrono::duration<double> elapsed_seconds{ end - start };
@@ -125,16 +125,16 @@ void mainTest() {
     std::cout << "Assimp read time: " << elapsed_seconds.count() << '\n';
 
     std::vector<std::string> args;
-    args.push_back("test/bones2.fbx");
-    args.push_back("test/.format");
-    args.push_back("test/out.mesh");
+    args.push_back("../test/bones2.fbx");
+    args.push_back("../test/.format");
+    args.push_back("../test/out.mesh");
     args.push_back("-d");
 
     mesh_compiler::runOnce(args);
 
     mesh me1;
     const auto start1{ std::chrono::steady_clock::now() };
-    readMeshFile("test/out.mesh", me1);
+    readMeshFile("../test/out.mesh", me1);
     const auto end1{ std::chrono::steady_clock::now() };
     const std::chrono::duration<double> elapsed_seconds1{ end1 - start1 };
 
@@ -145,7 +145,7 @@ void mainTest() {
 
     mesh me2;
     const auto start2{ std::chrono::steady_clock::now() };
-    readMeshFile("test/yeet.mesh", me2);
+    readMeshFile("../test/yeet.mesh", me2);
     const auto end2{ std::chrono::steady_clock::now() };
     const std::chrono::duration<double> elapsed_seconds2{ end2 - start2 };
 
@@ -158,7 +158,7 @@ void mainTest() {
     mc::compilationInfo ci_c;
     mc::fileUnit fu;
     fu.c = mc::ctype::per_mesh;
-    fu.output_file = "test/{mesh}_code.txt";
+    fu.output_file = "../test/{mesh}_code.txt";
     fu.mode = mc::printMode::plainText;
     fu.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
     fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffers_per_unit)));
@@ -186,11 +186,11 @@ void mainTest() {
     fu.buffers.push_back(buff);
     ci_c.file_units.push_back(fu);
 
-    ci_c.compileFile("test/cube.obj");
+    ci_c.compileFile("../test/cube.obj");
 
     try {
-        mc::compilationInfo ci_j("test/format.json");
-        ci_j.compileFile("test/cube.obj");
+        mc::compilationInfo ci_j("../test/format.json");
+        ci_j.compileFile("../test/cube.obj");
     }
     catch (mc::jsonException& je) {
         std::cout << je.what() << std::endl;
