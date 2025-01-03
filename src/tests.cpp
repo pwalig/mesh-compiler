@@ -20,6 +20,7 @@
 #include "core/fields/cfield.h"
 #include "core/fields/vfield.h"
 #include "core/fields/pfield.h"
+#include "core/exceptions/jsonException.h"
 
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";
@@ -186,9 +187,13 @@ void mainTest() {
 
     ci_c.compileFile("test/cube.obj");
 
-    mc::compilationInfo ci_j("test/format.json");
-
-    ci_j.compileFile("test/cube.obj");
+    try {
+        mc::compilationInfo ci_j("test/format.json");
+        ci_j.compileFile("test/cube.obj");
+    }
+    catch (mc::jsonException& je) {
+        std::cout << je.what() << std::endl;
+    }
 }
 
 #endif // _DEBUG

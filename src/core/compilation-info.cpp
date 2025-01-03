@@ -3,6 +3,8 @@
 #include "../assimp-integration/sceneNode.h"
 #include <iostream>
 #include <rapidjson/istreamwrapper.h>
+#include "exceptions/jsonException.h"
+#include "../jsonTools.h"
 
 mc::compilationInfo::compilationInfo(const std::string& filename)
 {
@@ -13,24 +15,24 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
         rapidjson::IStreamWrapper isw(file);
         rapidjson::Document document;
         document.ParseStream(isw);
-        assert(document.IsObject());
+        if (!document.IsObject()) throw jsonException("root of json file was not an object");
 
         const rapidjson::Value& junits = document["units"];
-        assert(junits.IsArray());
+        if (!junits.IsArray()) throw jsonException("units was not an array");
         file_units.reserve(junits.Size());
 
         for (rapidjson::SizeType i = 0; i < junits.Size(); i++) {
             const rapidjson::Value& junit = junits[i];
-            assert(junit.HasMember("output_file") || junit.HasMember("name"));
-            if (junit.HasMember("output_file")) {
-                assert(junit["output_file"].IsString());
+            std::string ofilek = jsonTools::getAnyMember(junit, {"output_file", "outputFile", "output-file"});
+            if (ofilek != "") {
+                if(!junit[ofilek.c_str()].IsString()) throw jsonException((ofilek + " was not a string").c_str());
                 file_units.push_back(mc::fileUnit(junit));
             }
-            else {
-                assert(junit["name"].IsString());
+            else if (junit.HasMember("name")) {
+                if (!junit["name"].IsString()) throw jsonException((ofilek + " was not a string").c_str());
                 units.insert({ junit["name"].GetString(), mc::unit(junit) });
-                file_units.push_back(mc::fileUnit(junit));
             }
+            else throw jsonException("unit had neither \"name\" nor \"output_file\" member");
         }
     }
 }

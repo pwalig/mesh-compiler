@@ -1,4 +1,5 @@
 #include "cfieldT.h"
+#include "../exceptions/jsonException.h"
 
 mc::field::ptr mc::getCFieldTPtr(stype::code s, anyType::value v)
 {
@@ -52,7 +53,8 @@ mc::field::ptr mc::getCFieldTPtr(const rapidjson::Value& json)
 	assert(json["value"].IsNumber());
 	assert(json.HasMember("type"));
 	assert(json["type"].IsString());
-	stype::code s = stype::codes.at(json["type"].GetString());
+	std::string type = json["type"].GetString();
+	stype::code s = stype::codes.at(type);
 	switch (s)
 	{
 	case mc::stype::char_:
@@ -92,7 +94,7 @@ mc::field::ptr mc::getCFieldTPtr(const rapidjson::Value& json)
 		return field::ptr(new cfieldT<long double>((long double)json["value"].Get<double>()));
 		break;
 	default:
-		throw std::logic_error("wrong stype");
+		throw jsonException("unknown type: " + type);
 		break;
 	}
 }

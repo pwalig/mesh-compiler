@@ -1,6 +1,7 @@
 #include "buffer.h"
 #include "fields/pfieldT.h"
 #include "fields/pfield.h"
+#include "exceptions/jsonException.h"
 
 mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
 {
@@ -14,7 +15,8 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
         ctype::code ct = fields.back()->getCountingType();
         if (ct != ctype::null) {
             if (c == ctype::null) c = ct;
-            else if (c != ct) throw std::runtime_error("conflicting counting types in unit preamble");
+            else if (c != ct) throw jsonException("conflicting counting types in buffer fields\n"
+                + ctype::names.at(ct) + " conficts with " + ctype::names.at(c));
         }
     }
 
@@ -28,7 +30,9 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
         ctype::code ct = preamble.back()->getCountingType();
         if (ct != ctype::null) {
             if (c == ctype::null) c = ct;
-            else if (ctype::parents.at(c) != ct) throw std::runtime_error("conflicting counting types in unit preamble");
+            else if (ctype::parents.at(c) != ct) throw jsonException("preamble field's counting type conficts with buffer counting type\npreamble field "
+                + std::string(p[i]["value"].GetString()) + "'s counting type: "
+                + ctype::names.at(ct) + ", buffer's counting type: " + ctype::names.at(c));
         }
     }
 }

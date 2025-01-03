@@ -183,6 +183,8 @@
     <ClInclude Include="core\any-type-value.h" />
     <ClInclude Include="core\buffer.h" />
     <ClInclude Include="core\compilation-info.h" />
+    <ClInclude Include="core\exceptions\formatException.h" />
+    <ClInclude Include="core\exceptions\jsonException.h" />
     <ClInclude Include="core\fields\cfield.h" />
     <ClInclude Include="core\fields\cfieldT.h" />
     <ClInclude Include="core\fields\Ipfield.h" />

@@ -6,34 +6,43 @@
 #include <iostream>
 #include "fields/pfield.h"
 #include "../jsonTools.h"
+#include "exceptions/jsonException.h"
 
 mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
 {
     assert(json.IsObject());
 
-    assert(json.HasMember("preamble"));
-    const rapidjson::Value& p = json["preamble"];
-    assert(p.IsArray());
-    for (rapidjson::SizeType i = 0; i < p.Size(); i++) {
-        preamble.push_back(field::getPtr(p[i], field::location::main_preamble));
-        ctype::code ct = preamble.back()->getCountingType();
-        if (ct != ctype::null) {
-            if (c == ctype::null) c = ct;
-            else if (c != ct) throw std::runtime_error("conflicting counting types in unit preamble");
+    if (json.HasMember("preamble")) {
+        const rapidjson::Value& p = json["preamble"];
+        if (!p.IsArray()) throw jsonException("unit preamble was not a json array");
+
+        for (rapidjson::SizeType i = 0; i < p.Size(); i++) {
+            preamble.push_back(field::getPtr(p[i], field::location::main_preamble));
+            ctype::code ct = preamble.back()->getCountingType();
+            if (ct != ctype::null) {
+                if (c == ctype::null) c = ct;
+                else if (c != ct) throw jsonException("conflicting counting types in unit preamble\n"
+                    + ctype::names.at(ct) + " conficts with " + ctype::names.at(c));
+            }
         }
     }
 
-    assert(json.HasMember("buffers"));
-    const rapidjson::Value& b = json["buffers"];
-    assert(b.IsArray());
-    for (rapidjson::SizeType i = 0; i < b.Size(); i++) {
-        buffers.push_back(buffer(b[i]));
-        ctype::code ct = ctype::parents.at(buffers.back().c);
-        if (ct != ctype::null) {
-            if (c == ctype::null) c = ct;
-            else if (c != ct) throw std::runtime_error("buffer counting type conflicts with unit's counting type");
+    if (json.HasMember("buffers")) {
+        const rapidjson::Value& b = json["buffers"];
+        if (!b.IsArray()) throw jsonException("unit buffers was not a json array");
+
+        for (rapidjson::SizeType i = 0; i < b.Size(); i++) {
+            buffers.push_back(buffer(b[i]));
+            ctype::code ct = ctype::parents.at(buffers.back().c);
+            if (ct != ctype::null) {
+                if (c == ctype::null) c = ct;
+                else if (c != ct) throw jsonException("buffer counting type conflicts with unit's counting type\nbuffer's counting type: "
+                    + ctype::names.at(buffers.back().c) + ", unit's counting type: " + ctype::names.at(c));
+            }
         }
     }
+
+    if (c == ctype::null) throw jsonException("unit of unknown counting type");
 }
 
 void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm)
@@ -61,7 +70,7 @@ mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(j
         std::vector<std::string> available = { "plain_text", "plainText", "plain-text" };
         if (std::find(available.begin(), available.end(), omode) != available.end()) mode = mc::printMode::plainText;
         else if (omode == "binary") mode = mc::printMode::binary;
-        else throw std::logic_error("invalid printMode");
+        else throw jsonException("invalid printMode");
     }
 }
 
