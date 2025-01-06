@@ -159,7 +159,6 @@ void tests::run()
             mc::compilationInfo ci_c;
             mc::unit fu;
             fu.c = mc::ctype::per_mesh;
-            fu.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
             fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffers_per_unit)));
             fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffer_size)));
             fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entries_per_unit)));
@@ -189,6 +188,7 @@ void tests::run()
             fu1.output_file = "tests/acceptance/res/{mesh}_code_unit_references.txt";
             fu1.c = mc::ctype::per_mesh;
             fu1.mode = mc::printMode::plainText;
+            fu1.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
             fu1.preamble.push_back(mc::field::ptr(new mc::ufield("mesh")));
             ci_c.file_units.push_back(fu1);
             return ci_c;
