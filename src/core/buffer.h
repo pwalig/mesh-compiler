@@ -5,6 +5,7 @@
 #include "Inode.h"
 #include "types/ctype.h"
 #include <rapidjson/document.h>
+#include <functional>
 
 namespace mc {
 	class compilationInfo;
@@ -14,7 +15,7 @@ namespace mc {
 		std::vector<field::ptr> preamble;
 		std::vector<field::ptr> fields;
 
-		ctype::code c;
+		ctype::code c = ctype::null;
 
 		buffer() = default;
 		buffer(const rapidjson::Value& json);
@@ -24,4 +25,8 @@ namespace mc {
 		size_t getEntrySize() const;
 		size_t getSize(const Inode::ptr node) const;
 	};
+
+	void updateCtype(ctype::code& current, ctype::code new_,
+		std::function<void(ctype::code new_, ctype::code old)> conflictCheck
+	);
 }

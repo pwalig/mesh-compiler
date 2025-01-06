@@ -19,6 +19,7 @@ namespace mc {
 		ctype::code c = ctype::null;
 
 		unit() = default;
+		unit(std::ifstream& file);
 		unit(const rapidjson::Value& json);
 
 		void output(std::ofstream& file, const Inode::ptr node, printMode pm);
@@ -35,6 +36,7 @@ namespace mc {
 		printMode mode = printMode::binary;
 
 		fileUnit() = default;
+		fileUnit(std::ifstream& file, const std::string& output_file_);
 		fileUnit(const rapidjson::Value& json);
 
 		void compile(const Inode::ptr node);

@@ -10,6 +10,70 @@
 #include "exceptions/compileException.h"
 #include "compilation-info.h"
 #include "fields/ufield.h"
+#include <sstream>
+#include "exceptions/formatException.h"
+
+mc::unit::unit(std::ifstream& file) : c(ctype::null)
+{
+    std::string line;
+
+    // preamble
+    std::getline(file, line);
+    std::getline(file, line);
+    std::stringstream ss(line);
+    std::string word;
+    while (ss >> word) {
+        preamble.push_back(field::getPtr(word, mc::field::location::main_preamble));
+
+        updateCtype(c, preamble.back()->getCountingType(), [this](ctype::code new_, ctype::code old) {
+            if (old != new_) throw jsonException("conflicting counting types in unit preamble\n"
+                + ctype::names.at(new_) + " conficts with " + ctype::names.at(c));
+            });
+    }
+
+    bool endEncountered = false;
+
+    while (file >> word) {
+        if (word == "end") {
+            endEncountered = true;
+            break;
+        }
+        buffer b;
+        std::getline(file, line);
+        ss = std::stringstream(line);
+        bool inPreamble = true;
+        ctype::code preambleCT = ctype::null;
+        do {
+            if (word == ";") inPreamble = false;
+            else if (inPreamble) {
+                b.preamble.push_back(field::getPtr(word, mc::field::location::buffer_preamble));
+                updateCtype(preambleCT, b.preamble.back()->getCountingType(), [](ctype::code new_, ctype::code old) {
+                    if (new_ != old) throw formatException("conflicting counting types in buffer preamble\n" +
+                        ctype::names.at(new_) + " conflicts with " + ctype::names.at(old));
+                    });
+            }
+            else {
+                b.fields.push_back(field::getPtr(word, mc::field::location::buffer_field));
+                updateCtype(b.c, b.fields.back()->getCountingType(), [preambleCT](ctype::code new_, ctype::code old) {
+                    if (new_ != old) throw formatException("conflicting counting types in buffer fields\n" +
+                        ctype::names.at(new_) + " conflicts with " + ctype::names.at(old));
+                    else if (preambleCT != ctype::null && ctype::parents.at(new_) != preambleCT) throw formatException(
+                        "conflicting counting types between buffer field and buffer preamble\nfield's counting type: " + 
+                        ctype::names.at(new_) + " conflicts with preamble's counting type: " + ctype::names.at(preambleCT));
+                    });
+            }
+        } while (ss >> word);
+        if (b.c == ctype::null) throw formatException("buffer of unknown counting type");
+        buffers.push_back(b);
+
+        updateCtype(c, ctype::parents.at(buffers.back().c), [this](ctype::code new_, ctype::code old) {
+            if (old != new_) throw formatException("buffer counting type conflicts with unit's counting type\nbuffer's counting type: "
+                + ctype::names.at(buffers.back().c) + ", unit's counting type: " + ctype::names.at(c));
+            });
+    }
+
+    if (!endEncountered) throw formatException("missing end keyword");
+}
 
 mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
 {
@@ -21,12 +85,11 @@ mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
 
         for (rapidjson::SizeType i = 0; i < p.Size(); i++) {
             preamble.push_back(field::getPtr(p[i], field::location::main_preamble));
-            ctype::code ct = preamble.back()->getCountingType();
-            if (ct != ctype::null) {
-                if (c == ctype::null) c = ct;
-                else if (c != ct) throw jsonException("conflicting counting types in unit preamble\n"
-                    + ctype::names.at(ct) + " conficts with " + ctype::names.at(c));
-            }
+
+            updateCtype(c, preamble.back()->getCountingType(), [this](ctype::code new_, ctype::code old) {
+                if (old != new_) throw jsonException("conflicting counting types in unit preamble\n"
+                    + ctype::names.at(new_) + " conficts with " + ctype::names.at(c));
+                });
         }
     }
 
@@ -36,12 +99,11 @@ mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
 
         for (rapidjson::SizeType i = 0; i < b.Size(); i++) {
             buffers.push_back(buffer(b[i]));
-            ctype::code ct = ctype::parents.at(buffers.back().c);
-            if (ct != ctype::null) {
-                if (c == ctype::null) c = ct;
-                else if (c != ct) throw jsonException("buffer counting type conflicts with unit's counting type\nbuffer's counting type: "
+
+            updateCtype(c, ctype::parents.at(buffers.back().c), [this](ctype::code new_, ctype::code old) {
+                if (old != new_) throw jsonException("buffer counting type conflicts with unit's counting type\nbuffer's counting type: "
                     + ctype::names.at(buffers.back().c) + ", unit's counting type: " + ctype::names.at(c));
-            }
+                });
         }
     }
 
@@ -87,6 +149,9 @@ size_t mc::unit::getFieldsCount(const Inode::ptr node) const
         siz += buff.fields.size() * node->getChildNodeCount(buff.c);
     return siz;
 }
+
+mc::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_) :
+    output_file(output_file_), unit(file) { }
 
 mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(json["output_file"].GetString())
 {

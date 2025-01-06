@@ -29,5 +29,6 @@ namespace mc {
 		using ptr = oop_ptr<field>;
 
 		static ptr getPtr(const rapidjson::Value& json, location loc);
+		static ptr getPtr(const std::string& word, location loc);
 	};
 }

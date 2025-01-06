@@ -74,6 +74,54 @@ namespace mc {
             return v;
         }
 
+        inline value getValue(stype::code s, const std::string& str) {
+            value v{};
+            switch (s)
+            {
+            case mc::stype::char_:
+                if (str.length() == 1) v.c = str[0];
+                else v.c = (char)std::stoi(str);
+                break;
+            case mc::stype::int2:
+                v.s = (short)std::stoi(str);
+                break;
+            case mc::stype::uint2:
+                v.us = (unsigned short)std::stoul(str);
+                break;
+            case mc::stype::int4:
+                v.i = std::stoi(str);
+                break;
+            case mc::stype::uint4:
+                v.ui = (unsigned int)std::stoul(str);
+                break;
+            case mc::stype::int8:
+                v.l = std::stol(str);
+                break;
+            case mc::stype::uint8:
+                v.ul = std::stoul(str);
+                break;
+            case mc::stype::int16:
+                v.ll = std::stoll(str);
+                break;
+            case mc::stype::uint16:
+                v.ull = std::stoull(str);
+                break;
+            case mc::stype::float4:
+                v.f = std::stof(str);
+                break;
+            case mc::stype::float8:
+                v.d = std::stod(str);
+                break;
+            case mc::stype::float16:
+                v.ld = std::stold(str);
+                break;
+            default:
+                throw std::invalid_argument("no conversion available");
+                break;
+            }
+            return v;
+        }
+
         inline void output(value v, stype::code s, std::ostream& os) {
             switch (s)
             {

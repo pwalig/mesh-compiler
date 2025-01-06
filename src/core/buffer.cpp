@@ -14,12 +14,14 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
     assert(f.IsArray());
     for (rapidjson::SizeType i = 0; i < f.Size(); i++) {
         fields.push_back(field::getPtr(f[i], field::location::buffer_field));
-        ctype::code ct = fields.back()->getCountingType();
-        if (ct != ctype::null) {
-            if (c == ctype::null) c = ct;
-            else if (c != ct) throw jsonException("conflicting counting types in buffer fields\n"
-                + ctype::names.at(ct) + " conficts with " + ctype::names.at(c));
-        }
+
+        updateCtype(c, fields.back()->getCountingType(), [this](ctype::code new_, ctype::code old) {
+            if (new_ != old) throw jsonException(
+                "conflicting counting types in buffer fields\n" +
+                ctype::names.at(fields.back()->getCountingType()) +
+                " conficts with " + ctype::names.at(c));
+            }
+        );
     }
 
     if (c == ctype::null) throw std::runtime_error("buffer of unknown counting type");
@@ -28,14 +30,17 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
     const rapidjson::Value& p = json["preamble"];
     assert(p.IsArray());
     for (rapidjson::SizeType i = 0; i < p.Size(); i++) {
-        preamble.push_back(field::getPtr(p[i], field::location::buffer_preamble));
-        ctype::code ct = preamble.back()->getCountingType();
-        if (ct != ctype::null) {
-            if (c == ctype::null) c = ct;
-            else if (ctype::parents.at(c) != ct) throw jsonException("preamble field's counting type conficts with buffer counting type\npreamble field "
-                + std::string(p[i]["value"].GetString()) + "'s counting type: "
-                + ctype::names.at(ct) + ", buffer's counting type: " + ctype::names.at(c));
-        }
+        const rapidjson::Value& jnode = p[i];
+        preamble.push_back(field::getPtr(jnode, field::location::buffer_preamble));
+
+        updateCtype(c, preamble.back()->getCountingType(), [this, &jnode](ctype::code new_, ctype::code old) {
+            if (new_ != ctype::parents.at(old)) throw jsonException(
+                "preamble field's counting type conficts with buffer counting type\npreamble field " +
+                std::string(jnode["value"].IsString() ? jnode["value"].GetString() : "") + "'s counting type: " +
+                ctype::names.at(preamble.back()->getCountingType()) +
+                ", buffer's counting type: " + ctype::names.at(c));
+            }
+        );
     }
 }
 
@@ -67,4 +72,13 @@ size_t mc::buffer::getEntrySize() const
 size_t mc::buffer::getSize(const Inode::ptr node) const
 {
     return getEntrySize() * node->getCount();
+}
+
+void mc::updateCtype(ctype::code& current, ctype::code new_,
+    std::function<void(ctype::code new_, ctype::code old)> conflictCheck)
+{
+    if (new_ != ctype::null) {
+        if (current == ctype::null) current = new_;
+        else conflictCheck(new_, current);
+    }
 }

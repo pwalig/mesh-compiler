@@ -5,6 +5,7 @@
 #include <rapidjson/istreamwrapper.h>
 #include "exceptions/jsonException.h"
 #include "../jsonTools.h"
+#include "exceptions/formatException.h"
 
 std::unordered_map<std::string, mc::unit> mc::compilationInfo::units;
 
@@ -35,6 +36,22 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
                 units.insert({ junit["name"].GetString(), mc::unit(junit) });
             }
             else throw jsonException("unit had neither \"name\" nor \"output_file\" member");
+        }
+    }
+    else if (extension == "format") {
+        while (!file.eof()) {
+            std::string word;
+            file >> word;
+            if (word == "begin") {
+                file >> word;
+                if (word == "file") {
+                    file >> word; // get output filename
+                    file_units.push_back(mc::fileUnit(file, word));
+                    file_units.back().mode = printMode::plainText;
+                }
+                else units.insert({ word, mc::unit(file) });
+            }
+            else throw formatException("unknown token: " + word);
         }
     }
 }

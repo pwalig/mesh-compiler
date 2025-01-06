@@ -10,6 +10,7 @@
 #include "../core/fields/vfield.h"
 #include "../core/fields/pfield.h"
 #include "../core/fields/ufield.h"
+#include "../core/exceptions/formatException.h"
 
 void tests::run(
     const std::vector<Case> cases,
@@ -35,11 +36,18 @@ void tests::run(
         std::cout << "\tcase #" << i;
         try {
             mc::compilationInfo ci_j = cases[i].getCompilationInfo();
+
+
+
             ci_j.compileFile(sourceFile);
             mc::compilationInfo::units.clear();
         }
         catch (mc::jsonException& je) {
             std::cout << " failed via json exception:\n" << je.what() << "\n";
+            continue;
+        }
+        catch (mc::formatException& fe) {
+            std::cout << " failed via format exception:\n" << fe.what() << "\n";
             continue;
         }
         catch (mc::compileException& ce) {
@@ -195,7 +203,10 @@ void tests::run()
             return ci_c;
         }, {"tests/acceptance/res/Cube_code_unit_references.txt"}),
 
-        Case(Case::getFromFile("tests/acceptance/format1u.json"), { "tests/acceptance/res/Cube_json_u.txt" })
+        Case(Case::getFromFile("tests/acceptance/format1u.json"), { "tests/acceptance/res/Cube_json_u.txt" }),
+
+        Case(Case::getFromFile("tests/acceptance/format1.format"), { "tests/acceptance/res/Cube_format.txt" }),
+        Case(Case::getFromFile("tests/acceptance/format1u.format"), { "tests/acceptance/res/Cube_format_u.txt" })
 
 
         }, { "tests/acceptance/reference1.txt" },
