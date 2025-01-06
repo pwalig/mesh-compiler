@@ -21,7 +21,7 @@ namespace mc {
 		unit() = default;
 		unit(const rapidjson::Value& json);
 
-		void output(std::ofstream& file, const Inode::ptr node, printMode pm, compilationInfo* ci);
+		void output(std::ofstream& file, const Inode::ptr node, printMode pm);
 
 		size_t getSize(const Inode::ptr node) const;
 		size_t getEntriesCount(const Inode::ptr node) const;
@@ -37,7 +37,7 @@ namespace mc {
 		fileUnit() = default;
 		fileUnit(const rapidjson::Value& json);
 
-		void compile(const Inode::ptr node, compilationInfo* ci);
+		void compile(const Inode::ptr node);
 
 		void changeName(const std::string& pattern, const std::string& newName);
 		void withChangedName(

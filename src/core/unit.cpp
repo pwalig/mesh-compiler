@@ -48,20 +48,19 @@ mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
     if (c == ctype::null) throw jsonException("unit of unknown counting type");
 }
 
-void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm, compilationInfo* ci)
+void mc::unit::output(std::ofstream& file, const Inode::ptr node, printMode pm)
 {
     assert(c == node->c);
 
     for (field::ptr& f : preamble) {
         if (f.gettable<Ipfield>()) f.get<Ipfield>()->u = this;
         if (f.gettable<pfield>()) f.get<pfield>()->u = this;
-        if (f.gettable<ufield>()) f.get<ufield>()->ci = ci;
         f->output(file, node, pm);
     }
 
     for (buffer buff : buffers) {
         if (pm == printMode::plainText) file << "\n";
-        buff.output(file, node, pm, ci);
+        buff.output(file, node, pm);
     }
 }
 
@@ -102,7 +101,7 @@ mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(j
     }
 }
 
-void mc::fileUnit::compile(const Inode::ptr node, compilationInfo* ci)
+void mc::fileUnit::compile(const Inode::ptr node)
 {
     // std::cout << "compiling node of name: " << node->getName() << "\n";
 
@@ -114,7 +113,7 @@ void mc::fileUnit::compile(const Inode::ptr node, compilationInfo* ci)
         if (!fout) {
             throw compileException("cannot open file: " + output_file);
         }
-        output(fout, node, mode, ci);
+        output(fout, node, mode);
         fout.close();
     }
 
@@ -128,7 +127,7 @@ void mc::fileUnit::compile(const Inode::ptr node, compilationInfo* ci)
 
 
         for (size_t i = 0; i < node->getChildNodeCount(nodeChild); ++i) {
-            compile(node->getChildNodeOfType(nodeChild, i), ci);
+            compile(node->getChildNodeOfType(nodeChild, i));
         }
     }
 

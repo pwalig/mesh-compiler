@@ -6,6 +6,8 @@
 #include "exceptions/jsonException.h"
 #include "../jsonTools.h"
 
+std::unordered_map<std::string, mc::unit> mc::compilationInfo::units;
+
 mc::compilationInfo::compilationInfo(const std::string& filename)
 {
     std::ifstream file(filename);
@@ -49,8 +51,8 @@ void mc::compilationInfo::compileFile(const std::string& filename) {
         std::string orig_name = fu.output_file;
         fu.changeName("{file}", base_filename.substr(0, p));
 
-        assimp::readFile(filename, [&fu, this](const aiScene* scene) {
-            fu.compile(Inode::ptr(new assimp::sceneNode(scene)), this);
+        assimp::readFile(filename, [&fu](const aiScene* scene) {
+            fu.compile(Inode::ptr(new assimp::sceneNode(scene)));
             });
 
         fu.output_file = orig_name;

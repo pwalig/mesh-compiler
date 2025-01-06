@@ -192,6 +192,7 @@ void mainTest() {
     try {
         mc::compilationInfo ci_j("../test/format.json");
         ci_j.compileFile("../test/cube.obj");
+        mc::compilationInfo::units.clear();
     }
     catch (mc::jsonException& je) {
         std::cout << je.what() << std::endl;

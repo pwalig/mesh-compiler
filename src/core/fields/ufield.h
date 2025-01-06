@@ -7,7 +7,6 @@ namespace mc {
 	class ufield : public field {
 	public:
 		const std::string unitName;
-		compilationInfo* ci;
 
 		ufield(const std::string& unitName_);
 

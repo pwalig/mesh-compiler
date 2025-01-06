@@ -19,7 +19,7 @@ namespace mc {
 		buffer() = default;
 		buffer(const rapidjson::Value& json);
 
-		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm, compilationInfo* ci);
+		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm);
 
 		size_t getEntrySize() const;
 		size_t getSize(const Inode::ptr node) const;

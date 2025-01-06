@@ -3,16 +3,16 @@
 #include "../compilation-info.h"
 
 mc::ufield::ufield(const std::string& unitName_) :
-	unitName(unitName_), ci(nullptr) { }
+	unitName(unitName_) { }
 
 void mc::ufield::output(std::ofstream& file, const Inode::ptr node, printMode pm) const
 {
-	ci->units.at(unitName).output(file, node, pm, ci);
+	mc::compilationInfo::units.at(unitName).output(file, node, pm);
 }
 
 mc::ctype::code mc::ufield::getCountingType() const
 {
-	return ci->units.at(unitName).c;
+	return mc::compilationInfo::units.at(unitName).c;
 }
 
 size_t mc::ufield::getSize() const

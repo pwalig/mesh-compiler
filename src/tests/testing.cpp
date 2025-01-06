@@ -36,6 +36,7 @@ void tests::run(
         try {
             mc::compilationInfo ci_j = cases[i].getCompilationInfo();
             ci_j.compileFile(sourceFile);
+            mc::compilationInfo::units.clear();
         }
         catch (mc::jsonException& je) {
             std::cout << " failed via json exception:\n" << je.what() << "\n";
@@ -192,7 +193,9 @@ void tests::run()
             fu1.preamble.push_back(mc::field::ptr(new mc::ufield("mesh")));
             ci_c.file_units.push_back(fu1);
             return ci_c;
-        }, {"tests/acceptance/res/Cube_code_unit_references.txt"})
+        }, {"tests/acceptance/res/Cube_code_unit_references.txt"}),
+
+        Case(Case::getFromFile("tests/acceptance/format1u.json"), { "tests/acceptance/res/Cube_json_u.txt" })
 
 
         }, { "tests/acceptance/reference1.txt" },

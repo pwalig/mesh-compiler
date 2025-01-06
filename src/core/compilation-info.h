@@ -7,7 +7,7 @@
 namespace mc {
 	class compilationInfo {
 	public:
-		std::unordered_map<std::string, unit> units;
+		static std::unordered_map<std::string, unit> units;
 		std::vector<fileUnit> file_units;
 
 		compilationInfo() = default;
