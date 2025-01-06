@@ -6,12 +6,17 @@
 #include "exceptions/jsonException.h"
 #include "../jsonTools.h"
 #include "exceptions/formatException.h"
+#include <sstream>
+#include "exceptions/compileException.h"
 
 std::unordered_map<std::string, mc::unit> mc::compilationInfo::units;
 
 mc::compilationInfo::compilationInfo(const std::string& filename)
 {
     std::ifstream file(filename);
+    if (!file) {
+        throw std::runtime_error("cannot open file: " + filename);
+    }
     size_t pos = filename.find_last_of('.');
     std::string extension = filename.substr(pos + 1, filename.size() - pos);
     if (extension == "json") {

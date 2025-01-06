@@ -36,9 +36,6 @@ void tests::run(
         std::cout << "\tcase #" << i;
         try {
             mc::compilationInfo ci_j = cases[i].getCompilationInfo();
-
-
-
             ci_j.compileFile(sourceFile);
             mc::compilationInfo::units.clear();
         }
