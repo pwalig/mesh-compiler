@@ -201,6 +201,8 @@ void tests::run()
         }, {"tests/acceptance/res/Cube_code_unit_references.txt"}),
 
         Case(Case::getFromFile("tests/acceptance/format1u.json"), { "tests/acceptance/res/Cube_json_u.txt" }),
+        Case(Case::getFromFile("tests/acceptance/format1s.json"), { "tests/acceptance/res/Cube_json_s.txt" }),
+        Case(Case::getFromFile("tests/acceptance/format1su.json"), { "tests/acceptance/res/Cube_json_su.txt" }),
 
         Case(Case::getFromFile("tests/acceptance/format1.format"), { "tests/acceptance/res/Cube_format.txt" }),
         Case(Case::getFromFile("tests/acceptance/format1u.format"), { "tests/acceptance/res/Cube_format_u.txt" })
