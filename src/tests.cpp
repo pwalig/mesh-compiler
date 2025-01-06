@@ -22,6 +22,7 @@
 #include "core/fields/pfield.h"
 #include "core/exceptions/jsonException.h"
 #include "core/exceptions/compileException.h"
+#include "tests.h"
 
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";

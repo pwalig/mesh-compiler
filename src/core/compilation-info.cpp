@@ -25,11 +25,11 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
             const rapidjson::Value& junit = junits[i];
             std::string ofilek = jsonTools::getAnyMember(junit, {"output_file", "outputFile", "output-file"});
             if (ofilek != "") {
-                if(!junit[ofilek.c_str()].IsString()) throw jsonException((ofilek + " was not a string").c_str());
+                if(!junit[ofilek.c_str()].IsString()) throw jsonException(ofilek + " was not a string");
                 file_units.push_back(mc::fileUnit(junit));
             }
             else if (junit.HasMember("name")) {
-                if (!junit["name"].IsString()) throw jsonException((ofilek + " was not a string").c_str());
+                if (!junit["name"].IsString()) throw jsonException("name was not a string");
                 units.insert({ junit["name"].GetString(), mc::unit(junit) });
             }
             else throw jsonException("unit had neither \"name\" nor \"output_file\" member");
@@ -38,10 +38,10 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
 }
 
 void mc::compilationInfo::compileFile(const std::string& filename) {
-    std::cout << "compiling file: " << filename << "\n";
+    // std::cout << "compiling file: " << filename << "\n";
 
     for (fileUnit& fu : file_units) {
-        std::cout << "file unit: " << fu.output_file << "\n";
+        // std::cout << "file unit: " << fu.output_file << "\n";
 
         std::string base_filename = filename.substr(filename.find_last_of("/\\") + 1);
         const size_t p(base_filename.find_last_of('.'));

@@ -101,7 +101,7 @@ mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(j
 
 void mc::fileUnit::compile(const Inode::ptr node)
 {
-    std::cout << "compiling node of name: " << node->getName() << "\n";
+    // std::cout << "compiling node of name: " << node->getName() << "\n";
 
     std::string orig_name = output_file;
     changeName(ctype::patterns.at(node->c), node->getName());
