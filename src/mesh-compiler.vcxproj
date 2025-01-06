@@ -216,7 +216,6 @@
     <ClInclude Include="tests.h" />
     <ClInclude Include="NotImplemented.h" />
     <ClInclude Include="tests\case.h" />
-    <ClInclude Include="tests\compareFiles.h" />
     <ClInclude Include="tests\testing.h" />
     <ClInclude Include="unit_testing.h" />
   </ItemGroup>

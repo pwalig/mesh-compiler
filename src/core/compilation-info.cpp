@@ -49,8 +49,8 @@ void mc::compilationInfo::compileFile(const std::string& filename) {
         std::string orig_name = fu.output_file;
         fu.changeName("{file}", base_filename.substr(0, p));
 
-        assimp::readFile(filename, [&fu](const aiScene* scene) {
-            fu.compile(Inode::ptr(new assimp::sceneNode(scene)));
+        assimp::readFile(filename, [&fu, this](const aiScene* scene) {
+            fu.compile(Inode::ptr(new assimp::sceneNode(scene)), this);
             });
 
         fu.output_file = orig_name;

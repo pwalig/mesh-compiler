@@ -2,10 +2,14 @@
 #include "../field.h"
 
 namespace mc {
+	class compilationInfo;
+
 	class ufield : public field {
 	public:
 		const std::string unitName;
-		std::unordered_map<std::string, unit>* unitsMap;
+		compilationInfo* ci;
+
+		ufield(const std::string& unitName_);
 
 		void output(std::ofstream& file, const Inode::ptr node, printMode pm) const override;
 

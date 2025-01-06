@@ -10,6 +10,8 @@
 
 
 namespace mc {
+	class compilationInfo;
+
 	class unit {
 	public:
 		std::vector<field::ptr> preamble;
@@ -19,7 +21,7 @@ namespace mc {
 		unit() = default;
 		unit(const rapidjson::Value& json);
 
-		void output(std::ofstream& file, const Inode::ptr node, printMode pm);
+		void output(std::ofstream& file, const Inode::ptr node, printMode pm, compilationInfo* ci);
 
 		size_t getSize(const Inode::ptr node) const;
 		size_t getEntriesCount(const Inode::ptr node) const;
@@ -35,7 +37,7 @@ namespace mc {
 		fileUnit() = default;
 		fileUnit(const rapidjson::Value& json);
 
-		void compile(const Inode::ptr node);
+		void compile(const Inode::ptr node, compilationInfo* ci);
 
 		void changeName(const std::string& pattern, const std::string& newName);
 		void withChangedName(

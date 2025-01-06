@@ -9,6 +9,7 @@
 #include "../core/fields/cfield.h"
 #include "../core/fields/vfield.h"
 #include "../core/fields/pfield.h"
+#include "../core/fields/ufield.h"
 
 void tests::run(
     const std::vector<Case> cases,
@@ -90,13 +91,13 @@ void tests::run()
             mc::compilationInfo ci_c;
             mc::fileUnit fu;
             fu.c = mc::ctype::per_mesh;
-            fu.output_file = "tests/acceptance/res/{mesh}_code.txt";
+            fu.output_file = "tests/acceptance/res/{mesh}_code_templates.txt";
             fu.mode = mc::printMode::plainText;
-            fu.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
-            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffers_per_unit)));
+            fu.preamble.push_back(mc::field::ptr(new mc::cfieldT<int>(-50)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::buffers_per_unit)));
             fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::buffer_size)));
             fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::entries_per_unit)));
-            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entries_per_buffer)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::entries_per_buffer)));
             fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::entry_size)));
             fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::fields_per_unit)));
             fu.preamble.push_back(mc::field::ptr(new mc::pfieldT<unsigned int>(mc::ptype::fields_per_buffer)));
@@ -105,24 +106,97 @@ void tests::run()
             mc::buffer buff;
             buff.c = mc::ctype::per_vertex;
             buff.preamble.push_back(mc::field::ptr(new mc::cfieldT<int>(-30)));
-            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::buffer_size)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::buffer_size)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::entries_per_buffer)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::entry_size)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::fields_per_buffer)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::fields_per_entry)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::field_size)));
-            buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 0 })));
+            buff.fields.push_back(mc::field::ptr(new mc::vfieldT<float>(mc::vtype::vertex, { 0 })));
             buff.fields.push_back(mc::field::ptr(new mc::vfieldT<float>(mc::vtype::vertex, { 1 })));
             buff.fields.push_back(mc::field::ptr(new mc::cfieldT<int>(-20)));
             fu.buffers.push_back(buff);
             fu.buffers.push_back(buff);
             ci_c.file_units.push_back(fu);
             return ci_c;
-        }, {"tests/acceptance/res/Cube_code.txt"})
+        }, {"tests/acceptance/res/Cube_code_templates.txt"}),
+
+        Case([]() {
+            mc::compilationInfo ci_c;
+            mc::fileUnit fu;
+            fu.c = mc::ctype::per_mesh;
+            fu.output_file = "tests/acceptance/res/{mesh}_code.txt";
+            fu.mode = mc::printMode::plainText;
+            fu.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffers_per_unit)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffer_size)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entries_per_unit)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entries_per_buffer)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entry_size)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::fields_per_unit)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::fields_per_buffer)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::fields_per_entry)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::field_size)));
+            mc::buffer buff;
+            buff.c = mc::ctype::per_vertex;
+            buff.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -30))));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::buffer_size)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::entries_per_buffer)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::entry_size)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::fields_per_buffer)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::fields_per_entry)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::field_size)));
+            buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 0 })));
+            buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 1 })));
+            buff.fields.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -20))));
+            fu.buffers.push_back(buff);
+            fu.buffers.push_back(buff);
+            ci_c.file_units.push_back(fu);
+            return ci_c;
+        }, {"tests/acceptance/res/Cube_code.txt"}),
+
+        Case([]() {
+            mc::compilationInfo ci_c;
+            mc::unit fu;
+            fu.c = mc::ctype::per_mesh;
+            fu.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffers_per_unit)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffer_size)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entries_per_unit)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entries_per_buffer)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entry_size)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::fields_per_unit)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::fields_per_buffer)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::fields_per_entry)));
+            fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::field_size)));
+            mc::buffer buff;
+            buff.c = mc::ctype::per_vertex;
+            buff.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -30))));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::buffer_size)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::entries_per_buffer)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::entry_size)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::fields_per_buffer)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::fields_per_entry)));
+            buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::field_size)));
+            buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 0 })));
+            buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 1 })));
+            buff.fields.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -20))));
+            fu.buffers.push_back(buff);
+            fu.buffers.push_back(buff);
+            ci_c.units.insert({ "mesh", fu });
+
+            mc::fileUnit fu1;
+            fu1.output_file = "tests/acceptance/res/{mesh}_code_unit_references.txt";
+            fu1.c = mc::ctype::per_mesh;
+            fu1.mode = mc::printMode::plainText;
+            fu1.preamble.push_back(mc::field::ptr(new mc::ufield("mesh")));
+            ci_c.file_units.push_back(fu1);
+            return ci_c;
+        }, {"tests/acceptance/res/Cube_code_unit_references.txt"})
 
 
-        }, {
-            "tests/acceptance/reference1.txt"
-        }, "tests/acceptance/cube.obj");
+        }, { "tests/acceptance/reference1.txt" },
+        "tests/acceptance/cube.obj"
+    );
     std::cout << "\n";
 }

@@ -242,9 +242,6 @@
     <ClInclude Include="core\exceptions\compileException.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="tests\compareFiles.h">
-      <Filter>Pliki nagłówkowe</Filter>
-    </ClInclude>
     <ClInclude Include="tests\testing.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>

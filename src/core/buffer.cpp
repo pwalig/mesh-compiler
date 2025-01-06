@@ -2,6 +2,8 @@
 #include "fields/pfieldT.h"
 #include "fields/pfield.h"
 #include "exceptions/jsonException.h"
+#include "fields/ufield.h"
+#include "compilation-info.h"
 
 mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
 {
@@ -37,18 +39,20 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
     }
 }
 
-void mc::buffer::output(std::ofstream& file, const Inode::ptr node, mc::printMode pm)
+void mc::buffer::output(std::ofstream& file, const Inode::ptr node, mc::printMode pm, compilationInfo* ci)
 {
     size_t count = node->getChildNodeCount(c);
 
     for (field::ptr& f : preamble) {
         if (f.gettable<Ibpfield>()) f.get<Ibpfield>()->buff = this;
         if (f.gettable<bpfield>()) f.get<bpfield>()->buff = this;
+        if (f.gettable<ufield>()) f.get<ufield>()->ci = ci;
         f->output(file, node, pm);
     }
 
     for (size_t i = 0; i < count; ++i) {
         for (field::ptr& f : fields) {
+            if (f.gettable<ufield>()) f.get<ufield>()->ci = ci;
             f->output(file, node->getChildNodeOfType(c, i), pm);
         }
     }

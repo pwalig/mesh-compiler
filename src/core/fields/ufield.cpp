@@ -1,14 +1,18 @@
 #include "ufield.h"
 #include "../unit.h"
+#include "../compilation-info.h"
+
+mc::ufield::ufield(const std::string& unitName_) :
+	unitName(unitName_), ci(nullptr) { }
 
 void mc::ufield::output(std::ofstream& file, const Inode::ptr node, printMode pm) const
 {
-	unitsMap->at(unitName).output(file, node, pm);
+	ci->units.at(unitName).output(file, node, pm, ci);
 }
 
 mc::ctype::code mc::ufield::getCountingType() const
 {
-	return unitsMap->at(unitName).c;
+	return ci->units.at(unitName).c;
 }
 
 size_t mc::ufield::getSize() const
