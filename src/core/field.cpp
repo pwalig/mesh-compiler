@@ -60,8 +60,8 @@ mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 
 mc::field::ptr mc::field::getPtr(const std::string& word, location loc)
 {
-	size_t pos = word.find_first_of(':');
-	stype::code st = stype::null;
+	size_t pos = word.find_first_of(':'); // type separator
+	stype::code st = stype::null; // size type of the field
 	std::string valuestr = word;
 	if (pos != std::string::npos) {
 		st = stype::codes.at(word.substr(0, pos));
@@ -71,7 +71,7 @@ mc::field::ptr mc::field::getPtr(const std::string& word, location loc)
 			anyType::value v = anyType::getValue(st, valuestr);
 			return ptr(new cfield(st, v));
 		}
-		catch (std::invalid_argument& e) {}
+		catch (std::invalid_argument&) {}
 	}
 
 	if (loc == location::main_preamble) {
@@ -86,7 +86,7 @@ mc::field::ptr mc::field::getPtr(const std::string& word, location loc)
 		if (ptype::codes.find(valuestr) != ptype::codes.end()) {
 			ptype::code pt = ptype::codes.at(valuestr);
 			if (ptype::buffer_allowed.find(pt) == ptype::buffer_allowed.end())
-				throw jsonException("ptype: " + valuestr + " unallowed in buffer preamble");
+				throw formatException("ptype: " + valuestr + " unallowed in buffer preamble");
 			if (st == stype::null) st = ptype::default_stypes.at(pt);
 			return ptr(new bpfield(st, pt));
 		}

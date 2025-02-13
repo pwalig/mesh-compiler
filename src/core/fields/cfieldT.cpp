@@ -42,6 +42,7 @@ mc::field::ptr mc::getCFieldTPtr(stype::code s, anyType::value v)
 		return field::ptr(new cfieldT<long double>(anyType::getValue<long double>(v)));
 		break;
 	default:
+        throw std::logic_error("invalid size type");
 		break;
 	}
 }

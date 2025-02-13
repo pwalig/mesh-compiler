@@ -87,7 +87,7 @@ void readMesh(const aiScene* scene, mesh& me) {
             me.bitangents.push_back(m->mBitangents[i].y);
             me.bitangents.push_back(m->mBitangents[i].z);
         }
-        for (int i = 0; i < m->mNumFaces; ++i) {
+        for (unsigned int i = 0; i < m->mNumFaces; ++i) {
             for (unsigned int j = 0; j < m->mFaces[i].mNumIndices; ++j) {
                 me.indices.push_back(m->mFaces[i].mIndices[j]);
             }

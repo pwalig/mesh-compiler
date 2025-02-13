@@ -18,8 +18,8 @@ mc::unit::unit(std::ifstream& file) : c(ctype::null)
     std::string line;
 
     // preamble
-    std::getline(file, line);
-    std::getline(file, line);
+    std::getline(file, line); // till the end of current line (begin unit ...)
+    std::getline(file, line); // line of the preamble
     std::stringstream ss(line);
     std::string word;
     while (ss >> word) {

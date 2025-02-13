@@ -2,6 +2,9 @@
 #include "sfieldT.h"
 #include "Ipfield.h"
 
+#pragma warning( push )
+#pragma warning( disable : 4250 )
+
 namespace mc {
 	template<typename T>
 	class bpfieldT : public sfieldT<T>, public Ibpfield {
@@ -114,3 +117,4 @@ namespace mc {
 		return ctype::null;
 	}
 }
+#pragma warning ( pop )

@@ -20,7 +20,7 @@ void assimp::printMesh(const aiMesh* m, bool detailed)
         std::cout << "\tweights: [id:weight]\n";
         for (unsigned int i = 0; i < m->mNumVertices && detailed; ++i) {
             std::cout << "\t\t";
-            for (int j = 0; j < MAX_BONE_INFLUENCE; ++j) {
+            for (unsigned int j = 0; j < MAX_BONE_INFLUENCE; ++j) {
                 std::cout << "[ " << mw.vertices[i].bone_ids[j] << " : ";
                 std::cout << mw.vertices[i].weights[j] << " ]";
                 if (j < m->mNumVertices) std::cout << " | ";

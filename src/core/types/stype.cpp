@@ -51,16 +51,16 @@ const std::unordered_map<mc::stype::code, std::string> mc::stype::names = {
 };
 
 const std::unordered_map<mc::stype::code, unsigned short> mc::stype::sizes = {
-    {char_, sizeof(char)},
-    {uint2, sizeof(short)},
-    {int4, sizeof(int)},
-    {int8, sizeof(long)},
-    {int16, sizeof(long long)},
-    {uint2, sizeof(unsigned short)},
-    {uint4, sizeof(unsigned int)},
-    {uint8, sizeof(unsigned long)},
-    {uint16, sizeof(unsigned long long)},
-    {float4, sizeof(float)},
-    {float8, sizeof(double)},
-    {float16, sizeof(long double)}
+    {char_, (unsigned short)sizeof(char)},
+    {uint2, (unsigned short)sizeof(short)},
+    {int4, (unsigned short)sizeof(int)},
+    {int8, (unsigned short)sizeof(long)},
+    {int16, (unsigned short)sizeof(long long)},
+    {uint2, (unsigned short)sizeof(unsigned short)},
+    {uint4, (unsigned short)sizeof(unsigned int)},
+    {uint8, (unsigned short)sizeof(unsigned long)},
+    {uint16, (unsigned short)sizeof(unsigned long long)},
+    {float4, (unsigned short)sizeof(float)},
+    {float8, (unsigned short)sizeof(double)},
+    {float16, (unsigned short)sizeof(long double)}
 };

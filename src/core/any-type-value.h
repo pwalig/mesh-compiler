@@ -74,6 +74,7 @@ namespace mc {
             return v;
         }
 
+        // throws invalid argument exception if str is not a number
         inline value getValue(stype::code s, const std::string& str) {
             value v{};
             switch (s)

@@ -5,6 +5,7 @@
 #include "../types/ptype.h"
 
 namespace mc {
+	// buffer preamble field class
 	class bpfield : public sfield {
 	public:
 		const buffer* buff;
@@ -13,13 +14,16 @@ namespace mc {
 		bpfield(stype::code st, ptype::code pt) : sfield(st), p(pt), buff(nullptr) {}
 
 		std::vector<anyType::value> evaluate(const Inode::ptr node) const override;
-		std::vector<anyType::value> evaluate1(const Inode::ptr node, const buffer* buffe) const;
 		ctype::code getCountingType() const override;
 
 		oop_ptr_child_declare(field);
+
+	protected:
+		// to be called by pfield per every buffer in the unit
+		std::vector<anyType::value> evaluate1(const Inode::ptr node, const buffer* buffe) const;
 	};
 
-
+	// unit preamble field class
 	class pfield : public bpfield {
 	public:
 		const unit* u;

@@ -21,6 +21,9 @@ mc::anyType::value assimp::meshNode::getValue(mc::vtype::code v, mc::stype::code
     throw std::logic_error("no values");
 }
 
+#pragma warning( push )
+#pragma warning( disable : 4715 )
+
 size_t assimp::meshNode::getChildNodeCount(mc::ctype::code counting_type) const
 {
     switch (counting_type)
@@ -47,7 +50,7 @@ mc::Inode::ptr assimp::meshNode::getChildNodeOfType(mc::ctype::code counting_typ
     case mc::ctype::per_indice:
         break;
     case mc::ctype::per_vertex:
-        return mc::Inode::ptr(new vertexNode(mesh, id));
+        return mc::Inode::ptr(new vertexNode(mesh, (unsigned long)id));
         break;
     case mc::ctype::per_mesh_bone:
         break;
@@ -56,5 +59,7 @@ mc::Inode::ptr assimp::meshNode::getChildNodeOfType(mc::ctype::code counting_typ
         break;
     }
 }
+
+#pragma warning ( pop )
 
 oop_ptr_define(mc::Inode, assimp::meshNode)

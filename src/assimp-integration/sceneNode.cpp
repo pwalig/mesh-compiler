@@ -22,6 +22,9 @@ mc::anyType::value assimp::sceneNode::getValue(mc::vtype::code v, mc::stype::cod
     throw std::logic_error("no values");
 }
 
+#pragma warning( push )
+#pragma warning( disable : 4715 )
+
 size_t assimp::sceneNode::getChildNodeCount(mc::ctype::code counting_type) const
 {
     switch (counting_type)
@@ -58,5 +61,7 @@ mc::Inode::ptr assimp::sceneNode::getChildNodeOfType(mc::ctype::code counting_ty
         break;
     }
 }
+
+#pragma warning ( pop )
 
 oop_ptr_define(mc::Inode, assimp::sceneNode)
