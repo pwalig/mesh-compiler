@@ -178,7 +178,7 @@ void mc::fileUnit::compile(const Inode::ptr node)
     changeName(ctype::patterns.at(node->c), node->getName());
 
     if (c == node->c) {
-        std::ofstream fout(output_file, std::ios::out | std::ios::binary);
+        std::ofstream fout(output_file, std::ios::out | (mode == printMode::binary ? std::ios::binary : 0));
         if (!fout) {
             throw compileException("cannot open file: " + output_file);
         }

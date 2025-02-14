@@ -1,3 +1,16 @@
+//   ___   ___   ___     ___  _____  ____
+//  |   | |   | |   |   |   ||_   _||    |
+//  | | | | | | | | |   | | |  | |  | | _|
+//  | | | | | | |  _|   |  _|  | |  |   \ 
+//  |___| |___| |_|     |_|    |_|  |_|\_\  version 1.0.0
+//
+//  by Paweł Waligóra
+//
+//  https://github.com/pwalig/oop_ptr
+//
+//  Copyright (c) 2025 Paweł Waligóra
+//  Licensed under MIT license
+
 #pragma once
 #define OOP_PTR_PTR_MOVE_CONSTRUCTOR
 #define OOP_PTR_OBJECT_COPY_CONSTRUCTOR

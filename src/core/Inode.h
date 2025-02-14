@@ -4,7 +4,7 @@
 #include "types/vtype.h"
 #include "types/stype.h"
 #include "any-type-value.h"
-#include <oop_ptr.h>
+#include <oop_ptr.hpp>
 
 namespace mc {
 	class Inode {
