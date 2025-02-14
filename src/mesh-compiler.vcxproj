@@ -142,7 +142,6 @@
     <ClCompile Include="assimp-integration\animationChannelNode.cpp" />
     <ClCompile Include="assimp-integration\animationNode.cpp" />
     <ClCompile Include="assimp-integration\faceNode.cpp" />
-    <ClCompile Include="assimp-integration\indiceNode.cpp" />
     <ClCompile Include="assimp-integration\inspector.cpp" />
     <ClCompile Include="assimp-integration\meshBoneNode.cpp" />
     <ClCompile Include="assimp-integration\meshNode.cpp" />
@@ -177,7 +176,6 @@
     <ClInclude Include="assimp-integration\animationChannelNode.h" />
     <ClInclude Include="assimp-integration\animationNode.h" />
     <ClInclude Include="assimp-integration\faceNode.h" />
-    <ClInclude Include="assimp-integration\indiceNode.h" />
     <ClInclude Include="assimp-integration\inspector.h" />
     <ClInclude Include="assimp-integration\meshBoneNode.h" />
     <ClInclude Include="assimp-integration\meshNode.h" />

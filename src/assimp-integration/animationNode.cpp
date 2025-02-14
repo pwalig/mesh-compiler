@@ -36,9 +36,6 @@ mc::anyType::value assimp::animationNode::getValue(mc::vtype::code v, mc::stype:
     return va;
 }
 
-#pragma warning( push )
-#pragma warning( disable : 4715 )
-
 size_t assimp::animationNode::getChildNodeCount(mc::ctype::code counting_type) const
 {
     switch (counting_type)
@@ -56,8 +53,6 @@ mc::Inode::ptr assimp::animationNode::getChildNodeOfType(mc::ctype::code countin
 {
     switch (counting_type)
     {
-    case mc::ctype::per_indice:
-        break;
     case mc::ctype::per_animation_channel:
         return mc::Inode::ptr(new animationChannelNode(animation, animation->mChannels[id]));
         break;
@@ -65,7 +60,5 @@ mc::Inode::ptr assimp::animationNode::getChildNodeOfType(mc::ctype::code countin
         break;
     }
 }
-
-#pragma warning ( pop )
 
 oop_ptr_define(mc::Inode, assimp::animationNode)

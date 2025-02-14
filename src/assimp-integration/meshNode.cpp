@@ -1,6 +1,6 @@
 #include "meshNode.h"
 #include "vertexNode.h"
-#include "indiceNode.h"
+#include "faceNode.h"
 
 assimp::meshNode::meshNode(const aiScene* scene_, const aiMesh* mesh_) :
     scene(scene_), mesh(mesh_), mc::Inode(mc::ctype::per_mesh)
@@ -21,9 +21,6 @@ mc::anyType::value assimp::meshNode::getValue(mc::vtype::code v, mc::stype::code
 {
     throw std::logic_error("no values");
 }
-
-#pragma warning( push )
-#pragma warning( disable : 4715 )
 
 size_t assimp::meshNode::getChildNodeCount(mc::ctype::code counting_type) const
 {
@@ -49,7 +46,7 @@ mc::Inode::ptr assimp::meshNode::getChildNodeOfType(mc::ctype::code counting_typ
     switch (counting_type)
     {
     case mc::ctype::per_indice:
-        return mc::Inode::ptr(new indiceNode(mesh, (unsigned long)id));
+        return mc::Inode::ptr(new faceNode(mesh, (unsigned long)id));
         break;
     case mc::ctype::per_vertex:
         return mc::Inode::ptr(new vertexNode(mesh, (unsigned long)id));
@@ -61,7 +58,5 @@ mc::Inode::ptr assimp::meshNode::getChildNodeOfType(mc::ctype::code counting_typ
         break;
     }
 }
-
-#pragma warning ( pop )
 
 oop_ptr_define(mc::Inode, assimp::meshNode)
