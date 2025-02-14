@@ -59,7 +59,7 @@ mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 	}
 }
 
-mc::field::ptr mc::field::getPtr(const std::string& word, location loc)
+mc::field::ptr mc::field::getPtr(const std::string& word, location loc, const compilationContext& context)
 {
 	size_t pos = word.find_first_of(':'); // type separator
 	stype::code st = stype::null; // size type of the field
@@ -87,7 +87,7 @@ mc::field::ptr mc::field::getPtr(const std::string& word, location loc)
 		if (ptype::codes.find(valuestr) != ptype::codes.end()) {
 			ptype::code pt = ptype::codes.at(valuestr);
 			if (ptype::buffer_allowed.find(pt) == ptype::buffer_allowed.end())
-				throw formatException("ptype: " + valuestr + " unallowed in buffer preamble");
+				throw formatException("ptype: " + valuestr + " unallowed in buffer preamble", context);
 			if (st == stype::null) st = ptype::default_stypes.at(pt);
 			return ptr(new bpfield(st, pt));
 		}
@@ -107,5 +107,5 @@ mc::field::ptr mc::field::getPtr(const std::string& word, location loc)
 	if (st == stype::null &&
 		mc::compilationInfo::units.find(valuestr) != mc::compilationInfo::units.end())
 		return ptr(new ufield(valuestr));
-	else throw formatException("unknown token: " + valuestr);
+	else throw formatException("unknown token: " + valuestr, context);
 }

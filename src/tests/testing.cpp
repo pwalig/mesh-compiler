@@ -44,7 +44,7 @@ void tests::run(
             continue;
         }
         catch (mc::formatException& fe) {
-            std::cout << " failed via format exception: " << fe.what() << "\n";
+            std::cout << " failed via format exception: in line " << fe.context.linenum << " " << fe.what() << "\n";
             continue;
         }
         catch (mc::compileException& ce) {

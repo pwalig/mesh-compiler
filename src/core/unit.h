@@ -7,7 +7,7 @@
 #include "buffer.h"
 #include "printMode.h"
 #include <rapidjson/document.h>
-
+#include "compilationContext.h"
 
 namespace mc {
 	class compilationInfo;
@@ -19,7 +19,7 @@ namespace mc {
 		ctype::code c = ctype::null;
 
 		unit() = default;
-		unit(std::ifstream& file);
+		unit(std::ifstream& file, compilationContext& context);
 		unit(const rapidjson::Value& json);
 
 		void output(std::ofstream& file, const Inode::ptr node, printMode pm);
@@ -36,7 +36,7 @@ namespace mc {
 		printMode mode = printMode::binary;
 
 		fileUnit() = default;
-		fileUnit(std::ifstream& file, const std::string& output_file_);
+		fileUnit(std::ifstream& file, const std::string& output_file_, compilationContext& context);
 		fileUnit(const rapidjson::Value& json);
 
 		void compile(const Inode::ptr node);

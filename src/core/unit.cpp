@@ -14,21 +14,21 @@
 #include <sstream>
 #include "exceptions/formatException.h"
 
-mc::unit::unit(std::ifstream& file) : c(ctype::null)
+mc::unit::unit(std::ifstream& file, compilationContext& context) : c(ctype::null)
 {
     std::string line;
 
     // preamble
-    std::getline(file, line); // till the end of current line (begin unit ...)
     std::getline(file, line); // line of the preamble
+    context.linenum++;
     std::stringstream ss(line);
     std::string word;
     while (ss >> word) {
-        preamble.push_back(field::getPtr(word, mc::field::location::main_preamble));
+        preamble.push_back(field::getPtr(word, mc::field::location::main_preamble, context));
 
-        updateCtype(c, preamble.back()->getCountingType(), [this](ctype::code new_, ctype::code old) {
-            if (old != new_) throw jsonException("conflicting counting types in unit preamble\n"
-                + ctype::names.at(new_) + " conficts with " + ctype::names.at(c));
+        updateCtype(c, preamble.back()->getCountingType(), [this, context](ctype::code new_, ctype::code old) {
+            if (old != new_) throw formatException("conflicting counting types in unit preamble\n"
+                + ctype::names.at(new_) + " conficts with " + ctype::names.at(c), context);
             });
     }
 
@@ -41,6 +41,7 @@ mc::unit::unit(std::ifstream& file) : c(ctype::null)
         }
         buffer b;
         std::getline(file, line);
+		context.linenum++;
         ss = std::stringstream(line);
         bool inPreamble = true;
         ctype::code preambleCT = ctype::null;
@@ -49,34 +50,34 @@ mc::unit::unit(std::ifstream& file) : c(ctype::null)
             else {
                 if (vfield::gettable(word)) inPreamble = false;
                 if (inPreamble) {
-                    b.preamble.push_back(field::getPtr(word, mc::field::location::buffer_preamble));
-                    updateCtype(preambleCT, b.preamble.back()->getCountingType(), [](ctype::code new_, ctype::code old) {
+                    b.preamble.push_back(field::getPtr(word, mc::field::location::buffer_preamble, context));
+                    updateCtype(preambleCT, b.preamble.back()->getCountingType(), [context](ctype::code new_, ctype::code old) {
                         if (new_ != old) throw formatException("conflicting counting types in buffer preamble\n" +
-                            ctype::names.at(new_) + " conflicts with " + ctype::names.at(old));
+                            ctype::names.at(new_) + " conflicts with " + ctype::names.at(old), context);
                         });
                 }
                 else {
-                    b.fields.push_back(field::getPtr(word, mc::field::location::buffer_field));
-                    updateCtype(b.c, b.fields.back()->getCountingType(), [preambleCT](ctype::code new_, ctype::code old) {
+                    b.fields.push_back(field::getPtr(word, mc::field::location::buffer_field, context));
+                    updateCtype(b.c, b.fields.back()->getCountingType(), [preambleCT, context](ctype::code new_, ctype::code old) {
                         if (new_ != old) throw formatException("conflicting counting types in buffer fields\n" +
-                            ctype::names.at(new_) + " conflicts with " + ctype::names.at(old));
+                            ctype::names.at(new_) + " conflicts with " + ctype::names.at(old), context);
                         else if (preambleCT != ctype::null && ctype::parents.at(new_) != preambleCT) throw formatException(
                             "conflicting counting types between buffer field and buffer preamble\nfield's counting type: " +
-                            ctype::names.at(new_) + " conflicts with preamble's counting type: " + ctype::names.at(preambleCT));
+                            ctype::names.at(new_) + " conflicts with preamble's counting type: " + ctype::names.at(preambleCT), context);
                         });
                 }
             }
         } while (ss >> word);
-        if (b.c == ctype::null) throw formatException("buffer of unknown counting type");
+        if (b.c == ctype::null) throw formatException("buffer of unknown counting type", context);
         buffers.push_back(b);
 
-        updateCtype(c, ctype::parents.at(buffers.back().c), [this](ctype::code new_, ctype::code old) {
+        updateCtype(c, ctype::parents.at(buffers.back().c), [this, context](ctype::code new_, ctype::code old) {
             if (old != new_) throw formatException("buffer counting type conflicts with unit's counting type\nbuffer's counting type: "
-                + ctype::names.at(buffers.back().c) + ", unit's counting type: " + ctype::names.at(c));
+                + ctype::names.at(buffers.back().c) + ", unit's counting type: " + ctype::names.at(c), context);
             });
     }
 
-    if (!endEncountered) throw formatException("missing end keyword");
+    if (!endEncountered) throw formatException("missing end keyword", context);
 }
 
 mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
@@ -154,8 +155,8 @@ size_t mc::unit::getFieldsCount(const Inode::ptr node) const
     return siz;
 }
 
-mc::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_) :
-    output_file(output_file_), unit(file) { }
+mc::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_, compilationContext& context) :
+    output_file(output_file_), unit(file, context) { }
 
 mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(json["output_file"].GetString())
 {

@@ -44,19 +44,24 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
         }
     }
     else if (extension == "format") {
-        while (!file.eof()) {
-            std::string word;
-            file >> word;
-            if (word == "begin") {
-                file >> word;
-                if (word == "file") {
-                    file >> word; // get output filename
-                    file_units.push_back(mc::fileUnit(file, word));
-                    file_units.back().mode = printMode::plainText;
+		compilationContext context;
+		std::string line;
+		std::string word;
+        while (std::getline(file, line)){
+			context.linenum++;
+			std::stringstream ss(line);
+            while (ss >> word) {
+                if (word == "begin") {
+                    ss >> word;
+                    if (word == "file") {
+                        ss >> word; // get output filename
+                        file_units.push_back(mc::fileUnit(file, word, context));
+                        file_units.back().mode = printMode::plainText;
+                    }
+                    else units.insert({ word, mc::unit(file, context) });
                 }
-                else units.insert({ word, mc::unit(file) });
+                else throw formatException("unknown token: " + word, context);
             }
-            else throw formatException("unknown token: " + word);
         }
     }
 }
