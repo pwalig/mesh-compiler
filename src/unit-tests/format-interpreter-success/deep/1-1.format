@@ -1,9 +1,0 @@
-begin mesh
-
-fieldb indice
-fieldb vertex
-end
-
-begin file {file}_{mesh}.mesh
-mesh
-end

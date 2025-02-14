@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -139,21 +139,86 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="assimp-inspector.cpp" />
-    <ClCompile Include="assimpReader.cpp" />
+    <ClCompile Include="assimp-integration\animationChannelNode.cpp" />
+    <ClCompile Include="assimp-integration\animationNode.cpp" />
+    <ClCompile Include="assimp-integration\faceNode.cpp" />
+    <ClCompile Include="assimp-integration\indiceNode.cpp" />
+    <ClCompile Include="assimp-integration\inspector.cpp" />
+    <ClCompile Include="assimp-integration\meshBoneNode.cpp" />
+    <ClCompile Include="assimp-integration\meshNode.cpp" />
+    <ClCompile Include="assimp-integration\sceneNode.cpp" />
+    <ClCompile Include="assimp-integration\reader.cpp" />
+    <ClCompile Include="assimp-integration\vertexNode.cpp" />
+    <ClCompile Include="core\buffer.cpp" />
+    <ClCompile Include="core\compilation-info.cpp" />
+    <ClCompile Include="core\field.cpp" />
+    <ClCompile Include="core\fields\cfield.cpp" />
+    <ClCompile Include="core\fields\cfieldT.cpp" />
+    <ClCompile Include="core\fields\pfield.cpp" />
+    <ClCompile Include="core\fields\sfield.cpp" />
+    <ClCompile Include="core\fields\ufield.cpp" />
+    <ClCompile Include="core\fields\vfield.cpp" />
+    <ClCompile Include="core\Inode.cpp" />
+    <ClCompile Include="core\printMode.cpp" />
+    <ClCompile Include="core\runner.cpp" />
+    <ClCompile Include="core\suffixes.cpp" />
+    <ClCompile Include="core\types\ctype.cpp" />
+    <ClCompile Include="core\types\ptype.cpp" />
+    <ClCompile Include="core\types\stype.cpp" />
+    <ClCompile Include="core\unit.cpp" />
+    <ClCompile Include="core\types\vtype.cpp" />
+    <ClCompile Include="jsonTools.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="meshCompiler.cpp" />
     <ClCompile Include="tests.cpp" />
-    <ClCompile Include="unit_testing.cpp" />
+    <ClCompile Include="tests\case.cpp" />
+    <ClCompile Include="tests\testing.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="assimp-inspector.h" />
-    <ClInclude Include="assimpReader.h" />
-    <ClInclude Include="meshCompiler.h" />
+    <ClInclude Include="assimp-integration\animationChannelNode.h" />
+    <ClInclude Include="assimp-integration\animationNode.h" />
+    <ClInclude Include="assimp-integration\faceNode.h" />
+    <ClInclude Include="assimp-integration\indiceNode.h" />
+    <ClInclude Include="assimp-integration\inspector.h" />
+    <ClInclude Include="assimp-integration\meshBoneNode.h" />
+    <ClInclude Include="assimp-integration\meshNode.h" />
+    <ClInclude Include="assimp-integration\sceneNode.h" />
+    <ClInclude Include="assimp-integration\reader.h" />
+    <ClInclude Include="assimp-integration\vertexNode.h" />
+    <ClInclude Include="core\any-type-value.h" />
+    <ClInclude Include="core\buffer.h" />
+    <ClInclude Include="core\compilation-info.h" />
+    <ClInclude Include="core\compilationContext.h" />
+    <ClInclude Include="core\exceptions\compileException.h" />
+    <ClInclude Include="core\exceptions\formatException.h" />
+    <ClInclude Include="core\exceptions\jsonException.h" />
+    <ClInclude Include="core\fields\cfield.h" />
+    <ClInclude Include="core\fields\cfieldT.h" />
+    <ClInclude Include="core\fields\Ipfield.h" />
+    <ClInclude Include="core\fields\pfield.h" />
+    <ClInclude Include="core\fields\pfieldT.h" />
+    <ClInclude Include="core\field.h" />
+    <ClInclude Include="core\fields\sfield.h" />
+    <ClInclude Include="core\fields\ufield.h" />
+    <ClInclude Include="core\fields\vfield.h" />
+    <ClInclude Include="core\printMode.h" />
+    <ClInclude Include="core\runner.h" />
+    <ClInclude Include="core\suffixes.h" />
+    <ClInclude Include="core\types\ctype.h" />
+    <ClInclude Include="core\file-access-interface\meshI.h" />
+    <ClInclude Include="core\file-access-interface\sceneI.h" />
+    <ClInclude Include="core\Inode.h" />
+    <ClInclude Include="core\max-bone-influence.h" />
+    <ClInclude Include="core\types\ptype.h" />
+    <ClInclude Include="core\types\stype.h" />
+    <ClInclude Include="core\unit.h" />
+    <ClInclude Include="core\fields\sfieldT.h" />
+    <ClInclude Include="core\fields\vfieldT.h" />
+    <ClInclude Include="core\types\vtype.h" />
+    <ClInclude Include="jsonTools.h" />
     <ClInclude Include="meshReader.h" />
     <ClInclude Include="tests.h" />
-    <ClInclude Include="NotImplemented.h" />
-    <ClInclude Include="unit_testing.h" />
+    <ClInclude Include="tests\case.h" />
+    <ClInclude Include="tests\testing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

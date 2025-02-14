@@ -1,0 +1,152 @@
+{
+    "units": [
+        {
+            "output_file": "tests/acceptance/res/{mesh}_json.txt",
+            "print_mode": "plainText",
+            "preamble": [
+                {
+                    "type": "int4",
+                    "value": -50
+                },
+                {
+                    "type": "uint4",
+                    "value": "buffu"
+                },
+                {
+                    "type": "uint4",
+                    "value": "buffs"
+                },
+                {
+                    "type": "uint4",
+                    "value": "entryu"
+                },
+                {
+                    "type": "uint4",
+                    "value": "entryb"
+                },
+                {
+                    "type": "uint4",
+                    "value": "entrys"
+                },
+                {
+                    "type": "uint4",
+                    "value": "fieldu"
+                },
+                {
+                    "type": "uint4",
+                    "value": "fieldb"
+                },
+                {
+                    "type": "uint4",
+                    "value": "fielde"
+                },
+                {
+                    "type": "uint4",
+                    "value": "fields"
+                }
+            ],
+            "buffers": [
+                {
+                    "preamble": [
+                        {
+                            "type": "int4",
+                            "value": -30
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "buffs"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "entryb"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "entrys"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "fieldb"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "fielde"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "fields"
+                        }
+                    ],
+                    "fields": [
+                        {
+                            "type": "float",
+                            "value": "vertex.x"
+                        },
+                        {
+                            "type": "float",
+                            "value": "vertex.y"
+                        },
+                        {
+                            "type": "float",
+                            "value": "vertex.z"
+                        },
+                        {
+                            "type": "int4",
+                            "value": -20
+                        }
+                    ]
+                },
+                {
+                    "preamble": [
+                        {
+                            "type": "int4",
+                            "value": -30
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "buffs"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "entryb"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "entrys"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "fieldb"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "fielde"
+                        },
+                        {
+                            "type": "uint4",
+                            "value": "fields"
+                        }
+                    ],
+                    "fields": [
+                        {
+                            "type": "float",
+                            "value": "vertex.x"
+                        },
+                        {
+                            "type": "float",
+                            "value": "vertex.y"
+                        },
+                        {
+                            "type": "float",
+                            "value": "vertex.z"
+                        },
+                        {
+                            "type": "int4",
+                            "value": -20
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

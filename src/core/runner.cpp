@@ -1,0 +1,118 @@
+#include "runner.h"
+#include <iostream>
+#include <sstream>
+#include "compilation-info.h"
+#include "exceptions/jsonException.h"
+#include "exceptions/formatException.h"
+#include "exceptions/compileException.h"
+#include <args.hxx>
+
+const std::string mc::version = "2.2.0";
+const std::string mc::programName = "mesh-compiler";
+
+// returns vector of pointers into the string "line" passed as argument
+// string must outlive the vector
+// modifies the string to contain null characters at the ends of words
+std::vector<char*> cArgs(std::string& line) {
+    std::vector<char*> res;
+    bool word = false;
+    for (size_t i = 0; i < line.size(); ++i) {
+        if (std::isspace(line[i])) {
+            word = false;
+            line[i] = '\0';
+        }
+        else if (word == false) {
+            word = true;
+            res.push_back(&line[i]);
+        }
+    }
+    return res;
+}
+
+// returns vector of pointers into the strings
+std::vector<const char*> cArgs(const std::vector<std::string>& args)
+{
+    std::vector<const char*> res(args.size());
+    for (const std::string& str : args) {
+        res.push_back(str.data());
+    }
+    return res;
+}
+
+void mc::run(int argc, char** argv)
+{
+    if (argc == 1) {
+        std::string line = "";
+        while (1) {
+            std::cout << "> ";
+            std::getline(std::cin, line);
+            if (line == "q") return;
+            line = mc::programName + " " + line;
+            std::vector<char*> args = cArgs(line);
+            runOnce((int)args.size(), args.data());
+        }
+    }
+    else runOnce(argc, argv);
+}
+
+void mc::runOnce(int argc, char** argv) {
+
+    // parser creation
+    args::ArgumentParser parser("program for conversion of 3D files", "if no arguments passed program will run in interactive mode, type q to quit");
+    args::HelpFlag help_flag(parser, "help", "Display this help menu", {'h', "help"});
+    args::ValueFlag<std::string> format_flag(parser, "format file", "specifies path to .format file", {'f', "format"});
+    args::Flag version_flag(parser, "version", "Display version of this software", { 'v', "version" });
+    args::Flag debug_flag(parser, "debug info", "Display debugging information", { 'd', "debug" });
+    args::Positional<std::string> source_arg(parser, "source", "specifies path to 3D source file");
+    args::Positional<std::string> format_arg(parser, "format", "specifies path to .format file");
+    
+    // parsing
+    try
+    {
+        parser.ParseCLI(argc, argv);
+    }
+    catch (args::Help)
+    {
+        std::cout << parser;
+        return;
+    }
+    catch (args::ParseError e)
+    {
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
+        return;
+    }
+    catch (args::ValidationError e)
+    {
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
+        return;
+    }
+
+    // reading parsed values
+    if (version_flag) {
+        std::cout << mc::version << "\n";
+        return;
+    }
+    std::string sourceFile = "";
+    std::string formatFile = "";
+    if (source_arg) sourceFile = args::get(source_arg);
+    if (format_arg) formatFile = args::get(format_arg);
+    if (format_flag) {
+        if (formatFile == "") formatFile = args::get(format_arg);
+        else {
+            std::cerr << "format file specified twice\n" << parser;
+            return;
+        }
+    }
+
+    // running the program 
+    try {
+        mc::compilationInfo ci_j(formatFile);
+        ci_j.compileFile(sourceFile);
+        mc::compilationInfo::units.clear();
+    }
+    catch (std::runtime_error& e) {
+        std::cout << e.what() << "\n";
+    }
+}

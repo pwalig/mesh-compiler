@@ -1,0 +1,9 @@
+begin mesh
+int4:-50 buffu buffs entryu entryb entrys fieldu fieldb fielde fields
+int4:-30 buffs entryb entrys fieldb fielde fields ; vertex.x vertex.y vertex.z int4:-20
+int4:-30 buffs entryb entrys fieldb fielde fields vertex int4:-20
+end
+
+begin file tests/acceptance/res/{mesh}_format_u.txt plain-text
+mesh
+end

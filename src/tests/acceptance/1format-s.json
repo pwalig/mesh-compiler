@@ -1,0 +1,56 @@
+{
+    "units": [
+        {
+            "output_file": "tests/acceptance/res/{mesh}_json_s.txt",
+            "print_mode": "plainText",
+            "preamble": [
+                "int4:-50",
+                "uint4:buffu",
+                "uint4:buffs",
+                "uint4:entryu",
+                "entryb",
+                "entrys",
+                "fieldu",
+                "fieldb",
+                "fielde",
+                "fields"
+            ],
+            "buffers": [
+                {
+                    "preamble": [
+                        "int4:-30",
+                        "buffs",
+                        "entryb",
+                        "entrys",
+                        "fieldb",
+                        "fielde",
+                        "uint4:fields"
+                    ],
+                    "fields": [
+                        "float:vertex.x",
+                        "vertex.y",
+                        "vertex.z",
+                        "int4:-20"
+                    ]
+                },
+                {
+                    "preamble": [
+                        "int4:-30",
+                        "buffs",
+                        "entryb",
+                        "entrys",
+                        "fieldb",
+                        "fielde",
+                        "uint4:fields"
+                    ],
+                    "fields": [
+                        "float:vertex.x",
+                        "vertex.y",
+                        "vertex.z",
+                        "int4:-20"
+                    ]
+                }
+            ]
+        }
+    ]
+}
