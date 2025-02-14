@@ -213,4 +213,9 @@ void tests::run()
         "tests/acceptance/cube.obj"
     );
     std::cout << "\n";
+    std::cout << "test #2\n";
+    run({
+        Case(Case::getFromFile("tests/acceptance/2.format"), { "tests/acceptance/res/seg1w.mesh" })
+        }, {"tests/acceptance/reference2.mesh"}, "tests/acceptance/back_rooms.glb"
+    );
 }

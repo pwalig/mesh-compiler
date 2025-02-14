@@ -34,10 +34,10 @@ mc::anyType::value assimp::vertexNode::getValue(mc::vtype::code v, mc::stype::co
         mc::anyType::setValue(va, mesh->mBitangents[id][suffixes[0]], s);
         break;
     case mc::vtype::uv:
-        mc::anyType::setValue(va, mesh->mTextureCoords[id][suffixes[0]][suffixes[1]], s);
+        mc::anyType::setValue(va, mesh->mTextureCoords[suffixes[0]][id][suffixes[1]], s);
         break;
     case mc::vtype::vertex_color:
-        mc::anyType::setValue(va, mesh->mColors[id][suffixes[0]][suffixes[1]], s);
+        mc::anyType::setValue(va, mesh->mColors[suffixes[0]][id][suffixes[1]], s);
         break;
     default:
         throw std::logic_error("invalid value type");

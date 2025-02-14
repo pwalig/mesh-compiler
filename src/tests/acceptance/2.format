@@ -1,0 +1,9 @@
+begin file tests/acceptance/res/{mesh}.mesh
+
+fieldb i.0 i.1 i.2
+fieldb v.x v.y v.z float4:1.0
+fieldb uv.0.x uv.0.y
+fieldb n.x n.y n.z
+fieldb t.x t.y t.z
+fieldb b.x b.y b.z
+end
