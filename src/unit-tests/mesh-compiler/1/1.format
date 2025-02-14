@@ -1,5 +1,0 @@
-begin file unit-tests/mesh-compiler/out.mesh
-buffu
-fieldb vertex
-fieldb normal
-end

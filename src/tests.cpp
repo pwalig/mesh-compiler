@@ -9,7 +9,6 @@
 
 #include <assimp/postprocess.h>
 
-#include "meshCompiler.h"
 #include "meshReader.h"
 #include "assimp-integration/reader.h"
 #include "assimp-integration/inspector.h"
@@ -22,7 +21,6 @@
 #include "core/fields/pfield.h"
 #include "core/exceptions/jsonException.h"
 #include "core/exceptions/compileException.h"
-#include "tests.h"
 
 void printMesh(const mesh& m) {
     std::cout << "Mesh info\nindices: ";
@@ -130,8 +128,6 @@ void mainTest() {
     args.push_back("../test/.format");
     args.push_back("../test/out.mesh");
     args.push_back("-d");
-
-    mesh_compiler::runOnce(args);
 
     mesh me1;
     const auto start1{ std::chrono::steady_clock::now() };
