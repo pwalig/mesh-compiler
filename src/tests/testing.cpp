@@ -91,7 +91,7 @@ void tests::run()
     std::cout << "ACCEPTANCE TESTS\n";
     std::cout << "test #1\n";
     run({
-        Case(Case::getFromFile("tests/acceptance/format1.json"), {"tests/acceptance/res/Cube_json.txt"}),
+        Case(Case::getFromFile("tests/acceptance/1format.json"), {"tests/acceptance/res/Cube_json.txt"}),
 
         Case([]() {
             mc::compilationInfo ci_c;
@@ -201,21 +201,33 @@ void tests::run()
             return ci_c;
         }, {"tests/acceptance/res/Cube_code_unit_references.txt"}),
 
-        Case(Case::getFromFile("tests/acceptance/format1u.json"), { "tests/acceptance/res/Cube_json_u.txt" }),
-        Case(Case::getFromFile("tests/acceptance/format1s.json"), { "tests/acceptance/res/Cube_json_s.txt" }),
-        Case(Case::getFromFile("tests/acceptance/format1su.json"), { "tests/acceptance/res/Cube_json_su.txt" }),
+        Case(Case::getFromFile("tests/acceptance/1format-u.json"), { "tests/acceptance/res/Cube_json_u.txt" }),
+        Case(Case::getFromFile("tests/acceptance/1format-s.json"), { "tests/acceptance/res/Cube_json_s.txt" }),
+        Case(Case::getFromFile("tests/acceptance/1format-su.json"), { "tests/acceptance/res/Cube_json_su.txt" }),
 
-        Case(Case::getFromFile("tests/acceptance/format1.format"), { "tests/acceptance/res/Cube_format.txt" }),
-        Case(Case::getFromFile("tests/acceptance/format1u.format"), { "tests/acceptance/res/Cube_format_u.txt" })
+        Case(Case::getFromFile("tests/acceptance/1format.format"), { "tests/acceptance/res/Cube_format.txt" }),
+        Case(Case::getFromFile("tests/acceptance/1format-u.format"), { "tests/acceptance/res/Cube_format_u.txt" })
 
 
-        }, { "tests/acceptance/reference1.txt" },
-        "tests/acceptance/cube.obj"
+        }, { "tests/acceptance/1reference.txt" },
+        "tests/acceptance/1cube.obj"
     );
     std::cout << "\n";
     std::cout << "test #2\n";
     run({
         Case(Case::getFromFile("tests/acceptance/2.format"), { "tests/acceptance/res/seg1w.mesh" })
-        }, {"tests/acceptance/reference2.mesh"}, "tests/acceptance/back_rooms.glb"
+        }, {"tests/acceptance/2reference.mesh"}, "tests/acceptance/2back_rooms.glb"
+    );
+    std::cout << "test #3\n";
+    run({
+        Case(Case::getFromFile("tests/acceptance/3.format"), {
+            "tests/acceptance/res/cube.mesh", "tests/acceptance/res/capsule.mesh",
+            "tests/acceptance/res/icosphere.mesh", "tests/acceptance/res/plane.mesh",
+            "tests/acceptance/res/skybox.mesh", "tests/acceptance/res/uiQuad.mesh"})
+        }, {
+            "tests/acceptance/3cube.mesh", "tests/acceptance/3capsule.mesh",
+            "tests/acceptance/3icosphere.mesh", "tests/acceptance/3plane.mesh",
+            "tests/acceptance/3skybox.mesh", "tests/acceptance/3uiQuad.mesh"
+        }, "tests/acceptance/3primitives.glb"
     );
 }
