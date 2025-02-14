@@ -22,14 +22,17 @@ std::vector<mc::anyType::value> mc::bpfield::evaluate1(const Inode::ptr node, co
 		break;
 	case ptype::field_size:
 		for (const field::ptr& f : buffe->fields) {
-			out.push_back(anyType::getValue(s, f->getSize()));
+			size_t count = f->getCount();
+			for (size_t i = 0; i < count; ++i) {
+				out.push_back(anyType::getValue(s, f->getSize() / count));
+			}
 		}
 		break;
 	case ptype::fields_per_entry:
-		out.push_back(anyType::getValue(s, buffe->fields.size()));
+		out.push_back(anyType::getValue(s, buffe->fieldsPerEntry()));
 		break;
 	case ptype::fields_per_buffer:
-		out.push_back(anyType::getValue(s, buffe->fields.size() * node->getCount()));
+		out.push_back(anyType::getValue(s, buffe->fieldsPerEntry() * node->getCount()));
 		break;
 	default:
 		throw std::logic_error("invalid ptype");

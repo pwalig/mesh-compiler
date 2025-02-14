@@ -151,7 +151,7 @@ size_t mc::unit::getFieldsCount(const Inode::ptr node) const
 {
     size_t siz = 0;
     for (const buffer& buff : buffers)
-        siz += buff.fields.size() * node->getChildNodeCount(buff.c);
+        siz += buff.fieldsPerEntry() * node->getChildNodeCount(buff.c);
     return siz;
 }
 

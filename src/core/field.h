@@ -23,6 +23,7 @@ namespace mc {
 
 		virtual mc::ctype::code getCountingType() const = 0;
 		virtual size_t getSize() const = 0;
+		virtual size_t getCount() const;
 
 		oop_ptr_base_declare(field) = 0;
 		virtual ~field() {}

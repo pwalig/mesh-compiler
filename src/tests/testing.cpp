@@ -118,8 +118,7 @@ void tests::run()
             buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::fields_per_buffer)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::fields_per_entry)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfieldT<unsigned int>(mc::ptype::field_size)));
-            buff.fields.push_back(mc::field::ptr(new mc::vfieldT<float>(mc::vtype::vertex, { 0 })));
-            buff.fields.push_back(mc::field::ptr(new mc::vfieldT<float>(mc::vtype::vertex, { 1 })));
+            buff.fields.push_back(mc::field::ptr(new mc::vfieldT<float>(mc::vtype::vertex, { })));
             buff.fields.push_back(mc::field::ptr(new mc::cfieldT<int>(-20)));
             fu.buffers.push_back(buff);
             fu.buffers.push_back(buff);
@@ -154,6 +153,7 @@ void tests::run()
             buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::field_size)));
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 0 })));
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 1 })));
+            buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 2 })));
             buff.fields.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -20))));
             fu.buffers.push_back(buff);
             fu.buffers.push_back(buff);
@@ -185,6 +185,7 @@ void tests::run()
             buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::field_size)));
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 0 })));
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 1 })));
+            buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 2 })));
             buff.fields.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -20))));
             fu.buffers.push_back(buff);
             fu.buffers.push_back(buff);

@@ -42,14 +42,17 @@ namespace mc {
 			break;
 		case ptype::field_size:
 			for (const field::ptr& f : buffe->fields) {
-				out.push_back((T)f->getSize());
+				size_t count = f->getCount();
+				for (size_t i = 0; i < count; ++i) {
+					out.push_back((T)(f->getSize() / count));
+				}
 			}
 			break;
 		case ptype::fields_per_entry:
-			out.push_back((T)buffe->fields.size());
+			out.push_back((T)buffe->fieldsPerEntry());
 			break;
 		case ptype::fields_per_buffer:
-			out.push_back((T)(buffe->fields.size() * node->getCount()));
+			out.push_back((T)(buffe->fieldsPerEntry() * node->getCount()));
 			break;
 		default:
 			throw std::logic_error("invalid ptype");

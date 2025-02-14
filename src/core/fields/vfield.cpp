@@ -16,6 +16,23 @@ mc::ctype::code mc::vfield::getCountingType() const
 	return vtype::ctypes.at(v);
 }
 
+size_t mc::vfield::getSize() const
+{
+	return this->sfield::getSize() * getCount();
+}
+
+size_t mc::vfield::getCount() const
+{
+	size_t count = 1;
+    const std::vector<unsigned short> maxSfxs = mc::vtype::maxSuffixes.at(v);
+    for (int i = (int)maxSfxs.size() - 1; i >= (int)suffixes.size(); --i)
+    {
+		count *= maxSfxs[i];
+    }
+
+	return count;
+}
+
 mc::field::ptr mc::vfield::getPtr(const rapidjson::Value& json)
 {
 	assert(json.IsObject());

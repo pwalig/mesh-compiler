@@ -14,6 +14,8 @@ namespace mc {
 
 		std::vector<T> evaluate(const Inode::ptr node) const override;
 		ctype::code getCountingType() const override;
+		size_t getSize() const override;
+		size_t getCount() const override;
 
 		oop_ptr_template_child_define(field, vfieldT)
 	};
@@ -40,4 +42,24 @@ namespace mc {
 	{
 		return vtype::ctypes.at(v);
 	}
+
+	template<typename T>
+	size_t mc::vfieldT<T>::getSize() const
+	{
+		return this->sfieldT<T>::getSize() * getCount();
+	}
+
+	template<typename T>
+	size_t mc::vfieldT<T>::getCount() const
+	{
+		size_t count = 1;
+		const std::vector<unsigned short> maxSfxs = mc::vtype::maxSuffixes.at(v);
+		for (int i = (int)maxSfxs.size() - 1; i >= (int)suffixes.size(); --i)
+		{
+			count *= maxSfxs[i];
+		}
+
+		return count;
+	}
+
 }

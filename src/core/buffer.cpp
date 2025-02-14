@@ -69,6 +69,14 @@ size_t mc::buffer::getEntrySize() const
     return siz;
 }
 
+size_t mc::buffer::fieldsPerEntry() const
+{
+    size_t count = 0;
+    for (const field::ptr& f : fields)
+        count += f->getCount();
+    return count;
+}
+
 size_t mc::buffer::getSize(const Inode::ptr node) const
 {
     return getEntrySize() * node->getCount();

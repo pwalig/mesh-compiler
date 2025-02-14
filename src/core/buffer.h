@@ -23,6 +23,7 @@ namespace mc {
 		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm);
 
 		size_t getEntrySize() const;
+		size_t fieldsPerEntry() const;
 		size_t getSize(const Inode::ptr node) const;
 	};
 

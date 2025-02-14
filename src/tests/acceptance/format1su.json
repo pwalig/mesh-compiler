@@ -28,6 +28,7 @@
                     "fields": [
                         "float:vertex.x",
                         "vertex.y",
+                        "vertex.z",
                         "int4:-20"
                     ]
                 },
@@ -44,6 +45,7 @@
                     "fields": [
                         "float:vertex.x",
                         "vertex.y",
+                        "vertex.z",
                         "int4:-20"
                     ]
                 }

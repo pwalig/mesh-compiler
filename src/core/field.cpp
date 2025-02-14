@@ -8,6 +8,11 @@
 #include "exceptions/formatException.h"
 #include "compilation-info.h"
 
+size_t mc::field::getCount() const
+{
+	return 1;
+}
+
 mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 {
 	if (json.IsString()) return mc::field::getPtr(json.GetString(), loc);

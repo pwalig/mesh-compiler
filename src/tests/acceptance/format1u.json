@@ -79,11 +79,7 @@
                     "fields": [
                         {
                             "type": "float",
-                            "value": "vertex.x"
-                        },
-                        {
-                            "type": "float",
-                            "value": "vertex.y"
+                            "value": "vertex"
                         },
                         {
                             "type": "int4",
@@ -130,6 +126,10 @@
                         {
                             "type": "float",
                             "value": "vertex.y"
+                        },
+                        {
+                            "type": "float",
+                            "value": "vertex.z"
                         },
                         {
                             "type": "int4",
