@@ -164,9 +164,8 @@ mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(j
     if (ftype != "") {
         assert(json[ftype.c_str()].IsString());
         std::string omode = json[ftype.c_str()].GetString();
-        std::vector<std::string> available = { "plain_text", "plainText", "plain-text" };
-        if (std::find(available.begin(), available.end(), omode) != available.end()) mode = mc::printMode::plainText;
-        else if (omode == "binary") mode = mc::printMode::binary;
+        if (std::find(plainTextSpellings.begin(), plainTextSpellings.end(), omode) != plainTextSpellings.end()) mode = mc::printMode::plainText;
+        else if (omode == binarySpelling) mode = mc::printMode::binary;
         else throw jsonException("invalid printMode");
     }
 }

@@ -56,7 +56,13 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
                     if (word == "file") {
                         ss >> word; // get output filename
                         file_units.push_back(mc::fileUnit(file, word, context));
-                        file_units.back().mode = printMode::plainText;
+
+                        if (ss >> word) { // print mode
+                            if (std::find(plainTextSpellings.begin(), plainTextSpellings.end(), word) != plainTextSpellings.end())
+                                file_units.back().mode = mc::printMode::plainText;
+                            else if (word == binarySpelling) file_units.back().mode = printMode::binary;
+							else throw formatException("unknown token: " + word, context);
+                        }
                     }
                     else units.insert({ word, mc::unit(file, context) });
                 }

@@ -158,6 +158,7 @@
     <ClCompile Include="core\fields\ufield.cpp" />
     <ClCompile Include="core\fields\vfield.cpp" />
     <ClCompile Include="core\Inode.cpp" />
+    <ClCompile Include="core\printMode.cpp" />
     <ClCompile Include="core\runner.cpp" />
     <ClCompile Include="core\suffixes.cpp" />
     <ClCompile Include="core\types\ctype.cpp" />
