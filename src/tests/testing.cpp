@@ -40,15 +40,15 @@ void tests::run(
             mc::compilationInfo::units.clear();
         }
         catch (mc::jsonException& je) {
-            std::cout << " failed via json exception:\n" << je.what() << "\n";
+            std::cout << " failed via json exception: " << je.what() << "\n";
             continue;
         }
         catch (mc::formatException& fe) {
-            std::cout << " failed via format exception:\n" << fe.what() << "\n";
+            std::cout << " failed via format exception: " << fe.what() << "\n";
             continue;
         }
         catch (mc::compileException& ce) {
-            std::cout << " failed via compile exception:\n" << ce.what() << "\n";
+            std::cout << " failed via compile exception: " << ce.what() << "\n";
             continue;
         }
 

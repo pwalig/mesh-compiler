@@ -10,6 +10,7 @@
 #include "exceptions/compileException.h"
 #include "compilation-info.h"
 #include "fields/ufield.h"
+#include "fields/vfield.h"
 #include <sstream>
 #include "exceptions/formatException.h"
 
@@ -45,22 +46,25 @@ mc::unit::unit(std::ifstream& file) : c(ctype::null)
         ctype::code preambleCT = ctype::null;
         do {
             if (word == ";") inPreamble = false;
-            else if (inPreamble) {
-                b.preamble.push_back(field::getPtr(word, mc::field::location::buffer_preamble));
-                updateCtype(preambleCT, b.preamble.back()->getCountingType(), [](ctype::code new_, ctype::code old) {
-                    if (new_ != old) throw formatException("conflicting counting types in buffer preamble\n" +
-                        ctype::names.at(new_) + " conflicts with " + ctype::names.at(old));
-                    });
-            }
             else {
-                b.fields.push_back(field::getPtr(word, mc::field::location::buffer_field));
-                updateCtype(b.c, b.fields.back()->getCountingType(), [preambleCT](ctype::code new_, ctype::code old) {
-                    if (new_ != old) throw formatException("conflicting counting types in buffer fields\n" +
-                        ctype::names.at(new_) + " conflicts with " + ctype::names.at(old));
-                    else if (preambleCT != ctype::null && ctype::parents.at(new_) != preambleCT) throw formatException(
-                        "conflicting counting types between buffer field and buffer preamble\nfield's counting type: " + 
-                        ctype::names.at(new_) + " conflicts with preamble's counting type: " + ctype::names.at(preambleCT));
-                    });
+                if (vfield::gettable(word)) inPreamble = false;
+                if (inPreamble) {
+                    b.preamble.push_back(field::getPtr(word, mc::field::location::buffer_preamble));
+                    updateCtype(preambleCT, b.preamble.back()->getCountingType(), [](ctype::code new_, ctype::code old) {
+                        if (new_ != old) throw formatException("conflicting counting types in buffer preamble\n" +
+                            ctype::names.at(new_) + " conflicts with " + ctype::names.at(old));
+                        });
+                }
+                else {
+                    b.fields.push_back(field::getPtr(word, mc::field::location::buffer_field));
+                    updateCtype(b.c, b.fields.back()->getCountingType(), [preambleCT](ctype::code new_, ctype::code old) {
+                        if (new_ != old) throw formatException("conflicting counting types in buffer fields\n" +
+                            ctype::names.at(new_) + " conflicts with " + ctype::names.at(old));
+                        else if (preambleCT != ctype::null && ctype::parents.at(new_) != preambleCT) throw formatException(
+                            "conflicting counting types between buffer field and buffer preamble\nfield's counting type: " +
+                            ctype::names.at(new_) + " conflicts with preamble's counting type: " + ctype::names.at(preambleCT));
+                        });
+                }
             }
         } while (ss >> word);
         if (b.c == ctype::null) throw formatException("buffer of unknown counting type");

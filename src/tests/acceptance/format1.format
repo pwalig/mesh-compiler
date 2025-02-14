@@ -1,5 +1,5 @@
 begin file tests/acceptance/res/{mesh}_format.txt
 int4:-50 buffu buffs entryu entryb entrys fieldu fieldb fielde fields
-int4:-30 buffs entryb entrys fieldb fielde fields ; vertex.x vertex.y int4:-20
+int4:-30 buffs entryb entrys fieldb fielde fields vertex.x vertex.y int4:-20
 int4:-30 buffs entryb entrys fieldb fielde fields ; vertex.x vertex.y int4:-20
 end

@@ -17,5 +17,6 @@ namespace mc {
 		oop_ptr_child_declare(field);
 
 		static field::ptr getPtr(const rapidjson::Value& json);
+		static bool gettable(const std::string& word);
 	};
 }

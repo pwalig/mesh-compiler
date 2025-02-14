@@ -32,4 +32,18 @@ mc::field::ptr mc::vfield::getPtr(const rapidjson::Value& json)
 	return field::ptr(new vfield(stype::codes.at(json["type"].GetString()), vtype::codes.at(vtype_str), suffixes));
 }
 
+bool mc::vfield::gettable(const std::string& word)
+{
+	size_t pos = word.find_first_of(':'); // type separator
+	std::string valuestr = word;
+	if (pos != std::string::npos) { // TO DO check if stype specifier is valid
+		valuestr = word.substr(pos + 1, word.size() - pos);
+	}
+	std::string vtype_str = vtypeNoSuffix(valuestr);
+	if (vtype::codes.find(vtype_str) != vtype::codes.end()) {
+		return true;
+	}
+	return false;
+}
+
 oop_ptr_define(mc::field, mc::vfield)
