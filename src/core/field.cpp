@@ -6,6 +6,7 @@
 #include "exceptions/jsonException.h"
 #include "suffixes.h"
 #include "exceptions/formatException.h"
+#include "compilation-info.h"
 
 mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 {
@@ -103,6 +104,8 @@ mc::field::ptr mc::field::getPtr(const std::string& word, location loc)
 		}
 	}
 
-	if (st != stype::null) throw formatException("unknown token: " + valuestr);
-	return ptr(new ufield(valuestr));
+	if (st == stype::null &&
+		mc::compilationInfo::units.find(valuestr) != mc::compilationInfo::units.end())
+		return ptr(new ufield(valuestr));
+	else throw formatException("unknown token: " + valuestr);
 }

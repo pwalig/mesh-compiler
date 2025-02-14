@@ -49,7 +49,6 @@ void mc::run(int argc, char** argv)
             if (line == "q") return;
             line = mc::programName + " " + line;
             std::vector<char*> args = cArgs(line);
-
             runOnce((int)args.size(), args.data());
         }
     }
