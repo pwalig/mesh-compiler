@@ -58,13 +58,15 @@ void mc::run(int argc, char** argv)
 void mc::runOnce(int argc, char** argv) {
 
     // parser creation
-    args::ArgumentParser parser("program for conversion of 3D files", "if no arguments passed program will run in interactive mode, type q to quit");
+    args::ArgumentParser parser("3D file converter to a customizable binary file format\nversion " + mc::version,
+        "If no arguments passed program will run in interactive mode, type q to quit\nFor full documentation and source code visit: https://github.com/pwalig/mesh-compiler"
+    );
     args::HelpFlag help_flag(parser, "help", "Display this help menu", {'h', "help"});
-    args::ValueFlag<std::string> format_flag(parser, "format file", "specifies path to .format file", {'f', "format"});
+    args::ValueFlag<std::string> format_flag(parser, "format file", "Specifies path to .format file", {'f', "format"});
     args::Flag version_flag(parser, "version", "Display version of this software", { 'v', "version" });
     args::Flag debug_flag(parser, "debug info", "Display debugging information", { 'd', "debug" });
-    args::Positional<std::string> source_arg(parser, "source", "specifies path to 3D source file");
-    args::Positional<std::string> format_arg(parser, "format", "specifies path to .format file");
+    args::Positional<std::string> source_arg(parser, "source file", "Specifies path to 3D source file");
+    args::Positional<std::string> format_arg(parser, "format file", "Specifies path to .format file");
     
     // parsing
     try
@@ -108,7 +110,7 @@ void mc::runOnce(int argc, char** argv) {
 
     // running the program 
     try {
-        mc::compilationInfo ci_j(formatFile);
+        mc::compilationInfo ci_j(formatFile == "" ? ".format" : formatFile);
         ci_j.compileFile(sourceFile);
         mc::compilationInfo::units.clear();
     }
