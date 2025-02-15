@@ -1,6 +1,8 @@
 #include "reader.h"
 #include <assimp/Importer.hpp>
 
+std::unordered_map<const aiMesh*, assimp::meshWeights<unsigned int, ai_real, 4U>> assimp::meshWeightsMap;
+
 bool assimp::readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags)
 {
     // Create an instance of the Importer class

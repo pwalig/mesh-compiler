@@ -4,6 +4,7 @@
 #include <vector>
 #include <limits>
 #include <array>
+#include <unordered_map>
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -46,6 +47,8 @@ namespace assimp {
         skeleton(const aiMesh* mesh);
         std::vector<bone> bones;
     };
+
+    extern std::unordered_map<const aiMesh*, meshWeights<unsigned int, ai_real, 4U>> meshWeightsMap;
 
 	bool readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags =
         aiProcess_CalcTangentSpace |

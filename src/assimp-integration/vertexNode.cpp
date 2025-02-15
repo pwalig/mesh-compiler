@@ -1,4 +1,5 @@
 #include "vertexNode.h"
+#include "reader.h"
 
 assimp::vertexNode::vertexNode(const aiMesh* mesh_, unsigned long id_) :
     mesh(mesh_), id(id_), mc::Inode(mc::ctype::per_vertex)
@@ -38,6 +39,12 @@ mc::anyType::value assimp::vertexNode::getValue(mc::vtype::code v, mc::stype::co
         break;
     case mc::vtype::vertex_color:
         mc::anyType::setValue(va, mesh->mColors[suffixes[0]][id][suffixes[1]], s);
+        break;
+    case mc::vtype::bone_id:
+        mc::anyType::setValue(va, meshWeightsMap.at(mesh).vertices[id].bone_ids[suffixes[0]], s);
+        break;
+    case mc::vtype::bone_weight:
+        mc::anyType::setValue(va, meshWeightsMap.at(mesh).vertices[id].weights[suffixes[0]], s);
         break;
     default:
         throw std::logic_error("invalid value type");
