@@ -8,6 +8,7 @@
 #include "exceptions/formatException.h"
 #include <sstream>
 #include "exceptions/compileException.h"
+#include "types/ptype.h"
 
 std::unordered_map<std::string, mc::unit> mc::compilationInfo::units;
 
@@ -55,6 +56,7 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
                     ss >> word;
                     if (word == "file") {
                         ss >> word; // get output filename
+
                         file_units.push_back(mc::fileUnit(file, word, context));
 
                         if (ss >> word) { // print mode
@@ -64,7 +66,14 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
 							else throw formatException("unknown token: " + word, context);
                         }
                     }
-                    else units.insert({ word, mc::unit(file, context) });
+                    else {
+						// check for unit name with keyword collision
+						if (vtype::codes.find(word) != vtype::codes.end() ||
+							ptype::codes.find(word) != ptype::codes.end())
+							throw formatException("unit name: " + word + " collides with the keyword", context);
+                        else
+                            units.insert({ word, mc::unit(file, context) });
+                    }
                 }
                 else throw formatException("unknown token: " + word, context);
             }
