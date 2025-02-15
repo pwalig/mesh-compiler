@@ -1,5 +1,7 @@
 #include "animationChannelNode.h"
-#include "vertexNode.h"
+#include "positionKeyNode.h"
+#include "rotationKeyNode.h"
+#include "scalingKeyNode.h"
 
 assimp::animationChannelNode::animationChannelNode(const aiAnimation* animation_, const aiNodeAnim* channel_) :
     animation(animation_), channel(channel_), mc::Inode(mc::ctype::per_animation_channel)
@@ -48,13 +50,13 @@ mc::Inode::ptr assimp::animationChannelNode::getChildNodeOfType(mc::ctype::code 
     switch (counting_type)
     {
     case mc::ctype::per_position_keyframe:
-        //return mc::Inode::ptr(channel->mPositionKeys[id]);
+        return mc::Inode::ptr(new positionKeyNode(channel, id));
         break;
     case mc::ctype::per_rotation_keyframe:
-        //return mc::Inode::ptr(channel->mRotationKeys[id]);
+        return mc::Inode::ptr(new rotationKeyNode(channel, id));
         break;
     case mc::ctype::per_scale_keyframe:
-        //return mc::Inode::ptr(channel->mScalingKeys[id]);
+        return mc::Inode::ptr(new scalingKeyNode(channel, id));
         break;
     default:
         throw std::logic_error("invalid counting type");
