@@ -117,7 +117,7 @@ void mc::runOnce(int argc, char** argv) {
     catch (mc::formatException& fe) {
         fe.print();
     }
-    catch (std::runtime_error& e) {
+    catch (std::exception& e) {
         std::cerr << e.what() << "\n";
     }
 }

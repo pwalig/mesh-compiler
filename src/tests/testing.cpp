@@ -230,4 +230,18 @@ void tests::run()
             "tests/acceptance/3skybox.mesh", "tests/acceptance/3uiQuad.mesh"
         }, "tests/acceptance/3primitives.glb"
     );
+
+
+    std::cout << "\n test #4\n";
+    run({
+        Case(Case::getFromFile("tests/acceptance/4.format"), {
+            "tests/acceptance/res/4anim-test_base.animation",
+            "tests/acceptance/res/4anim-test_wave.animation",
+            "tests/acceptance/res/4anim-test_tantacle.mesh"})
+        }, {
+            "tests/acceptance/4ref_base.animation",
+            "tests/acceptance/4ref_wave.animation",
+            "tests/acceptance/4ref_tantacle.mesh"
+        }, "tests/acceptance/4anim-test.glb"
+    );
 }

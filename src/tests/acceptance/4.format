@@ -1,0 +1,41 @@
+begin mesh
+
+uint:12 indice.0 indice.1 i.2 int:125
+uint:20 ; float:2.7 v.x v.y v.z
+uint:buffs float:normal.x n.y n.z
+buffs uv.0.x uv.0.y
+buffs tangent
+buffs b.x b.y b.z
+fieldb bone_id
+fieldb bone_weight
+buffs m_offset_matrix
+end
+
+begin skeleton
+
+buffs off_matr
+end
+
+begin file tests/acceptance/res/{file}_{skeleton}.skel plainText
+skeleton
+end
+
+begin animation_channel
+
+buffs ; position_key position_timestamp
+buffs ; rotation_key rotation_timestamp
+buffs ; scale_key scale_timestamp
+end
+
+begin animation
+
+entryb ; animation_channel
+end
+
+begin file tests/acceptance/res/{file}_{mesh}.mesh plainText
+mesh
+end
+
+begin file tests/acceptance/res/{file}_{animation}.animation plainText
+animation
+end

@@ -56,6 +56,7 @@ mc::Inode::ptr assimp::animationNode::getChildNodeOfType(mc::ctype::code countin
     case mc::ctype::per_animation_channel:
         return mc::Inode::ptr(new animationChannelNode(animation, animation->mChannels[id]));
         break;
+    default:
         throw std::logic_error("invalid counting type");
         break;
     }

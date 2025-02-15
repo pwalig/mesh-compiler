@@ -21,6 +21,7 @@ namespace mc {
             bone_weight,
 
             offset_matrix,
+            mesh_bone_offset_matrix,
 
             position_key,
             rotation_key,

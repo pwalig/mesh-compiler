@@ -21,7 +21,7 @@ mc::anyType::value assimp::meshBoneNode::getValue(mc::vtype::code v, mc::stype::
 
     switch (v)
     {
-    case mc::vtype::offset_matrix:
+    case mc::vtype::mesh_bone_offset_matrix:
         mc::anyType::setValue(va, mesh->mBones[id]->mOffsetMatrix[suffixes[0]][suffixes[1]], s);
         break;
     default:

@@ -1,6 +1,7 @@
 #include "meshNode.h"
 #include "vertexNode.h"
 #include "faceNode.h"
+#include "meshBoneNode.h"
 #include "reader.h"
 
 assimp::meshNode::meshNode(const aiScene* scene_, const aiMesh* mesh_) :
@@ -54,6 +55,7 @@ mc::Inode::ptr assimp::meshNode::getChildNodeOfType(mc::ctype::code counting_typ
         return mc::Inode::ptr(new vertexNode(mesh, (unsigned long)id));
         break;
     case mc::ctype::per_mesh_bone:
+        return mc::Inode::ptr(new meshBoneNode(mesh, (unsigned long)id));
         break;
     default:
         throw std::logic_error("invalid counting type");

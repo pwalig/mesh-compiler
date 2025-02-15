@@ -27,6 +27,11 @@ const std::unordered_map<std::string, mc::vtype::code> mc::vtype::codes = {
     { "offset_matr", offset_matrix },
     { "offset_matrix", offset_matrix },
 
+    { "m_off_matr", mesh_bone_offset_matrix },
+    { "m_off_matrix", mesh_bone_offset_matrix },
+    { "m_offset_matr", mesh_bone_offset_matrix },
+    { "m_offset_matrix", mesh_bone_offset_matrix },
+
     { "position_key", position_key },
     { "rotation_key", rotation_key },
     { "scale_key", scale_key },
@@ -61,6 +66,7 @@ const std::unordered_map<mc::vtype::code, std::string> mc::vtype::names = {
     { bone_weight, "bone_weight"},
 
     { offset_matrix, "offset_matrix"},
+    { mesh_bone_offset_matrix, "offset_matrix"},
 
     { position_key, "position_key"},
     { rotation_key, "rotation_key"},
@@ -98,7 +104,8 @@ const std::unordered_map<mc::vtype::code, std::vector<unsigned short>> mc::vtype
 
     {vertex_color, std::vector<unsigned short>({8, 4})},
 
-    {offset_matrix, std::vector<unsigned short>({4, 4})}
+    {offset_matrix, std::vector<unsigned short>({4, 4})},
+    {mesh_bone_offset_matrix, std::vector<unsigned short>({4, 4})}
 };
 
 const std::unordered_map<mc::vtype::code, mc::stype::code> mc::vtype::default_stypes = {
@@ -117,6 +124,7 @@ const std::unordered_map<mc::vtype::code, mc::stype::code> mc::vtype::default_st
     {rotation_key, stype::float4},
     {scale_key, stype::float4},
     {offset_matrix, stype::float4},
+    {mesh_bone_offset_matrix, stype::float4},
 
     {position_key_timestamp, stype::float8},
     {rotation_key_timestamp, stype::float8},
@@ -138,6 +146,7 @@ const std::unordered_map<mc::vtype::code, mc::ctype::code> mc::vtype::ctypes = {
     {bone_weight, ctype::per_vertex},
 
     {offset_matrix, ctype::per_bone},
+    {mesh_bone_offset_matrix, ctype::per_mesh_bone},
 
     {position_key, ctype::per_position_keyframe},
     {position_key_timestamp, ctype::per_position_keyframe},
