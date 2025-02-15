@@ -114,7 +114,10 @@ void mc::runOnce(int argc, char** argv) {
         ci_j.compileFile(sourceFile);
         mc::compilationInfo::units.clear();
     }
+    catch (mc::formatException& fe) {
+        fe.print();
+    }
     catch (std::runtime_error& e) {
-        std::cout << e.what() << "\n";
+        std::cerr << e.what() << "\n";
     }
 }

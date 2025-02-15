@@ -150,6 +150,7 @@
     <ClCompile Include="assimp-integration\vertexNode.cpp" />
     <ClCompile Include="core\buffer.cpp" />
     <ClCompile Include="core\compilation-info.cpp" />
+    <ClCompile Include="core\exceptions\formatException.cpp" />
     <ClCompile Include="core\field.cpp" />
     <ClCompile Include="core\fields\cfield.cpp" />
     <ClCompile Include="core\fields\cfieldT.cpp" />
