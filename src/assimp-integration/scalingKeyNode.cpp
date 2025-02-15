@@ -1,7 +1,7 @@
 #include "scalingKeyNode.h"
 
 assimp::scalingKeyNode::scalingKeyNode(const aiNodeAnim* channel_, unsigned long id_) :
-    channel(channel_), id(id_), mc::Inode(mc::ctype::per_indice)
+    channel(channel_), id(id_), mc::Inode(mc::ctype::per_scale_keyframe)
 {
 }
 
@@ -12,7 +12,7 @@ std::string assimp::scalingKeyNode::getName() const
 
 size_t assimp::scalingKeyNode::getCount() const
 {
-    return channel->mNumPositionKeys;
+    return channel->mNumScalingKeys;
 }
 
 mc::anyType::value assimp::scalingKeyNode::getValue(mc::vtype::code v, mc::stype::code s, const std::vector<unsigned short>& suffixes) const

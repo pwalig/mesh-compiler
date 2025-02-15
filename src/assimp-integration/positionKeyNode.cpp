@@ -1,7 +1,7 @@
 #include "positionKeyNode.h"
 
 assimp::positionKeyNode::positionKeyNode(const aiNodeAnim* channel_, unsigned long id_) :
-    channel(channel_), id(id_), mc::Inode(mc::ctype::per_indice)
+    channel(channel_), id(id_), mc::Inode(mc::ctype::per_position_keyframe)
 {
 }
 

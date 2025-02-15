@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="assimp-integration\animationChannelNode.cpp" />
     <ClCompile Include="assimp-integration\animationNode.cpp" />
+    <ClCompile Include="assimp-integration\boneNode.cpp" />
     <ClCompile Include="assimp-integration\faceNode.cpp" />
     <ClCompile Include="assimp-integration\inspector.cpp" />
     <ClCompile Include="assimp-integration\meshBoneNode.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="assimp-integration\scalingKeyNode.cpp" />
     <ClCompile Include="assimp-integration\sceneNode.cpp" />
     <ClCompile Include="assimp-integration\reader.cpp" />
+    <ClCompile Include="assimp-integration\skeletonNode.cpp" />
     <ClCompile Include="assimp-integration\vertexNode.cpp" />
     <ClCompile Include="core\buffer.cpp" />
     <ClCompile Include="core\compilation-info.cpp" />
@@ -179,6 +181,7 @@
   <ItemGroup>
     <ClInclude Include="assimp-integration\animationChannelNode.h" />
     <ClInclude Include="assimp-integration\animationNode.h" />
+    <ClInclude Include="assimp-integration\boneNode.h" />
     <ClInclude Include="assimp-integration\faceNode.h" />
     <ClInclude Include="assimp-integration\inspector.h" />
     <ClInclude Include="assimp-integration\meshBoneNode.h" />
@@ -188,6 +191,7 @@
     <ClInclude Include="assimp-integration\scalingKeyNode.h" />
     <ClInclude Include="assimp-integration\sceneNode.h" />
     <ClInclude Include="assimp-integration\reader.h" />
+    <ClInclude Include="assimp-integration\skeletonNode.h" />
     <ClInclude Include="assimp-integration\vertexNode.h" />
     <ClInclude Include="core\any-type-value.h" />
     <ClInclude Include="core\buffer.h" />

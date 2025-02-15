@@ -1,7 +1,7 @@
 #include "rotationKeyNode.h"
 
 assimp::rotationKeyNode::rotationKeyNode(const aiNodeAnim* channel_, unsigned long id_) :
-    channel(channel_), id(id_), mc::Inode(mc::ctype::per_indice)
+    channel(channel_), id(id_), mc::Inode(mc::ctype::per_rotation_keyframe)
 {
 }
 
@@ -12,7 +12,7 @@ std::string assimp::rotationKeyNode::getName() const
 
 size_t assimp::rotationKeyNode::getCount() const
 {
-    return channel->mNumPositionKeys;
+    return channel->mNumRotationKeys;
 }
 
 mc::anyType::value assimp::rotationKeyNode::getValue(mc::vtype::code v, mc::stype::code s, const std::vector<unsigned short>& suffixes) const

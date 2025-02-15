@@ -23,9 +23,6 @@ mc::anyType::value assimp::animationChannelNode::getValue(mc::vtype::code v, mc:
     throw std::logic_error("no values");
 }
 
-#pragma warning( push )
-#pragma warning( disable : 4715 )
-
 size_t assimp::animationChannelNode::getChildNodeCount(mc::ctype::code counting_type) const
 {
     switch (counting_type)
@@ -63,7 +60,5 @@ mc::Inode::ptr assimp::animationChannelNode::getChildNodeOfType(mc::ctype::code 
         break;
     }
 }
-
-#pragma warning ( pop )
 
 oop_ptr_define(mc::Inode, assimp::animationChannelNode)

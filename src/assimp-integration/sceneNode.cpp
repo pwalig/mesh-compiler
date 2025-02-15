@@ -1,6 +1,7 @@
 #include "sceneNode.h"
 #include "meshNode.h"
 #include "animationNode.h"
+#include "skeletonNode.h"
 
 assimp::sceneNode::sceneNode(const aiScene* scene_) :
     scene(scene_), mc::Inode(mc::ctype::per_scene)
@@ -21,9 +22,6 @@ mc::anyType::value assimp::sceneNode::getValue(mc::vtype::code v, mc::stype::cod
 {
     throw std::logic_error("no values");
 }
-
-#pragma warning( push )
-#pragma warning( disable : 4715 )
 
 size_t assimp::sceneNode::getChildNodeCount(mc::ctype::code counting_type) const
 {
@@ -52,6 +50,7 @@ mc::Inode::ptr assimp::sceneNode::getChildNodeOfType(mc::ctype::code counting_ty
         return mc::Inode::ptr(new meshNode(scene, scene->mMeshes[id]));
         break;
     case mc::ctype::per_skeleton:
+        return mc::Inode::ptr(new skeletonNode(scene, scene->mSkeletons[id]));
         break;
     case mc::ctype::per_animation:
         return mc::Inode::ptr(new animationNode(scene, scene->mAnimations[id]));
@@ -61,7 +60,5 @@ mc::Inode::ptr assimp::sceneNode::getChildNodeOfType(mc::ctype::code counting_ty
         break;
     }
 }
-
-#pragma warning ( pop )
 
 oop_ptr_define(mc::Inode, assimp::sceneNode)
