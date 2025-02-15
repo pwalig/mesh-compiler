@@ -14,7 +14,7 @@
                 },
                 {
                     "type": "uint4",
-                    "value": "buffs"
+                    "value": "bufixfs"
                 },
                 {
                     "type": "uint4",

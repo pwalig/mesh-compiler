@@ -13,6 +13,6 @@ namespace mc {
 		compilationInfo() = default;
 		compilationInfo(const std::string& filename);
 
-		void compileFile(const std::string& filename);
+		void compileFile(const std::string& filename, bool debug = false);
 	};
 }

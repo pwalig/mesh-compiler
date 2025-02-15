@@ -81,11 +81,11 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
     }
 }
 
-void mc::compilationInfo::compileFile(const std::string& filename) {
-    // std::cout << "compiling file: " << filename << "\n";
+void mc::compilationInfo::compileFile(const std::string& filename, bool debug) {
+    if (debug) std::cout << "compiling file: " << filename << "\n";
 
     for (fileUnit& fu : file_units) {
-        // std::cout << "file unit: " << fu.output_file << "\n";
+        if (debug) std::cout << "file unit: " << fu.output_file << "\n";
 
         std::string base_filename = filename.substr(filename.find_last_of("/\\") + 1);
         const size_t p(base_filename.find_last_of('.'));
@@ -93,8 +93,8 @@ void mc::compilationInfo::compileFile(const std::string& filename) {
         std::string orig_name = fu.output_file;
         fu.changeName("{file}", base_filename.substr(0, p));
 
-        assimp::readFile(filename, [&fu](const aiScene* scene) {
-            fu.compile(Inode::ptr(new assimp::sceneNode(scene)));
+        assimp::readFile(filename, [&fu, debug](const aiScene* scene) {
+            fu.compile(Inode::ptr(new assimp::sceneNode(scene)), debug);
             });
 
         fu.output_file = orig_name;

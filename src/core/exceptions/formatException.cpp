@@ -2,8 +2,9 @@
 #include <iostream>
 #include <string>
 
-void mc::formatException::print()
+std::ostream& operator<<(std::ostream& os, const mc::formatException& fe)
 {
-	std::cerr << "format interpretation error: in line " + std::to_string(this->context.linenum)
-		+ " " + this->what() + "\n";
+	std::cerr << "format interpretation error: in line " + std::to_string(fe.context.linenum)
+		+ " " + fe.what();
+    return os;
 }

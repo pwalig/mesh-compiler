@@ -1,5 +1,6 @@
 #pragma once
 #include <stdexcept>
+#include <ostream>
 #include "../compilationContext.h"
 
 namespace mc {
@@ -11,7 +12,7 @@ namespace mc {
 			runtime_error(_Message), context(context_) {}
 		formatException(const std::string _Message, compilationContext context_) :
 			runtime_error(_Message), context(context_) {}
-
-		void print();
 	};
 }
+
+std::ostream& operator<<(std::ostream& os, const mc::formatException& fe);

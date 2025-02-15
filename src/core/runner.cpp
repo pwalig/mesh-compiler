@@ -108,16 +108,24 @@ void mc::runOnce(int argc, char** argv) {
         }
     }
 
+    formatFile = (formatFile == "" ? ".format" : formatFile);
+
     // running the program 
     try {
-        mc::compilationInfo ci_j(formatFile == "" ? ".format" : formatFile);
-        ci_j.compileFile(sourceFile);
+        if (debug_flag) std::cout << "reading: " << formatFile << "\n";
+        mc::compilationInfo ci_j(formatFile);
+        if (debug_flag) std::cout << "format aquired\n";
+        ci_j.compileFile(sourceFile, debug_flag);
         mc::compilationInfo::units.clear();
+        if (debug_flag) std::cout << "compilation successful\n";
     }
     catch (mc::formatException& fe) {
-        fe.print();
+        std::cerr << fe << "\n";
     }
-    catch (std::exception& e) {
+    catch (mc::jsonException& je) {
+        std::cerr << "JSON format interpretation error: " << je.what() << "\n";
+    }
+    catch (std::runtime_error& e) {
         std::cerr << e.what() << "\n";
     }
 }

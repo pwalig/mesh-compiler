@@ -39,7 +39,7 @@ namespace mc {
 		fileUnit(std::ifstream& file, const std::string& output_file_, compilationContext& context);
 		fileUnit(const rapidjson::Value& json);
 
-		void compile(const Inode::ptr node);
+		void compile(const Inode::ptr node, bool debug = false);
 
 		void changeName(const std::string& pattern, const std::string& newName);
 		void withChangedName(
