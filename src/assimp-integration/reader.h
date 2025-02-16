@@ -50,7 +50,7 @@ namespace assimp {
 
     extern std::unordered_map<const aiMesh*, meshWeights<unsigned int, ai_real, 4U>> meshWeightsMap;
 
-	bool readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags =
+	void readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags =
         aiProcess_CalcTangentSpace |
         aiProcess_Triangulate |
         aiProcess_JoinIdenticalVertices |

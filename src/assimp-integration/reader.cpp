@@ -1,9 +1,10 @@
 #include "reader.h"
 #include <assimp/Importer.hpp>
+#include <stdexcept>
 
 std::unordered_map<const aiMesh*, assimp::meshWeights<unsigned int, ai_real, 4U>> assimp::meshWeightsMap;
 
-bool assimp::readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags)
+void assimp::readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags)
 {
     // Create an instance of the Importer class
     Assimp::Importer importer;
@@ -15,13 +16,11 @@ bool assimp::readFile(const std::string& pFile, std::function<void(const aiScene
 
     // If the import failed, report it
     if (nullptr == scene) {
-        printf("%s\n", importer.GetErrorString());
-        return false;
+        throw std::runtime_error(importer.GetErrorString());
     }
 
     // Now we can access the file's contents.
     process_scene(scene);
 
     // We're done. Everything will be cleaned up by the importer destructor
-    return true;
 }
