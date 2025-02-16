@@ -80,13 +80,13 @@ void mc::runOnce(int argc, char** argv) {
     }
     catch (args::ParseError e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << "\n";
         std::cerr << parser;
         return;
     }
     catch (args::ValidationError e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << "\n";
         std::cerr << parser;
         return;
     }
@@ -99,6 +99,10 @@ void mc::runOnce(int argc, char** argv) {
     std::string sourceFile = "";
     std::string formatFile = "";
     if (source_arg) sourceFile = args::get(source_arg);
+    else {
+        std::cerr << "source file unspecified\n" << parser;
+        return;
+    }
     if (format_arg) formatFile = args::get(format_arg);
     if (format_flag) {
         if (formatFile == "") formatFile = args::get(format_arg);

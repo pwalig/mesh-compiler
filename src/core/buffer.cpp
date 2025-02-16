@@ -5,9 +5,10 @@
 #include "fields/ufield.h"
 #include "compilation-info.h"
 
-mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
+mc::buffer::buffer(const rapidjson::Value& json, bool sizeQuerry) : c(ctype::null)
 {
     assert(json.IsObject());
+    bool unitReferenceField = false; // to check if attempt to get unit reference size was made
 
     assert(json.HasMember("fields"));
     const rapidjson::Value& f = json["fields"];
@@ -22,6 +23,10 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
                 " conficts with " + ctype::names.at(c));
             }
         );
+
+        if (fields.back().gettable<ufield>()) unitReferenceField = true;
+        if (unitReferenceField && sizeQuerry)
+			throw jsonException("attempt to get size of unit reference");
     }
 
     if (c == ctype::null) throw std::runtime_error("buffer of unknown counting type");
@@ -41,6 +46,13 @@ mc::buffer::buffer(const rapidjson::Value& json) : c(ctype::null)
                 ", buffer's counting type: " + ctype::names.at(c));
             }
         );
+
+		// check if querring for size
+		if (unitReferenceField && preamble.back().gettable<bpfield>()) {
+			ptype::code p = preamble.back().get<bpfield>()->p;
+			if (p == ptype::buffer_size || p == ptype::entry_size || p == ptype::field_size)
+				throw jsonException("attempt to get size of unit reference");
+		}
     }
 }
 

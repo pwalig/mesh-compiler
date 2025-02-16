@@ -17,6 +17,7 @@
 mc::unit::unit(std::ifstream& file, compilationContext& context) : c(ctype::null)
 {
     std::string line;
+    bool sizeQuerry = false; // check if querring for size (important to throw error when attempting to get size of ufield)
 
     // preamble
     std::getline(file, line); // line of the preamble
@@ -25,6 +26,12 @@ mc::unit::unit(std::ifstream& file, compilationContext& context) : c(ctype::null
     std::string word;
     while (ss >> word) {
         preamble.push_back(field::getPtr(word, mc::field::location::main_preamble, context));
+
+        // check if querring for size
+        if (!sizeQuerry && preamble.back().gettable<pfield>()) {
+            ptype::code p = preamble.back().get<pfield>()->p;
+            if (p == ptype::buffer_size || p == ptype::entry_size || p == ptype::field_size) sizeQuerry = true;
+        }
 
         updateCtype(c, preamble.back()->getCountingType(), [this, context](ctype::code new_, ctype::code old) {
             if (old != new_) throw formatException("conflicting counting types in unit preamble\n"
@@ -51,13 +58,21 @@ mc::unit::unit(std::ifstream& file, compilationContext& context) : c(ctype::null
                 if (vfield::gettable(word)) inPreamble = false;
                 if (inPreamble) {
                     b.preamble.push_back(field::getPtr(word, mc::field::location::buffer_preamble, context));
+
                     updateCtype(preambleCT, b.preamble.back()->getCountingType(), [context](ctype::code new_, ctype::code old) {
                         if (new_ != old) throw formatException("conflicting counting types in buffer preamble\n" +
                             ctype::names.at(new_) + " conflicts with " + ctype::names.at(old), context);
                         });
+
+					// check if querring for size
+					if (!sizeQuerry && b.preamble.back().gettable<bpfield>()) {
+						ptype::code p = b.preamble.back().get<bpfield>()->p;
+						if (p == ptype::buffer_size || p == ptype::entry_size || p == ptype::field_size) sizeQuerry = true;
+					}
                 }
                 else {
                     b.fields.push_back(field::getPtr(word, mc::field::location::buffer_field, context));
+
                     updateCtype(b.c, b.fields.back()->getCountingType(), [preambleCT, context](ctype::code new_, ctype::code old) {
                         if (new_ != old) throw formatException("conflicting counting types in buffer fields\n" +
                             ctype::names.at(new_) + " conflicts with " + ctype::names.at(old), context);
@@ -65,6 +80,9 @@ mc::unit::unit(std::ifstream& file, compilationContext& context) : c(ctype::null
                             "conflicting counting types between buffer field and buffer preamble\nfield's counting type: " +
                             ctype::names.at(new_) + " conflicts with preamble's counting type: " + ctype::names.at(preambleCT), context);
                         });
+
+                    if (sizeQuerry && b.fields.back().gettable<ufield>())
+                        throw formatException("attempt to get size of unit reference", context);
                 }
             }
         } while (ss >> word);
@@ -83,6 +101,7 @@ mc::unit::unit(std::ifstream& file, compilationContext& context) : c(ctype::null
 mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
 {
     assert(json.IsObject());
+    bool sizeQuerry = false; // check if querring for size (important to throw error when attempting to get size of ufield)
 
     if (json.HasMember("preamble")) {
         const rapidjson::Value& p = json["preamble"];
@@ -95,6 +114,12 @@ mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
                 if (old != new_) throw jsonException("conflicting counting types in unit preamble\n"
                     + ctype::names.at(new_) + " conficts with " + ctype::names.at(c));
                 });
+
+			// check if querring for size
+			if (!sizeQuerry && preamble.back().gettable<pfield>()) {
+				ptype::code p = preamble.back().get<pfield>()->p;
+				if (p == ptype::buffer_size || p == ptype::entry_size || p == ptype::field_size) sizeQuerry = true;
+			}
         }
     }
 
@@ -103,7 +128,7 @@ mc::unit::unit(const rapidjson::Value& json) : c(ctype::null)
         if (!b.IsArray()) throw jsonException("unit buffers was not a json array");
 
         for (rapidjson::SizeType i = 0; i < b.Size(); i++) {
-            buffers.push_back(buffer(b[i]));
+            buffers.push_back(buffer(b[i], sizeQuerry));
 
             updateCtype(c, ctype::parents.at(buffers.back().c), [this](ctype::code new_, ctype::code old) {
                 if (old != new_) throw jsonException("buffer counting type conflicts with unit's counting type\nbuffer's counting type: "

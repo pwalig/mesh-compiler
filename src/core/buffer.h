@@ -18,7 +18,7 @@ namespace mc {
 		ctype::code c = ctype::null;
 
 		buffer() = default;
-		buffer(const rapidjson::Value& json);
+		buffer(const rapidjson::Value& json, bool sizeQuerry);
 
 		void output(std::ofstream& file, const Inode::ptr node, mc::printMode pm);
 
