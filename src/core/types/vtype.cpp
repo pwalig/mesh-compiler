@@ -126,9 +126,9 @@ const std::unordered_map<mc::vtype::code, mc::stype::code> mc::vtype::default_st
 
     {bone_id, stype::int4},
     {bone_parent, stype::int4},
-    {bone_child, stype::int4},
+    {bone_child, stype::uint4},
     {mesh_bone_parent, stype::int4},
-    {mesh_bone_child, stype::int4},
+    {mesh_bone_child, stype::uint4},
 
     {vertex, stype::float4},
     {normal, stype::float4},
