@@ -10,10 +10,12 @@ namespace mc {
             per_indice,
             per_vertex,
             per_mesh_bone,
+            per_mesh_bone_child,
             per_mesh,
 
             per_bone,
             per_skeleton,
+            per_bone_child,
 
             per_position_keyframe,
             per_rotation_keyframe,

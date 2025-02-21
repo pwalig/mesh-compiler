@@ -237,11 +237,21 @@ void tests::run()
         Case(Case::getFromFile("tests/acceptance/4.format"), {
             "tests/acceptance/res/4anim-test_base.animation",
             "tests/acceptance/res/4anim-test_wave.animation",
-            "tests/acceptance/res/4anim-test_tantacle.mesh"})
+            "tests/acceptance/res/4anim-test_tantacle.mesh"}),
         }, {
             "tests/acceptance/4ref_base.animation",
             "tests/acceptance/4ref_wave.animation",
             "tests/acceptance/4ref_tantacle.mesh"
+        }, "tests/acceptance/4anim-test.glb"
+    );
+
+
+    std::cout << "\n test #5\n";
+    run({
+        Case(Case::getFromFile("tests/acceptance/5.format"), {
+            "tests/acceptance/res/5.skel"})
+        }, {
+            "tests/acceptance/5ref.skel",
         }, "tests/acceptance/4anim-test.glb"
     );
 }

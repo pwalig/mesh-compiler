@@ -1,0 +1,9 @@
+begin bone_children
+
+entryb m_bone_child
+end
+
+begin file tests/acceptance/res/5.skel plainText
+
+entryb m_bone_parent bone_children m_offset_matrix
+end

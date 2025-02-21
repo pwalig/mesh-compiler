@@ -144,6 +144,7 @@
     <ClCompile Include="assimp-integration\boneNode.cpp" />
     <ClCompile Include="assimp-integration\faceNode.cpp" />
     <ClCompile Include="assimp-integration\inspector.cpp" />
+    <ClCompile Include="assimp-integration\meshBoneChildNode.cpp" />
     <ClCompile Include="assimp-integration\meshBoneNode.cpp" />
     <ClCompile Include="assimp-integration\meshNode.cpp" />
     <ClCompile Include="assimp-integration\positionKeyNode.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="assimp-integration\boneNode.h" />
     <ClInclude Include="assimp-integration\faceNode.h" />
     <ClInclude Include="assimp-integration\inspector.h" />
+    <ClInclude Include="assimp-integration\meshBoneChildNode.h" />
     <ClInclude Include="assimp-integration\meshBoneNode.h" />
     <ClInclude Include="assimp-integration\meshNode.h" />
     <ClInclude Include="assimp-integration\positionKeyNode.h" />

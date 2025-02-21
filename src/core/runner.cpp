@@ -53,7 +53,7 @@ void mc::runOnce(int argc, char** argv) {
     );
     args::HelpFlag help_flag(parser, "help", "Display this help menu", {'h', "help"});
     args::ValueFlag<std::string> format_flag(parser, "format file", "Specifies path to .format file", {'f', "format"});
-    args::Flag version_flag(parser, "version", "Display version of this software", { 'v', "version" });
+    args::Flag version_flag(parser, "version", "Display version of this program", { 'v', "version" });
     args::Flag debug_flag(parser, "debug info", "Display debugging information", { 'd', "debug" });
     args::Positional<std::string> source_arg(parser, "source file", "Specifies path to 3D source file");
     args::Positional<std::string> format_arg(parser, "format file", "Specifies path to .format file");

@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 std::unordered_map<const aiMesh*, assimp::meshWeights<unsigned int, ai_real, 4U>> assimp::meshWeightsMap;
+std::unordered_map<const aiMesh*, assimp::skeleton> assimp::meshSkeletonsMap;
 
 void assimp::readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags)
 {
@@ -21,6 +22,10 @@ void assimp::readFile(const std::string& pFile, std::function<void(const aiScene
 
     // Now we can access the file's contents.
     process_scene(scene);
+
+
+    meshWeightsMap.clear();
+    meshSkeletonsMap.clear();
 
     // We're done. Everything will be cleaned up by the importer destructor
 }

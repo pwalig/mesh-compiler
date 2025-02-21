@@ -8,6 +8,8 @@
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <map>
+#include <cassert>
 
 namespace assimp {
 
@@ -35,12 +37,16 @@ namespace assimp {
     public:
         class bone {
         public:
-            bone();
-            bone(const aiBone* b);
             aiMatrix4x4 offset_matrix;
             aiVector3D position;
             aiVector3D rotation;
             aiVector3D scale;
+            unsigned int parent;
+            std::vector<unsigned int> children;
+
+            bone() = default;
+            bone(const aiBone* b);
+
             const std::string name;
             void setData(const aiMatrix4x4 offset_matrix);
         };
@@ -49,6 +55,7 @@ namespace assimp {
     };
 
     extern std::unordered_map<const aiMesh*, meshWeights<unsigned int, ai_real, 4U>> meshWeightsMap;
+    extern std::unordered_map<const aiMesh*, skeleton> meshSkeletonsMap;
 
 	void readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags =
         aiProcess_CalcTangentSpace |
@@ -110,9 +117,6 @@ namespace assimp {
         }
     }
 
-    inline skeleton::bone::bone()
-    {}
-
     inline skeleton::bone::bone(const aiBone* b) : name(b->mName.C_Str())
     {
         this->setData(b->mOffsetMatrix);
@@ -126,10 +130,33 @@ namespace assimp {
 
     inline skeleton::skeleton(const aiMesh* mesh)
     {
+        std::map<aiNode*, unsigned int> boneIndexMap;
         for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
         {
-            bone b(mesh->mBones[boneIndex]);
+            aiBone* aib = mesh->mBones[boneIndex];
+            boneIndexMap.insert({ aib->mNode, boneIndex });
+            bone b(aib);
             bones.push_back(b);
+        }
+
+        for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+        {
+            aiNode* ain = mesh->mBones[boneIndex]->mNode;
+            bone& b = bones[boneIndex];
+
+            // parent
+            {
+                auto it = boneIndexMap.find(ain->mParent);
+                if (it != boneIndexMap.end()) b.parent = it->second;
+                else b.parent = -1;
+            }
+
+            // children
+            for (unsigned int i = 0; i < ain->mNumChildren; ++i) {
+                auto it = boneIndexMap.find(ain->mChildren[i]);
+                assert(it != boneIndexMap.end());
+                b.children.push_back(it->second);
+            }
         }
     }
 }

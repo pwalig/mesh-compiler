@@ -22,15 +22,19 @@ const std::unordered_map<std::string, mc::vtype::code> mc::vtype::codes = {
     { "bone_id", bone_id },
     { "bone_weight", bone_weight },
 
-    { "off_matr", offset_matrix },
-    { "off_matrix", offset_matrix },
-    { "offset_matr", offset_matrix },
-    { "offset_matrix", offset_matrix },
-
     { "m_off_matr", mesh_bone_offset_matrix },
     { "m_off_matrix", mesh_bone_offset_matrix },
     { "m_offset_matr", mesh_bone_offset_matrix },
     { "m_offset_matrix", mesh_bone_offset_matrix },
+    { "m_bone_parent", mesh_bone_parent },
+    { "m_bone_child", mesh_bone_child },
+
+    { "off_matr", offset_matrix },
+    { "off_matrix", offset_matrix },
+    { "offset_matr", offset_matrix },
+    { "offset_matrix", offset_matrix },
+    { "bone_parent", bone_parent },
+    { "bone_child", bone_child },
 
     { "position_key", position_key },
     { "rotation_key", rotation_key },
@@ -65,8 +69,13 @@ const std::unordered_map<mc::vtype::code, std::string> mc::vtype::names = {
     { bone_id, "bone_id"},
     { bone_weight, "bone_weight"},
 
-    { offset_matrix, "offset_matrix"},
     { mesh_bone_offset_matrix, "offset_matrix"},
+    { mesh_bone_parent, "bone_parent" },
+    { mesh_bone_child, "bone_child" },
+
+    { offset_matrix, "offset_matrix"},
+    { bone_parent, "bone_parent" },
+    { bone_child, "bone_child" },
 
     { position_key, "position_key"},
     { rotation_key, "rotation_key"},
@@ -86,6 +95,10 @@ const std::unordered_map<mc::vtype::code, std::vector<unsigned short>> mc::vtype
     {scale_key_timestamp, std::vector<unsigned short>()},
     {duration, std::vector<unsigned short>()},
     {ticks_per_second, std::vector<unsigned short>()},
+    {bone_parent, std::vector<unsigned short>()},
+    {bone_child, std::vector<unsigned short>()},
+    {mesh_bone_parent, std::vector<unsigned short>()},
+    {mesh_bone_child, std::vector<unsigned short>()},
 
     {indice, std::vector<unsigned short>({3})},
     {vertex, std::vector<unsigned short>({3})},
@@ -112,6 +125,10 @@ const std::unordered_map<mc::vtype::code, mc::stype::code> mc::vtype::default_st
     {indice, stype::uint4},
 
     {bone_id, stype::int4},
+    {bone_parent, stype::int4},
+    {bone_child, stype::int4},
+    {mesh_bone_parent, stype::int4},
+    {mesh_bone_child, stype::int4},
 
     {vertex, stype::float4},
     {normal, stype::float4},
@@ -145,8 +162,13 @@ const std::unordered_map<mc::vtype::code, mc::ctype::code> mc::vtype::ctypes = {
     {bone_id, ctype::per_vertex},
     {bone_weight, ctype::per_vertex},
 
-    {offset_matrix, ctype::per_bone},
     {mesh_bone_offset_matrix, ctype::per_mesh_bone},
+    {mesh_bone_parent, ctype::per_mesh_bone},
+    {mesh_bone_child, ctype::per_mesh_bone_child},
+
+    {offset_matrix, ctype::per_bone},
+    {bone_parent, ctype::per_bone},
+    {bone_child, ctype::per_bone_child},
 
     {position_key, ctype::per_position_keyframe},
     {position_key_timestamp, ctype::per_position_keyframe},
