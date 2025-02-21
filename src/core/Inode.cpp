@@ -16,15 +16,12 @@ std::vector<mc::anyType::value> mc::Inode::getValues(mc::vtype::code v, mc::styp
     }
 
     std::vector<unsigned short> sfx = suffixes;
-    for (size_t i = suffixes.size(); i < maxSfxs.size(); ++i)
-    {
-        sfx.push_back(0);
-        for (unsigned short j = 0; j < maxSfxs[i]; ++j) {
-            sfx.back() = j;
-            std::vector<mc::anyType::value> va = getValues(v, s, sfx);
-            res.insert(res.end(), va.begin(), va.end());
-        }
-    }
+	sfx.push_back(0);
+	for (unsigned short j = 0; j < maxSfxs[suffixes.size()]; ++j) {
+		sfx.back() = j;
+		std::vector<mc::anyType::value> va = getValues(v, s, sfx);
+		res.insert(res.end(), va.begin(), va.end());
+	}
 
     return res;
 }
