@@ -7,7 +7,7 @@
 #include "exceptions/compileException.h"
 #include <args.hxx>
 
-const std::string mc::version = "2.2.1";
+const std::string mc::version = "2.2.2";
 const std::string mc::programName = "mesh-compiler";
 
 // returns vector of pointers into the string "line" passed as argument
