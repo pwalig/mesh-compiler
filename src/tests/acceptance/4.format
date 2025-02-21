@@ -11,15 +11,6 @@ fieldb bone_weight
 buffs m_offset_matrix
 end
 
-begin skeleton
-
-buffs off_matr
-end
-
-begin file tests/acceptance/res/{file}_{skeleton}.skel plainText
-skeleton
-end
-
 begin animation_channel
 
 buffs ; position_key position_timestamp

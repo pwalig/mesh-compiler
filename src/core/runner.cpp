@@ -29,16 +29,6 @@ std::vector<char*> cArgs(std::string& line) {
     return res;
 }
 
-// returns vector of pointers into the strings
-std::vector<const char*> cArgs(const std::vector<std::string>& args)
-{
-    std::vector<const char*> res(args.size());
-    for (const std::string& str : args) {
-        res.push_back(str.data());
-    }
-    return res;
-}
-
 void mc::run(int argc, char** argv)
 {
     if (argc == 1) {
