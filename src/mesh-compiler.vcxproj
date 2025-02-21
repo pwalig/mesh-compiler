@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="assimp-integration\animationChannelNode.cpp" />
     <ClCompile Include="assimp-integration\animationNode.cpp" />
+    <ClCompile Include="assimp-integration\boneChildNode.cpp" />
     <ClCompile Include="assimp-integration\boneNode.cpp" />
     <ClCompile Include="assimp-integration\faceNode.cpp" />
     <ClCompile Include="assimp-integration\inspector.cpp" />
@@ -182,6 +183,7 @@
   <ItemGroup>
     <ClInclude Include="assimp-integration\animationChannelNode.h" />
     <ClInclude Include="assimp-integration\animationNode.h" />
+    <ClInclude Include="assimp-integration\boneChildNode.h" />
     <ClInclude Include="assimp-integration\boneNode.h" />
     <ClInclude Include="assimp-integration\faceNode.h" />
     <ClInclude Include="assimp-integration\inspector.h" />
