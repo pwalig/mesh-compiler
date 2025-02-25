@@ -34,7 +34,7 @@ const std::unordered_map<std::string, mc::vtype::code> mc::vtype::codes = {
     { "offset_matr", offset_matrix },
     { "offset_matrix", offset_matrix },
     { "bone_parent", bone_parent },
-    { "bone_child", bone_child },
+    //{ "bone_child", bone_child },
 
     { "position_key", position_key },
     { "rotation_key", rotation_key },

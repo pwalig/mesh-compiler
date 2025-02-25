@@ -20,44 +20,43 @@ mc::field::ptr mc::cfield::getPtr(const rapidjson::Value& json)
 	assert(json.HasMember("type"));
 	assert(json["type"].IsString());
 	stype::code s = stype::codes.at(json["type"].GetString());
-	anyType::getValue(s, json["value"].Get<int>());
 	switch (s)
 	{
 	case mc::stype::char_:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<int>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<int>())));
 		break;
 	case mc::stype::int2:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<int>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<int>())));
 		break;
 	case mc::stype::uint2:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<unsigned int>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<unsigned int>())));
 		break;
 	case mc::stype::int4:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<int>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<int>())));
 		break;
 	case mc::stype::uint4:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<unsigned int>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<unsigned int>())));
 		break;
 	case mc::stype::int8:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<long long>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<long long>())));
 		break;
 	case mc::stype::uint8:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<unsigned long long>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<unsigned long long>())));
 		break;
 	case mc::stype::int16:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<long long>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<long long>())));
 		break;
 	case mc::stype::uint16:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<unsigned long long>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<unsigned long long>())));
 		break;
 	case mc::stype::float4:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<float>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<float>())));
 		break;
 	case mc::stype::float8:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<double>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<double>())));
 		break;
 	case mc::stype::float16:
-		return field::ptr(new cfield(s, anyType::getValue(s, json["value"].Get<double>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<double>())));
 		break;
 	default:
 		throw std::logic_error("wrong stype");

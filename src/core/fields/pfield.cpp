@@ -12,27 +12,27 @@ std::vector<mc::anyType::value> mc::bpfield::evaluate1(const Inode::ptr node, co
 	switch (p)
 	{
 	case ptype::buffer_size:
-		out.push_back(anyType::getValue(s, buffe->getSize(node)));
+		out.push_back(anyType::get(s, buffe->getSize(node)));
 		break;
 	case ptype::entry_size:
-		out.push_back(anyType::getValue(s, buffe->getEntrySize()));
+		out.push_back(anyType::get(s, buffe->getEntrySize()));
 		break;
 	case ptype::entries_per_buffer:
-		out.push_back(anyType::getValue(s, node->getCount()));
+		out.push_back(anyType::get(s, node->getCount()));
 		break;
 	case ptype::field_size:
 		for (const field::ptr& f : buffe->fields) {
 			size_t count = f->getCount();
 			for (size_t i = 0; i < count; ++i) {
-				out.push_back(anyType::getValue(s, f->getSize() / count));
+				out.push_back(anyType::get(s, f->getSize() / count));
 			}
 		}
 		break;
 	case ptype::fields_per_entry:
-		out.push_back(anyType::getValue(s, buffe->fieldsPerEntry()));
+		out.push_back(anyType::get(s, buffe->fieldsPerEntry()));
 		break;
 	case ptype::fields_per_buffer:
-		out.push_back(anyType::getValue(s, buffe->fieldsPerEntry() * node->getCount()));
+		out.push_back(anyType::get(s, buffe->fieldsPerEntry() * node->getCount()));
 		break;
 	default:
 		throw std::logic_error("invalid ptype");
@@ -54,13 +54,13 @@ std::vector<mc::anyType::value> mc::pfield::evaluate(const Inode::ptr node) cons
 	switch (p)
 	{
 	case ptype::buffers_per_unit:
-		out.push_back(anyType::getValue(s, u->buffers.size()));
+		out.push_back(anyType::get(s, u->buffers.size()));
 		break;
 	case ptype::entries_per_unit:
-		out.push_back(anyType::getValue(s, u->getEntriesCount(node)));
+		out.push_back(anyType::get(s, u->getEntriesCount(node)));
 		break;
 	case ptype::fields_per_unit:
-		out.push_back(anyType::getValue(s, u->getFieldsCount(node)));
+		out.push_back(anyType::get(s, u->getFieldsCount(node)));
 		break;
 	case ptype::buffer_size:
 	case ptype::entry_size:

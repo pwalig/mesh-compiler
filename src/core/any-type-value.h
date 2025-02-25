@@ -68,14 +68,14 @@ namespace mc {
         }
 
         template<typename T>
-        inline value getValue(stype::code s, T val) {
+        inline value get(stype::code s, T val) {
             value v{};
             setValue<T>(v, val, s);
             return v;
         }
 
         // throws invalid argument exception if str is not a number
-        inline value getValue(stype::code s, const std::string& str) {
+        inline value get(stype::code s, const std::string& str) {
             value v{};
             switch (s)
             {

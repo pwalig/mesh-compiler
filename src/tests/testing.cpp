@@ -132,7 +132,7 @@ void tests::run()
             fu.c = mc::ctype::per_mesh;
             fu.output_file = "tests/acceptance/res/{mesh}_code.txt";
             fu.mode = mc::printMode::plainText;
-            fu.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
+            fu.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::get(mc::stype::int4, -50))));
             fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffers_per_unit)));
             fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::buffer_size)));
             fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::entries_per_unit)));
@@ -144,7 +144,7 @@ void tests::run()
             fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::field_size)));
             mc::buffer buff;
             buff.c = mc::ctype::per_vertex;
-            buff.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -30))));
+            buff.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::get(mc::stype::int4, -30))));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::buffer_size)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::entries_per_buffer)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::entry_size)));
@@ -154,7 +154,7 @@ void tests::run()
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 0 })));
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 1 })));
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 2 })));
-            buff.fields.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -20))));
+            buff.fields.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::get(mc::stype::int4, -20))));
             fu.buffers.push_back(buff);
             fu.buffers.push_back(buff);
             ci_c.file_units.push_back(fu);
@@ -176,7 +176,7 @@ void tests::run()
             fu.preamble.push_back(mc::field::ptr(new mc::pfield(mc::stype::uint4, mc::ptype::field_size)));
             mc::buffer buff;
             buff.c = mc::ctype::per_vertex;
-            buff.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -30))));
+            buff.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::get(mc::stype::int4, -30))));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::buffer_size)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::entries_per_buffer)));
             buff.preamble.push_back(mc::field::ptr(new mc::bpfield(mc::stype::uint4, mc::ptype::entry_size)));
@@ -186,7 +186,7 @@ void tests::run()
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 0 })));
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 1 })));
             buff.fields.push_back(mc::field::ptr(new mc::vfield(mc::stype::float4, mc::vtype::vertex, { 2 })));
-            buff.fields.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -20))));
+            buff.fields.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::get(mc::stype::int4, -20))));
             fu.buffers.push_back(buff);
             fu.buffers.push_back(buff);
             ci_c.units.insert({ "mesh", fu });
@@ -195,7 +195,7 @@ void tests::run()
             fu1.output_file = "tests/acceptance/res/{mesh}_code_unit_references.txt";
             fu1.c = mc::ctype::per_mesh;
             fu1.mode = mc::printMode::plainText;
-            fu1.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::getValue(mc::stype::int4, -50))));
+            fu1.preamble.push_back(mc::field::ptr(new mc::cfield(mc::stype::int4, mc::anyType::get(mc::stype::int4, -50))));
             fu1.preamble.push_back(mc::field::ptr(new mc::ufield("mesh")));
             ci_c.file_units.push_back(fu1);
             return ci_c;

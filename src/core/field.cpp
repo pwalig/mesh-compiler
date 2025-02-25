@@ -74,7 +74,7 @@ mc::field::ptr mc::field::getPtr(const std::string& word, location loc, const co
 		valuestr = word.substr(pos + 1, word.size() - pos);
 
 		try {
-			anyType::value v = anyType::getValue(st, valuestr);
+			anyType::value v = anyType::get(st, valuestr);
 			return ptr(new cfield(st, v));
 		}
 		catch (std::invalid_argument&) {}
