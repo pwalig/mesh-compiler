@@ -62,6 +62,8 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
                         if (ss >> word) { // print mode
                             if (std::find(plainTextSpellings.begin(), plainTextSpellings.end(), word) != plainTextSpellings.end())
                                 file_units.back().mode = mc::printMode::plainText;
+							else if (std::find(littleEndianSpellings.begin(), littleEndianSpellings.end(), word) != littleEndianSpellings.end()) file_units.back().mode = mc::printMode::littleEndian;
+							else if (std::find(bigEndianSpellings.begin(), bigEndianSpellings.end(), word) != bigEndianSpellings.end()) file_units.back().mode = mc::printMode::bigEndian;
                             else if (word == binarySpelling) file_units.back().mode = printMode::binary;
 							else throw formatException("unknown token: " + word, context);
                         }

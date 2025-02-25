@@ -1,4 +1,4 @@
-begin file tests/acceptance/res/{mesh}.mesh
+begin file tests/acceptance/res/{mesh}.mesh littleEndian
 
 fieldb i.0 i.1 i.2
 fieldb v.x v.y v.z float4:1.0

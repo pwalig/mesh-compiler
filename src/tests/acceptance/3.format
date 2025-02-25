@@ -1,5 +1,0 @@
-begin file tests/acceptance/res/{mesh}.mesh
-
-fieldb i
-fieldb v n uv.0.x uv.0.y
-end

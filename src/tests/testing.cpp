@@ -220,10 +220,14 @@ void tests::run()
     );
     std::cout << "test #3\n";
     run({
-        Case(Case::getFromFile("tests/acceptance/3.format"), {
-            "tests/acceptance/res/cube.mesh", "tests/acceptance/res/capsule.mesh",
-            "tests/acceptance/res/icosphere.mesh", "tests/acceptance/res/plane.mesh",
-            "tests/acceptance/res/skybox.mesh", "tests/acceptance/res/uiQuad.mesh"})
+        Case(Case::getFromFile("tests/acceptance/3a.format"), {
+            "tests/acceptance/res/cubea.mesh", "tests/acceptance/res/capsulea.mesh",
+            "tests/acceptance/res/icospherea.mesh", "tests/acceptance/res/planea.mesh",
+            "tests/acceptance/res/skyboxa.mesh", "tests/acceptance/res/uiQuada.mesh"}),
+        Case(Case::getFromFile("tests/acceptance/3b.format"), {
+            "tests/acceptance/res/cubeb.mesh", "tests/acceptance/res/capsuleb.mesh",
+            "tests/acceptance/res/icosphereb.mesh", "tests/acceptance/res/planeb.mesh",
+            "tests/acceptance/res/skyboxb.mesh", "tests/acceptance/res/uiQuadb.mesh"})
         }, {
             "tests/acceptance/3cube.mesh", "tests/acceptance/3capsule.mesh",
             "tests/acceptance/3icosphere.mesh", "tests/acceptance/3plane.mesh",

@@ -190,6 +190,8 @@ mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(j
         assert(json[ftype.c_str()].IsString());
         std::string omode = json[ftype.c_str()].GetString();
         if (std::find(plainTextSpellings.begin(), plainTextSpellings.end(), omode) != plainTextSpellings.end()) mode = mc::printMode::plainText;
+        else if (std::find(littleEndianSpellings.begin(), littleEndianSpellings.end(), omode) != littleEndianSpellings.end()) mode = mc::printMode::littleEndian;
+        else if (std::find(bigEndianSpellings.begin(), bigEndianSpellings.end(), omode) != bigEndianSpellings.end()) mode = mc::printMode::bigEndian;
         else if (omode == binarySpelling) mode = mc::printMode::binary;
         else throw jsonException("invalid printMode");
     }
@@ -204,7 +206,7 @@ void mc::fileUnit::compile(const Inode::ptr node, bool debug)
 
     if (c == node->c) {
         if (debug) std::cout << "\t" << output_file << "\n";
-        std::ofstream fout(output_file, std::ios::out | (mode == printMode::binary ? std::ios::binary : 0));
+        std::ofstream fout(output_file, std::ios::out | (mode == printMode::plainText ? 0 : std::ios::binary));
         if (!fout) {
             throw compileException("cannot open file: " + output_file);
         }

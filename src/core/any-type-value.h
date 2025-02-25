@@ -1,6 +1,7 @@
 #pragma once
 #include "types/stype.h"
 #include <ostream>
+#include "../endian.h"
 
 namespace mc {
     namespace anyType {
@@ -169,43 +170,31 @@ namespace mc {
         }
 
         inline void outputBinary(value v, stype::code s, std::ostream& os) {
-            switch (s)
+            os.write((char*)(&v), stype::sizes.at(s));
+        }
+        
+        inline value getWithSwappedBytes(value v, stype::code s) {
+            unsigned short siz = stype::sizes.at(s);
+            switch (siz)
             {
-            case mc::stype::char_:
-                os.write((char*)(&v.c), sizeof(char));
+            case 1:
+                return v;
                 break;
-            case mc::stype::int2:
-                os.write((char*)(&v.s), sizeof(short));
+            case 2:
+                v.us = detail::byte_swap<unsigned short>(v.us);
+                return v;
                 break;
-            case mc::stype::uint2:
-                os.write((char*)(&v.us), sizeof(unsigned short));
+            case 4:
+                v.ui = detail::byte_swap<unsigned int>(v.ui);
+                return v;
                 break;
-            case mc::stype::int4:
-                os.write((char*)(&v.i), sizeof(int));
+            case 8:
+                v.ul = detail::byte_swap<unsigned long>(v.ul);
+                return v;
                 break;
-            case mc::stype::uint4:
-                os.write((char*)(&v.ui), sizeof(unsigned int));
-                break;
-            case mc::stype::int8:
-                os.write((char*)(&v.l), sizeof(long));
-                break;
-            case mc::stype::uint8:
-                os.write((char*)(&v.ul), sizeof(unsigned long));
-                break;
-            case mc::stype::int16:
-                os.write((char*)(&v.ll), sizeof(long long));
-                break;
-            case mc::stype::uint16:
-                os.write((char*)(&v.ull), sizeof(unsigned long long));
-                break;
-            case mc::stype::float4:
-                os.write((char*)(&v.f), sizeof(float));
-                break;
-            case mc::stype::float8:
-                os.write((char*)(&v.d), sizeof(double));
-                break;
-            case mc::stype::float16:
-                os.write((char*)(&v.ld), sizeof(long double));
+            case 16:
+                v.ull = detail::byte_swap<unsigned long long>(v.ul);
+                return v;
                 break;
             default:
                 throw std::logic_error("not supported type");
