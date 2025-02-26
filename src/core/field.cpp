@@ -64,7 +64,7 @@ mc::field::ptr mc::field::getPtr(const rapidjson::Value& json, location loc)
 	}
 }
 
-mc::field::ptr mc::field::getPtr(const std::string& word, location loc, const compilationContext& context)
+mc::field::ptr mc::field::getPtr(const std::string& word, location loc, const formatInterpreterContext& context)
 {
 	size_t pos = word.find_first_of(':'); // type separator
 	stype::code st = stype::null; // size type of the field

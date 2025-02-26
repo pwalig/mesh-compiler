@@ -201,7 +201,7 @@
     <ClInclude Include="core\any-type-value.h" />
     <ClInclude Include="core\buffer.h" />
     <ClInclude Include="core\compilation-info.h" />
-    <ClInclude Include="core\compilationContext.h" />
+    <ClInclude Include="core\formatInterpreterContext.h" />
     <ClInclude Include="core\exceptions\compileException.h" />
     <ClInclude Include="core\exceptions\formatException.h" />
     <ClInclude Include="core\exceptions\jsonException.h" />

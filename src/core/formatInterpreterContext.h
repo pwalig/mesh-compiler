@@ -1,5 +1,5 @@
 #pragma once
 
-struct compilationContext {
+struct formatInterpreterContext {
 	unsigned int linenum = 0;
 };

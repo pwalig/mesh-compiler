@@ -9,6 +9,7 @@
 #include <sstream>
 #include "exceptions/compileException.h"
 #include "types/ptype.h"
+#include <thread>
 
 std::unordered_map<std::string, mc::unit> mc::compilationInfo::units;
 
@@ -45,7 +46,7 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
         }
     }
     else if (extension == "format") {
-		compilationContext context;
+		formatInterpreterContext context;
 		std::string line;
 		std::string word;
         while (std::getline(file, line)){
@@ -87,6 +88,7 @@ void mc::compilationInfo::compileFile(const std::string& filename, bool debug) {
     if (debug) std::cout << "compiling file: " << filename << "\n";
 
     assimp::readFile(filename, [this, filename, debug](const aiScene* scene) {
+        std::vector<std::thread> threads;
         for (fileUnit& fu : file_units) {
             if (debug) std::cout << "file unit: " << fu.output_file << "\n";
 

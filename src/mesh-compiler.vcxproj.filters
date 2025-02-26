@@ -269,7 +269,7 @@
     <ClInclude Include="core\runner.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="core\compilationContext.h">
+    <ClInclude Include="core\formatInterpreterContext.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
     <ClInclude Include="assimp-integration\positionKeyNode.h">

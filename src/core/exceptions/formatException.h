@@ -1,16 +1,16 @@
 #pragma once
 #include <stdexcept>
 #include <ostream>
-#include "../compilationContext.h"
+#include "../formatInterpreterContext.h"
 
 namespace mc {
 	class formatException : public std::runtime_error {
 	public:
-		const compilationContext context;
+		const formatInterpreterContext context;
 
-		formatException(const char* _Message, compilationContext context_) :
+		formatException(const char* _Message, formatInterpreterContext context_) :
 			runtime_error(_Message), context(context_) {}
-		formatException(const std::string _Message, compilationContext context_) :
+		formatException(const std::string _Message, formatInterpreterContext context_) :
 			runtime_error(_Message), context(context_) {}
 	};
 }

@@ -14,7 +14,7 @@
 #include <sstream>
 #include "exceptions/formatException.h"
 
-mc::unit::unit(std::ifstream& file, compilationContext& context) : c(ctype::null)
+mc::unit::unit(std::ifstream& file, formatInterpreterContext& context) : c(ctype::null)
 {
     std::string line;
     bool sizeQuerry = false; // check if querring for size (important to throw error when attempting to get size of ufield)
@@ -180,7 +180,7 @@ size_t mc::unit::getFieldsCount(const Inode::ptr node) const
     return siz;
 }
 
-mc::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_, compilationContext& context) :
+mc::fileUnit::fileUnit(std::ifstream& file, const std::string& output_file_, formatInterpreterContext& context) :
     output_file(output_file_), unit(file, context) { }
 
 mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(json["output_file"].GetString())

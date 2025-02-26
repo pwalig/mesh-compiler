@@ -6,7 +6,7 @@
 #include "printMode.h"
 #include <rapidjson/document.h>
 #include "ctype.h"
-#include "compilationContext.h"
+#include "formatInterpreterContext.h"
 
 namespace mc {
 	class unit;
@@ -31,6 +31,6 @@ namespace mc {
 		using ptr = oop_ptr<field>;
 
 		static ptr getPtr(const rapidjson::Value& json, location loc);
-		static ptr getPtr(const std::string& word, location loc, const compilationContext& context = compilationContext());
+		static ptr getPtr(const std::string& word, location loc, const formatInterpreterContext& context = formatInterpreterContext());
 	};
 }

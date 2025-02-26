@@ -30,7 +30,7 @@ You might need to adjust `CMakeLists.txt` file to conform to location where you 
 
 For Visual Studio 2022 builds all assimp files: include headders and pre-built libraries are included in this repository. Just open `src/mesh-compiler.sln` with Visual Studio 2022 and run.
 
-## Usage
+# Usage
 
 [running the program](https://github.com/pwalig/mesh-compiler/wiki/running-the-program)  
 [format file syntax](https://github.com/pwalig/mesh-compiler/wiki/format-file-syntax)  
