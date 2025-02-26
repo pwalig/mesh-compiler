@@ -74,16 +74,16 @@ mc::field::ptr mc::getCFieldTPtr(const rapidjson::Value& json)
 		return field::ptr(new cfieldT<unsigned int>(json["value"].Get<unsigned int>()));
 		break;
 	case mc::stype::int8:
-		return field::ptr(new cfieldT<long>((long)json["value"].Get<long long>()));
+		return field::ptr(new cfieldT<long>((long)json["value"].Get<int64_t>()));
 		break;
 	case mc::stype::uint8:
-		return field::ptr(new cfieldT<unsigned long>((unsigned long)json["value"].Get<unsigned long long>()));
+		return field::ptr(new cfieldT<unsigned long>((unsigned long)json["value"].Get<uint64_t>()));
 		break;
 	case mc::stype::int16:
-		return field::ptr(new cfieldT<long long>(json["value"].Get<long long>()));
+		return field::ptr(new cfieldT<long long>(json["value"].Get<int64_t>()));
 		break;
 	case mc::stype::uint16:
-		return field::ptr(new cfieldT<unsigned long long>(json["value"].Get<unsigned long long>()));
+		return field::ptr(new cfieldT<unsigned long long>(json["value"].Get<uint64_t>()));
 		break;
 	case mc::stype::float4:
 		return field::ptr(new cfieldT<float>(json["value"].Get<float>()));
