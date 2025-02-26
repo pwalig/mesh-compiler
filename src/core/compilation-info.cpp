@@ -82,6 +82,10 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
             }
         }
     }
+    else {
+        throw std::runtime_error("invalid file extension for format file\nexpected: .format or .json got: ." + extension);
+    }
+    if (file_units.empty()) throw std::runtime_error("no file units specified in format file: " + filename);
 }
 namespace mc {
     void fileUnitJob(fileUnit& fu, const aiScene* scene, const compilationContext& context, const std::string& filename)
