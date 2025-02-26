@@ -38,7 +38,7 @@ mc::field::ptr mc::cfield::getPtr(const rapidjson::Value& json)
 		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<unsigned int>())));
 		break;
 	case mc::stype::int8:
-		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<long long>())));
+		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<long>())));
 		break;
 	case mc::stype::uint8:
 		return field::ptr(new cfield(s, anyType::get(s, json["value"].Get<unsigned long long>())));

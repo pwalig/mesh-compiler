@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 #include "stype.h"
 #include "ctype.h"

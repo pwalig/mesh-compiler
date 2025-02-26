@@ -206,7 +206,7 @@ void mc::fileUnit::compile(const Inode::ptr node, bool debug)
 
     if (c == node->c) {
         if (debug) std::cout << "\t" << output_file << "\n";
-        std::ofstream fout(output_file, std::ios::out | (mode == printMode::plainText ? 0 : std::ios::binary));
+        std::ofstream fout(output_file, std::ios::out | (mode == printMode::plainText ? (std::ios_base::openmode)0 : std::ios::binary));
         if (!fout) {
             throw compileException("cannot open file: " + output_file);
         }

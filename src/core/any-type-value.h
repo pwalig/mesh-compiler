@@ -278,32 +278,32 @@ namespace mc {
         inline long double getValue(value v) { return v.ld; }
 
         template<typename T>
-        inline T& valueRef(value v) {
+        inline T& valueRef(value& v) {
             throw std::logic_error("not supported type");
         }
         template<>
-        inline char& valueRef(value v) { return v.c; }
+        inline char& valueRef(value& v) { return v.c; }
         template<>
-        inline short& valueRef(value v) { return v.s; }
+        inline short& valueRef(value& v) { return v.s; }
         template<>
-        inline unsigned short& valueRef(value v) { return v.us; }
+        inline unsigned short& valueRef(value& v) { return v.us; }
         template<>
-        inline int& valueRef(value v) { return v.i; }
+        inline int& valueRef(value& v) { return v.i; }
         template<>
-        inline unsigned int& valueRef(value v) { return v.ui; }
+        inline unsigned int& valueRef(value& v) { return v.ui; }
         template<>
-        inline long& valueRef(value v) { return v.l; }
+        inline long& valueRef(value& v) { return v.l; }
         template<>
-        inline unsigned long& valueRef(value v) { return v.ul; }
+        inline unsigned long& valueRef(value& v) { return v.ul; }
         template<>
-        inline long long& valueRef(value v) { return v.ll; }
+        inline long long& valueRef(value& v) { return v.ll; }
         template<>
-        inline unsigned long long& valueRef(value v) { return v.ull; }
+        inline unsigned long long& valueRef(value& v) { return v.ull; }
         template<>
-        inline float& valueRef(value v) { return v.f; }
+        inline float& valueRef(value& v) { return v.f; }
         template<>
-        inline double& valueRef(value v) { return v.d; }
+        inline double& valueRef(value& v) { return v.d; }
         template<>
-        inline long double& valueRef(value v) { return v.ld; }
+        inline long double& valueRef(value& v) { return v.ld; }
     }
 }
