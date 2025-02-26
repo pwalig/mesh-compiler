@@ -83,24 +83,41 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
         }
     }
 }
+namespace mc {
+    void fileUnitJob(fileUnit& fu, const aiScene* scene, const compilationContext& context, const std::string& filename)
+    {
+        if (context.debug) std::cout << "file unit: " << fu.output_file << "\n";
 
-void mc::compilationInfo::compileFile(const std::string& filename, bool debug) {
-    if (debug) std::cout << "compiling file: " << filename << "\n";
+        std::string base_filename = filename.substr(filename.find_last_of("/\\") + 1);
+        const size_t p(base_filename.find_last_of('.'));
 
-    assimp::readFile(filename, [this, filename, debug](const aiScene* scene) {
-        std::vector<std::thread> threads;
-        for (fileUnit& fu : file_units) {
-            if (debug) std::cout << "file unit: " << fu.output_file << "\n";
+        std::string orig_name = fu.output_file;
+        fu.changeName("{file}", base_filename.substr(0, p));
 
-            std::string base_filename = filename.substr(filename.find_last_of("/\\") + 1);
-            const size_t p(base_filename.find_last_of('.'));
+        fu.compile(mc::Inode::ptr(new assimp::sceneNode(scene)), context.debug);
 
-            std::string orig_name = fu.output_file;
-            fu.changeName("{file}", base_filename.substr(0, p));
+        fu.output_file = orig_name;
+    }
+}
 
-			fu.compile(Inode::ptr(new assimp::sceneNode(scene)), debug);
+void mc::compilationInfo::compileFile(const std::string& filename, const compilationContext& context) {
+    if (context.debug) std::cout << "compiling file: " << filename << "\n";
 
-            fu.output_file = orig_name;
-        }
-        });
+    if (context.thread && file_units.size() > 1) {
+		assimp::readFile(filename, [this, &filename, &context](const aiScene* scene) {
+			std::vector<std::thread> threads;
+			for (fileUnit& fu : file_units) {
+				threads.push_back(std::thread(std::bind(fileUnitJob, fu, scene, context, filename)));
+			}
+			for (std::thread& t : threads) t.join();
+			});
+    }
+    else {
+		assimp::readFile(filename, [this, &filename, &context](const aiScene* scene) {
+			for (fileUnit& fu : file_units) {
+				fileUnitJob(fu, scene, context, filename);
+			}
+			});
+    }
+
 }

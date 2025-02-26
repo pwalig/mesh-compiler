@@ -3,6 +3,7 @@
 #include <string>
 #include "unit.h"
 #include <rapidjson/document.h>
+#include "compilationContext.h"
 
 namespace mc {
 	class compilationInfo {
@@ -13,6 +14,6 @@ namespace mc {
 		compilationInfo() = default;
 		compilationInfo(const std::string& filename);
 
-		void compileFile(const std::string& filename, bool debug = false);
+		void compileFile(const std::string& filename, const compilationContext& context = compilationContext());
 	};
 }

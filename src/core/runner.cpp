@@ -7,7 +7,7 @@
 #include "exceptions/compileException.h"
 #include <args.hxx>
 
-const std::string mc::version = "2.3.0";
+const std::string mc::version = "2.4.0";
 const std::string mc::programName = "mesh-compiler";
 
 // returns vector of pointers into the string "line" passed as argument
@@ -55,6 +55,7 @@ void mc::runOnce(int argc, char** argv) {
     args::ValueFlag<std::string> format_flag(parser, "format file", "Specifies path to .format file", {'f', "format"});
     args::Flag version_flag(parser, "version", "Display version of this program", { 'v', "version" });
     args::Flag debug_flag(parser, "debug info", "Display debugging information", { 'd', "debug" });
+    args::Flag thread_flag(parser, "multi thread", "Run the program on multiple threads", { 't', "thread" });
     args::Positional<std::string> source_arg(parser, "source file", "Specifies path to 3D source file");
     args::Positional<std::string> format_arg(parser, "format file", "Specifies path to .format file");
     
@@ -103,13 +104,16 @@ void mc::runOnce(int argc, char** argv) {
     }
 
     formatFile = (formatFile == "" ? ".format" : formatFile);
+    compilationContext context;
+    context.debug = debug_flag;
+    context.thread = thread_flag;
 
     // running the program 
     try {
         if (debug_flag) std::cout << "reading: " << formatFile << "\n";
         mc::compilationInfo ci_j(formatFile);
         if (debug_flag) std::cout << "format aquired\n";
-        ci_j.compileFile(sourceFile, debug_flag);
+        ci_j.compileFile(sourceFile, context);
         mc::compilationInfo::units.clear();
         if (debug_flag) std::cout << "compilation successful\n";
     }
