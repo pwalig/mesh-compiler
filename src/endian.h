@@ -1,33 +1,33 @@
-// code from: https://stackoverflow.com/questions/105252/how-do-i-convert-between-big-endian-and-little-endian-values-in-c
-
 #pragma once
 #include <stdexcept>
 #include <cstdint>
 #include <cassert>
 
-enum class endianness
-{
-    little_endian,
-    big_endian,
-    network_endian = big_endian,
-    
-#if defined(LITTLE_ENDIAN)
-	host_endian = little_endian
-#elif defined(BIG_ENDIAN)
-	host_endian = big_endian
+#if defined(LITTLE_ENDIAN) || defined(BIG_ENDIAN)
+#define COMPTIME_ENDIAN
 #endif
-};
 
-endianness check_endianness();
+namespace endian {
+	enum class ess {
+		little,
+		big,
+		network = big,
+#if defined(LITTLE_ENDIAN)
+		host = little
+#elif defined(BIG_ENDIAN)
+		host = big
+#endif
+	};
 
-endianness get_host_endianness();
-
-void init_host_endianness();
-
-namespace detail {
+#ifdef COMPTIME_ENDIAN
+	constexpr ess host();
+#else
+	void init();
+	ess host();
+#endif
 
 	template<typename T, size_t sz>
-	struct swap_bytes
+	struct byte_swapper
 	{
 		inline T operator()(T val)
 		{
@@ -36,7 +36,7 @@ namespace detail {
 	};
 
 	template<typename T>
-	struct swap_bytes<T, 1>
+	struct byte_swapper<T, 1>
 	{
 		inline T operator()(T val)
 		{
@@ -45,7 +45,7 @@ namespace detail {
 	};
 
 	template<typename T>
-	struct swap_bytes<T, 2>
+	struct byte_swapper<T, 2>
 	{
 		inline T operator()(T val)
 		{
@@ -54,7 +54,7 @@ namespace detail {
 	};
 
 	template<typename T>
-	struct swap_bytes<T, 4>
+	struct byte_swapper<T, 4>
 	{
 		inline T operator()(T val)
 		{
@@ -66,17 +66,17 @@ namespace detail {
 	};
 
 	template<>
-	struct swap_bytes<float, 4>
+	struct byte_swapper<float, 4>
 	{
 		inline float operator()(float val)
 		{
-			uint32_t mem =swap_bytes<uint32_t, sizeof(uint32_t)>()(*(uint32_t*)&val);
+			uint32_t mem =byte_swapper<uint32_t, sizeof(uint32_t)>()(*(uint32_t*)&val);
 			return *(float*)&mem;
 		}
 	};
 
 	template<typename T>
-	struct swap_bytes<T, 8>
+	struct byte_swapper<T, 8>
 	{
 		inline T operator()(T val)
 		{
@@ -92,40 +92,39 @@ namespace detail {
 	};
 
 	template<>
-	struct swap_bytes<double, 8>
+	struct byte_swapper<double, 8>
 	{
 		inline double operator()(double val)
 		{
-			uint64_t mem =swap_bytes<uint64_t, sizeof(uint64_t)>()(*(uint64_t*)&val);
+			uint64_t mem =byte_swapper<uint64_t, sizeof(uint64_t)>()(*(uint64_t*)&val);
 			return *(double*)&mem;
 		}
 	};
 
-	template<endianness from, endianness to, class T>
-	struct do_byte_swap
+	template<class T>
+	inline T swap_bytes(T value)
+	{
+		return byte_swapper<T, sizeof(T)>()(value);
+	}
+
+	template<ess from, ess to, class T>
+	struct converter
 	{
 		inline T operator()(T value)
 		{
-			return swap_bytes<T, sizeof(T)>()(value);
+			return byte_swapper<T, sizeof(T)>()(value);
 		}
 	};
-	// specialisations when attempting to swap to the same endianess
-	template<class T> struct do_byte_swap<endianness::little_endian, endianness::little_endian, T> { inline T operator()(T value) { return value; } };
-	template<class T> struct do_byte_swap<endianness::big_endian, endianness::big_endian, T> { inline T operator()(T value) { return value; } };
 
-	template<class T>
-	inline T byte_swap(T value)
+	// specialisations when attempting to converter to the same endianess
+	template<class T> struct converter<ess::little, ess::little, T> { inline T operator()(T value) { return value; } };
+	template<class T> struct converter<ess::big, ess::big, T> { inline T operator()(T value) { return value; } };
+
+	template<ess from, ess to, class T>
+	inline T convert(T value)
 	{
-		return swap_bytes<T, sizeof(T)>()(value);
+		assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
+
+		return converter<from, to, T>()(value);
 	}
-
-} // namespace detail
-
-template<endianness from, endianness to, class T>
-inline T byte_swap(T value)
-{
-    // ensure the data is only 1, 2, 4 or 8 bytes
-    assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
-
-    return detail::do_byte_swap<from, to, T>()(value);
 }

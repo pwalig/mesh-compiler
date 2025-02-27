@@ -12,8 +12,8 @@ void mc::sfield::output(std::ofstream& file, const Inode::ptr node, mc::printMod
 			file << " ";
 		}
 	}
-	else if (pm == printMode::littleEndian && get_host_endianness() == endianness::big_endian ||
-		pm == printMode::bigEndian && get_host_endianness() == endianness::little_endian) {
+	else if (pm == printMode::littleEndian && endian::host() == endian::ess::big ||
+		pm == printMode::bigEndian && endian::host() == endian::ess::little) {
 		for (anyType::value& v : val) {
 			anyType::value v2 = anyType::getWithSwappedBytes(v, s);
 			file.write((char*)(&v2), stype::sizes.at(s));

@@ -6,7 +6,7 @@
 #include "endian.h"
 
 int main(int argc, char** argv) {
-    init_host_endianness();
+    endian::init();
 #ifdef _DEBUG
     tests::run();
     //mainTest();

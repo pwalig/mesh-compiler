@@ -181,19 +181,19 @@ namespace mc {
                 return v;
                 break;
             case 2:
-                v.us = detail::byte_swap<unsigned short>(v.us);
+                v.us = endian::swap_bytes<unsigned short>(v.us);
                 return v;
                 break;
             case 4:
-                v.ui = detail::byte_swap<unsigned int>(v.ui);
+                v.ui = endian::swap_bytes<unsigned int>(v.ui);
                 return v;
                 break;
             case 8:
-                v.ul = detail::byte_swap<unsigned long>(v.ul);
+                v.ul = endian::swap_bytes<unsigned long>(v.ul);
                 return v;
                 break;
             case 16:
-                v.ull = detail::byte_swap<unsigned long long>(v.ul);
+                v.ull = endian::swap_bytes<unsigned long long>(v.ul);
                 return v;
                 break;
             default:
