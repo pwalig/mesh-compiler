@@ -197,15 +197,15 @@ mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(j
     }
 }
 
-void mc::fileUnit::compile(const Inode::ptr node, bool debug)
+void mc::fileUnit::compile(const Inode::ptr node, const compilationContext& context)
 {
-    // if (debug) std::cout << "\tcompiling node of name: " << node->getName() << "\n";
+    // if (contex.debug) std::cout << "\tcompiling node of name: " << node->getName() << "\n";
 
     std::string orig_name = output_file;
     changeName(ctype::patterns.at(node->c), node->getName());
 
     if (c == node->c) {
-        if (debug) std::cout << "\t" << output_file << "\n";
+        if (context.debug) std::cout << "\t" << output_file << "\n";
         std::ofstream fout(output_file, std::ios::out | (mode == printMode::plainText ? (std::ios_base::openmode)0 : std::ios::binary));
         if (!fout) {
             throw compileException("cannot open file: " + output_file);
@@ -224,7 +224,7 @@ void mc::fileUnit::compile(const Inode::ptr node, bool debug)
 
 
         for (size_t i = 0; i < node->getChildNodeCount(nodeChild); ++i) {
-            compile(node->getChildNodeOfType(nodeChild, i), debug);
+            compile(node->getChildNodeOfType(nodeChild, i), context);
         }
     }
 

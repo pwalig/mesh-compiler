@@ -8,6 +8,7 @@
 #include "printMode.h"
 #include <rapidjson/document.h>
 #include "formatInterpreterContext.h"
+#include "compilationContext.h"
 
 namespace mc {
 	class formatInterpreterInfo;
@@ -39,7 +40,7 @@ namespace mc {
 		fileUnit(std::ifstream& file, const std::string& output_file_, formatInterpreterContext& context);
 		fileUnit(const rapidjson::Value& json);
 
-		void compile(const Inode::ptr node, bool debug = false);
+		void compile(const Inode::ptr node, const compilationContext& context = compilationContext());
 
 		void changeName(const std::string& pattern, const std::string& newName);
 		void withChangedName(

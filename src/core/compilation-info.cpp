@@ -98,7 +98,7 @@ namespace mc {
         std::string orig_name = fu.output_file;
         fu.changeName("{file}", base_filename.substr(0, p));
 
-        fu.compile(mc::Inode::ptr(new assimp::sceneNode(scene)), context.debug);
+        fu.compile(mc::Inode::ptr(new assimp::sceneNode(scene)), context);
 
         fu.output_file = orig_name;
     }
