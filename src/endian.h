@@ -104,7 +104,7 @@ namespace endian {
 	template<class T>
 	inline T swap_bytes(T value)
 	{
-		assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
+		static_assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
 		return byte_swapper<T, sizeof(T)>()(value);
 	}
 
@@ -115,9 +115,7 @@ namespace endian {
 			T val;
 		} uni;
 		for (size_t i = 0; i < sizeof(T) / 2; ++i) {
-			unsigned char tmp = uni.bytes[i];
-			uni.bytes[i] = uni.bytes[sizeof(T) - 1 - i];
-			uni.bytes[sizeof(T) - 1 - i] = tmp;
+			std::swap(uni.bytes[i], uni.bytes[sizeof(T) - 1 - i]);
 		}
 		return uni.val;
 	};
@@ -127,7 +125,7 @@ namespace endian {
 	{
 		inline T operator()(T value)
 		{
-			assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
+			static_assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
 			return byte_swapper<T, sizeof(T)>()(value);
 		}
 	};

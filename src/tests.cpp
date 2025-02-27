@@ -52,14 +52,14 @@ void readMeshFile(const std::string& filepath, mesh& me) {
     unsigned short max_bones;
     fin.read((char*) & max_bones, sizeof(unsigned short));
 
-    mesh_reader::readBuffer<unsigned int, unsigned int>(fin, me.indices);
-    mesh_reader::readBuffer<float, unsigned int>(fin, me.verts);
-    mesh_reader::readBuffer<float, unsigned int>(fin, me.normals);
-    mesh_reader::readBuffer<float, unsigned int>(fin, me.uvs);
-    mesh_reader::readBuffer<float, unsigned int>(fin, me.tangents);
-    mesh_reader::readBuffer<float, unsigned int>(fin, me.bitangents);
-    mesh_reader::readBuffer<int, unsigned int>(fin, me.bone_indexes);
-    mesh_reader::readBuffer<float, unsigned int>(fin, me.bone_weights);
+    mesh_reader::read_little_endian_buffer<unsigned int, unsigned int>(fin, me.indices);
+    mesh_reader::read_little_endian_buffer<float, unsigned int>(fin, me.verts);
+    mesh_reader::read_little_endian_buffer<float, unsigned int>(fin, me.normals);
+    mesh_reader::read_little_endian_buffer<float, unsigned int>(fin, me.uvs);
+    mesh_reader::read_little_endian_buffer<float, unsigned int>(fin, me.tangents);
+    mesh_reader::read_little_endian_buffer<float, unsigned int>(fin, me.bitangents);
+    mesh_reader::read_little_endian_buffer<int, unsigned int>(fin, me.bone_indexes);
+    mesh_reader::read_little_endian_buffer<float, unsigned int>(fin, me.bone_weights);
 
     fin.close();
 }
