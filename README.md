@@ -11,11 +11,13 @@ The idea is that you can perform all precalculations, that you would in your gam
 
 Get your copy from [release section](https://github.com/pwalig/mesh-compiler/releases), or build from source.
 
-## Install Dependency
+## Building from source
+
+### Install Dependency
 
 Mesh-compiler is using [Open Asset Import Library (assimp)](https://github.com/assimp/assimp) for data import. For non Visual Studio 2022 you will have to either build or install assimp library yourself. Follow instructions on [their page](https://github.com/assimp/assimp/blob/master/Build.md)
 
-## Building with CMake
+### Building with CMake
 
 ```
 mkdir build
