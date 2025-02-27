@@ -7,3 +7,4 @@ add_executable(mesh-compiler)
 add_subdirectory(src)
 
 target_link_libraries(mesh-compiler assimp)
+add_definitions(-DNDEBUG)

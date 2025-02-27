@@ -20,7 +20,9 @@ namespace endian {
 	};
 
 #ifdef COMPTIME_ENDIAN
-	constexpr ness host();
+	constexpr ness host() {
+		return ness::host;
+	}
 #else
 	void init();
 	ness host();

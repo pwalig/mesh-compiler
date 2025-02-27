@@ -6,7 +6,9 @@
 #include "endian.h"
 
 int main(int argc, char** argv) {
+#ifndef COMPTIME_ENDIAN
     endian::init();
+#endif
 #ifdef _DEBUG
     tests::run();
     //mainTest();

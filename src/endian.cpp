@@ -5,7 +5,7 @@ namespace endian {
 
 	ness check()
 	{
-		assert(sizeof(short) == 2);
+		static_assert(sizeof(short) == 2);
 
 		union {
 			short s;
@@ -22,12 +22,7 @@ namespace endian {
 			assert(0);
 	}
 }
-#ifdef COMPTIME_ENDIAN
-constexpr endian::ness endian::host()
-{
-	return ness::host;
-}
-#else
+#ifndef COMPTIME_ENDIAN
 void endian::init()
 {
 	host_ = check();
