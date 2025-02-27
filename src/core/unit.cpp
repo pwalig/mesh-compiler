@@ -13,6 +13,7 @@
 #include "fields/vfield.h"
 #include <sstream>
 #include "exceptions/formatException.h"
+#include <thread>
 
 mc::unit::unit(std::ifstream& file, formatInterpreterContext& context) : c(ctype::null)
 {
@@ -197,18 +198,17 @@ mc::fileUnit::fileUnit(const rapidjson::Value& json) : unit(json), output_file(j
     }
 }
 
-void mc::fileUnit::compile(const Inode::ptr node, const compilationContext& context)
+void mc::fileUnit::compile(const Inode::ptr node, compilationContext context)
 {
     // if (contex.debug) std::cout << "\tcompiling node of name: " << node->getName() << "\n";
 
-    std::string orig_name = output_file;
-    changeName(ctype::patterns.at(node->c), node->getName());
+    changeName(context.filename, ctype::patterns.at(node->c), node->getName());
 
     if (c == node->c) {
-        if (context.debug) std::cout << "\t" << output_file << "\n";
-        std::ofstream fout(output_file, std::ios::out | (mode == printMode::plainText ? (std::ios_base::openmode)0 : std::ios::binary));
+        if (context.debug) std::cout << "\t" << context.filename << "\n";
+        std::ofstream fout(context.filename, std::ios::out | (mode == printMode::plainText ? (std::ios_base::openmode)0 : std::ios::binary));
         if (!fout) {
-            throw compileException("cannot open file: " + output_file);
+            throw compileException("cannot open file: " + context.filename);
         }
         output(fout, node, mode);
         fout.close();
@@ -222,19 +222,33 @@ void mc::fileUnit::compile(const Inode::ptr node, const compilationContext& cont
                 throw compileException("node's counting type is not an ancestor of this unit's counting type");
         }
 
-
-        for (size_t i = 0; i < node->getChildNodeCount(nodeChild); ++i) {
-            compile(node->getChildNodeOfType(nodeChild, i), context);
+        size_t count = node->getChildNodeCount(nodeChild);
+        if (context.thread && count > 1) {
+			std::vector<std::thread> threads;
+			for (size_t i = 0; i < count - 1; ++i) {
+				threads.push_back(std::thread(std::bind(&fileUnit::compile, this, node->getChildNodeOfType(nodeChild, i), context)));
+			}
+            compile(node->getChildNodeOfType(nodeChild, count - 1), context);
+			for (std::thread& t : threads) t.join();
+        }
+        else {
+			for (size_t i = 0; i < count; ++i) {
+				compile(node->getChildNodeOfType(nodeChild, i), context);
+			}
         }
     }
-
-    output_file = orig_name;
 }
 
 void mc::fileUnit::changeName(const std::string& pattern, const std::string& newName)
 {
     size_t found = output_file.find(pattern);
     if (found != std::string::npos) output_file.replace(found, pattern.length(), newName);
+}
+
+void mc::fileUnit::changeName(std::string& name, const std::string& pattern, const std::string& newName)
+{
+    size_t found = name.find(pattern);
+    if (found != std::string::npos) name.replace(found, pattern.length(), newName);
 }
 
 void mc::fileUnit::withChangedName(

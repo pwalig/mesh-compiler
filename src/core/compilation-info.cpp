@@ -88,38 +88,37 @@ mc::compilationInfo::compilationInfo(const std::string& filename)
     if (file_units.empty()) throw std::runtime_error("no file units specified in format file: " + filename);
 }
 namespace mc {
-    void fileUnitJob(fileUnit& fu, const aiScene* scene, const compilationContext& context, const std::string& filename)
+    void fileUnitJob(fileUnit& fu, const aiScene* scene, compilationContext context, const std::string& base_filename)
     {
         if (context.debug) std::cout << "file unit: " << fu.output_file << "\n";
 
-        std::string base_filename = filename.substr(filename.find_last_of("/\\") + 1);
-        const size_t p(base_filename.find_last_of('.'));
-
-        std::string orig_name = fu.output_file;
-        fu.changeName("{file}", base_filename.substr(0, p));
+        context.filename = fu.output_file;
+        fileUnit::changeName(context.filename, "{file}", base_filename);
 
         fu.compile(mc::Inode::ptr(new assimp::sceneNode(scene)), context);
-
-        fu.output_file = orig_name;
     }
 }
 
 void mc::compilationInfo::compileFile(const std::string& filename, const compilationContext& context) {
     if (context.debug) std::cout << "compiling file: " << filename << "\n";
 
+	std::string base_filename = filename.substr(filename.find_last_of("/\\") + 1);
+	const size_t p(base_filename.find_last_of('.'));
+    base_filename = base_filename.substr(0, p);
+
     if (context.thread && file_units.size() > 1) {
-		assimp::readFile(filename, [this, &filename, &context](const aiScene* scene) {
+		assimp::readFile(filename, [this, &base_filename, &context](const aiScene* scene) {
 			std::vector<std::thread> threads;
 			for (fileUnit& fu : file_units) {
-				threads.push_back(std::thread(std::bind(fileUnitJob, fu, scene, context, filename)));
+				threads.push_back(std::thread(std::bind(fileUnitJob, fu, scene, context, base_filename)));
 			}
 			for (std::thread& t : threads) t.join();
 			});
     }
     else {
-		assimp::readFile(filename, [this, &filename, &context](const aiScene* scene) {
+		assimp::readFile(filename, [this, &base_filename, &context](const aiScene* scene) {
 			for (fileUnit& fu : file_units) {
-				fileUnitJob(fu, scene, context, filename);
+				fileUnitJob(fu, scene, context, base_filename);
 			}
 			});
     }
