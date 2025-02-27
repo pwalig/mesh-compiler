@@ -11,6 +11,7 @@
 #include "../core/fields/pfield.h"
 #include "../core/fields/ufield.h"
 #include "../core/exceptions/formatException.h"
+#include <cstdio>
 
 void tests::run(
     const std::vector<Case> cases,
@@ -61,13 +62,14 @@ void tests::run(
         for (size_t j = 0; j < referenceFiles.size(); ++j) {
             std::ifstream result(cases[i].resultingFiles[j], std::ifstream::binary | std::ifstream::ate);
             std::cout << "\t\t" << cases[i].resultingFiles[j] << " vs " << referenceFiles[j];
-            if (result.fail()) {
+            if (!result.is_open()) {
                 std::cout << " failed: could not open\n";
                 continue;
             }
 
             if (result.tellg() != fileSizes[j]) {
                 std::cout << " failed: had different size\n";
+				result.close();
                 continue;
             }
             result.seekg(0, std::ifstream::beg);
@@ -78,10 +80,13 @@ void tests::run(
                     std::istreambuf_iterator<char>(result.rdbuf())
             )) {
                 std::cout << " failed: had different contents\n";
+				result.close();
                 continue;
             }
 
             std::cout << " succeeded\n";
+			result.close();
+            std::remove(cases[i].resultingFiles[j].c_str());
         }
     }
 }
