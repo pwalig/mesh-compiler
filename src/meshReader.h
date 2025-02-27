@@ -26,8 +26,8 @@ namespace mesh_reader {
 	struct big_endian_reader<T, 2> {
 		inline T operator()(std::istream& input) {
 			static_assert(sizeof(T) == 2);
-			char data[2];
-			input.read(data, 2);
+			unsigned char data[2];
+			input.read((char*)data, 2);
 			uint16_t mem = data[1] | ((unsigned)data[0] << 8);
 			return *((T*)(&mem));
 		}
@@ -37,8 +37,8 @@ namespace mesh_reader {
 	struct big_endian_reader<T, 4> {
 		inline T operator()(std::istream& input) {
 			static_assert(sizeof(T) == 4);
-			char data[4];
-			input.read(data, 4);
+			unsigned char data[4];
+			input.read((char*)data, 4);
 			uint32_t mem = data[3] | (data[2] << 8) | (data[1] << 16) | ((unsigned)data[0] << 24);
 			return *((T*)(&mem));
 		}
@@ -48,8 +48,8 @@ namespace mesh_reader {
 	struct big_endian_reader<T, 8> {
 		inline T operator()(std::istream& input) {
 			static_assert(sizeof(T) == 8);
-			char data[8];
-			input.read(data, 8);
+			unsigned char data[8];
+			input.read((char*)data, 8);
 			uint64_t mem = data[7] | (data[6] << 8) | (data[5] << 16) | (data[4] << 24)
 				| (data[3] << 32) | (data[2] << 40) | (data[1] << 48) | ((unsigned)data[0] << 56);
 			return *((T*)(&mem));
@@ -82,9 +82,9 @@ namespace mesh_reader {
 	struct little_endian_reader<T, 2> {
 		inline T operator()(std::istream& input) {
 			static_assert(sizeof(T) == 2);
-			char data[2];
-			input.read(data, 2);
-			uint16_t mem = data[1] | ((unsigned)data[0] << 8);
+			unsigned char data[2];
+			input.read((char*)data, 2);
+			uint16_t mem = data[0] | ((unsigned)data[1] << 8);
 			return *((T*)(&mem));
 		}
 	};
@@ -93,9 +93,9 @@ namespace mesh_reader {
 	struct little_endian_reader<T, 4> {
 		inline T operator()(std::istream& input) {
 			static_assert(sizeof(T) == 4);
-			char data[4];
-			input.read(data, 4);
-			uint32_t mem = data[3] | (data[2] << 8) | (data[1] << 16) | ((unsigned)data[0] << 24);
+			unsigned char data[4];
+			input.read((char*)data, 4);
+			uint32_t mem = ((unsigned)data[0]) | ((unsigned)data[1] << 8) | ((unsigned)data[2] << 16) | ((unsigned)data[3] << 24);
 			return *((T*)(&mem));
 		}
 	};
@@ -104,10 +104,10 @@ namespace mesh_reader {
 	struct little_endian_reader<T, 8> {
 		inline T operator()(std::istream& input) {
 			static_assert(sizeof(T) == 8);
-			char data[8];
-			input.read(data, 8);
-			uint64_t mem = data[7] | (data[6] << 8) | (data[5] << 16) | (data[4] << 24)
-				| (data[3] << 32) | (data[2] << 40) | (data[1] << 48) | ((unsigned)data[0] << 56);
+			unsigned char data[8];
+			input.read((char*)data, 8);
+			uint64_t mem = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24)
+				| (data[4] << 32) | (data[5] << 40) | (data[6] << 48) | ((unsigned)data[7] << 56);
 			return *((T*)(&mem));
 		}
 	};
