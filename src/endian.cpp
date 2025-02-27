@@ -1,9 +1,9 @@
 #include "endian.h"
 
 namespace endian {
-	ess host_;
+	ness host_;
 
-	ess check()
+	ness check()
 	{
 		assert(sizeof(short) == 2);
 
@@ -15,17 +15,17 @@ namespace endian {
 		un.s = 0x0102;
 
 		if (un.c[0] == 1 && un.c[1] == 2)
-			return ess::big;
+			return ness::big;
 		else if (un.c[0] == 2 && un.c[1] == 1)
-			return ess::little;
+			return ness::little;
 		else
 			assert(0);
 	}
 }
 #ifdef COMPTIME_ENDIAN
-constexpr endian::ess endian::host()
+constexpr endian::ness endian::host()
 {
-	return ess::host;
+	return ness::host;
 }
 #else
 void endian::init()
@@ -33,7 +33,7 @@ void endian::init()
 	host_ = check();
 }
 
-endian::ess endian::host()
+endian::ness endian::host()
 {
 	return host_;
 }

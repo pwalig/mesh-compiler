@@ -8,7 +8,7 @@
 #endif
 
 namespace endian {
-	enum class ess {
+	enum class ness {
 		little,
 		big,
 		network = big,
@@ -20,13 +20,13 @@ namespace endian {
 	};
 
 #ifdef COMPTIME_ENDIAN
-	constexpr ess host();
+	constexpr ness host();
 #else
 	void init();
-	ess host();
+	ness host();
 #endif
 
-	template<typename T, size_t sz>
+	template<typename T, size_t S>
 	struct byte_swapper
 	{
 		inline T operator()(T val)
@@ -104,27 +104,55 @@ namespace endian {
 	template<class T>
 	inline T swap_bytes(T value)
 	{
+		assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
 		return byte_swapper<T, sizeof(T)>()(value);
 	}
 
-	template<ess from, ess to, class T>
+	template<typename T>
+	inline T swap_bytes_any (T val) {
+		union {
+			unsigned char bytes[sizeof(T)];
+			T val;
+		} uni;
+		for (size_t i = 0; i < sizeof(T) / 2; ++i) {
+			unsigned char tmp = uni.bytes[i];
+			uni.bytes[i] = uni.bytes[sizeof(T) - 1 - i];
+			uni.bytes[sizeof(T) - 1 - i] = tmp;
+		}
+		return uni.val;
+	};
+
+	template<ness from, ness to, class T>
 	struct converter
 	{
 		inline T operator()(T value)
 		{
+			assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
 			return byte_swapper<T, sizeof(T)>()(value);
 		}
 	};
 
 	// specialisations when attempting to converter to the same endianess
-	template<class T> struct converter<ess::little, ess::little, T> { inline T operator()(T value) { return value; } };
-	template<class T> struct converter<ess::big, ess::big, T> { inline T operator()(T value) { return value; } };
+	template<class T> struct converter<ness::little, ness::little, T> { inline T operator()(T value) { return value; } };
+	template<class T> struct converter<ness::big, ness::big, T> { inline T operator()(T value) { return value; } };
 
-	template<ess from, ess to, class T>
+	template<ness from, ness to, class T>
 	inline T convert(T value)
 	{
-		assert(sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8);
-
 		return converter<from, to, T>()(value);
+	}
+
+	template<class T>
+	inline T convert(ness from, ness to, T value)
+	{
+		if (from == to) return value;
+		else return swap_bytes<T>(value);
+	}
+
+	template<class T>
+	inline T convert_any(ness from, ness to, T value)
+	{
+		if (from == to) return value;
+		else return swap_bytes_any<T>(value);
 	}
 }
