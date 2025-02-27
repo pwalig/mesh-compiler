@@ -1,9 +1,12 @@
 #include "reader.h"
 #include <assimp/Importer.hpp>
 #include <stdexcept>
+#include <shared_mutex>
 
-std::unordered_map<const aiMesh*, assimp::meshWeights<unsigned int, ai_real, 4U>> assimp::meshWeightsMap;
-std::unordered_map<const aiMesh*, assimp::skeleton> assimp::meshSkeletonsMap;
+std::shared_mutex mutex_;
+
+assimp::weightsData assimp::meshWeightsMap;
+assimp::skeletonData assimp::meshSkeletonsMap;
 
 void assimp::readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags)
 {

@@ -27,7 +27,7 @@ mc::anyType::value assimp::meshBoneNode::getValue(mc::vtype::code v, mc::stype::
         mc::anyType::setValue(va, mesh->mBones[id]->mOffsetMatrix[suffixes[0]][suffixes[1]], s);
         break;
     case mc::vtype::mesh_bone_parent:
-        mc::anyType::setValue(va, meshSkeletonsMap.at(mesh).bones[id].parent, s);
+        mc::anyType::setValue(va, meshSkeletonsMap.get(mesh).bones[id].parent, s);
         break;
     default:
         throw std::logic_error("invalid value type");
@@ -41,7 +41,7 @@ size_t assimp::meshBoneNode::getChildNodeCount(mc::ctype::code counting_type) co
     switch (counting_type)
     {
     case mc::ctype::per_mesh_bone_child:
-        return meshSkeletonsMap.at(mesh).bones[id].children.size();
+        return meshSkeletonsMap.get(mesh).bones[id].children.size();
         break;
     default:
         throw std::logic_error("invalid counting type");

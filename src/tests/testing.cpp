@@ -33,60 +33,67 @@ void tests::run(
         references.back().seekg(0, std::ifstream::beg);
     }
 
-    for (size_t i = 0; i < cases.size(); ++i) {
-        std::cout << "\tcase #" << i;
-        try {
-            mc::compilationInfo ci_j = cases[i].getCompilationInfo();
-            ci_j.compileFile(sourceFile);
-            mc::compilationInfo::units.clear();
-        }
-        catch (mc::jsonException& je) {
-            std::cout << " failed via json exception: " << je.what() << "\n";
-            continue;
-        }
-        catch (mc::formatException& fe) {
-            std::cout << " failed via format exception: in line " << fe.context.linenum << " " << fe.what() << "\n";
-            continue;
-        }
-        catch (mc::compileException& ce) {
-            std::cout << " failed via compile exception: " << ce.what() << "\n";
-            continue;
-        }
+    std::vector<mc::compilationContext> contexts;
+    contexts.resize(2);
+    contexts[1].filename = " - threaded";
+    contexts[1].thread = true;
 
-        if (referenceFiles.size() != cases[i].resultingFiles.size()) {
-            std::cout << " failed via file comparison:\nthere was different amount of resulting files than reference files\n";
-            continue;
-        }
-        std::cout << "\n";
-
-        for (size_t j = 0; j < referenceFiles.size(); ++j) {
-            std::ifstream result(cases[i].resultingFiles[j], std::ifstream::binary | std::ifstream::ate);
-            std::cout << "\t\t" << cases[i].resultingFiles[j] << " vs " << referenceFiles[j];
-            if (!result.is_open()) {
-                std::cout << " failed: could not open\n";
+	for (size_t i = 0; i < cases.size(); ++i) {
+		for (const mc::compilationContext& cc : contexts) {
+            std::cout << "\tcase #" << i << cc.filename;
+            try {
+                mc::compilationInfo ci_j = cases[i].getCompilationInfo();
+                ci_j.compileFile(sourceFile, cc);
+                mc::compilationInfo::units.clear();
+            }
+            catch (mc::jsonException& je) {
+                std::cout << " failed via json exception: " << je.what() << "\n";
+                continue;
+            }
+            catch (mc::formatException& fe) {
+                std::cout << " failed via format exception: in line " << fe.context.linenum << " " << fe.what() << "\n";
+                continue;
+            }
+            catch (mc::compileException& ce) {
+                std::cout << " failed via compile exception: " << ce.what() << "\n";
                 continue;
             }
 
-            if (result.tellg() != fileSizes[j]) {
-                std::cout << " failed: had different size\n";
-				result.close();
+            if (referenceFiles.size() != cases[i].resultingFiles.size()) {
+                std::cout << " failed via file comparison:\nthere was different amount of resulting files than reference files\n";
                 continue;
             }
-            result.seekg(0, std::ifstream::beg);
+            std::cout << "\n";
 
-            if (!std::equal(
+            for (size_t j = 0; j < referenceFiles.size(); ++j) {
+                std::ifstream result(cases[i].resultingFiles[j], std::ifstream::binary | std::ifstream::ate);
+                std::cout << "\t\t" << cases[i].resultingFiles[j] << " vs " << referenceFiles[j];
+                if (!result.is_open()) {
+                    std::cout << " failed: could not open\n";
+                    continue;
+                }
+
+                if (result.tellg() != fileSizes[j]) {
+                    std::cout << " failed: had different size\n";
+                    result.close();
+                    continue;
+                }
+                result.seekg(0, std::ifstream::beg);
+
+                if (!std::equal(
                     std::istreambuf_iterator<char>(references[j].rdbuf()),
                     std::istreambuf_iterator<char>(),
                     std::istreambuf_iterator<char>(result.rdbuf())
-            )) {
-                std::cout << " failed: had different contents\n";
-				result.close();
-                continue;
-            }
+                )) {
+                    std::cout << " failed: had different contents\n";
+                    result.close();
+                    continue;
+                }
 
-            std::cout << " succeeded\n";
-			result.close();
-            std::remove(cases[i].resultingFiles[j].c_str());
+                std::cout << " succeeded\n";
+                result.close();
+                std::remove(cases[i].resultingFiles[j].c_str());
+            }
         }
     }
 }

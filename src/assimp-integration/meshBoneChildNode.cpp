@@ -13,7 +13,7 @@ std::string assimp::meshBoneChildNode::getName() const
 
 size_t assimp::meshBoneChildNode::getCount() const
 {
-    return meshSkeletonsMap.at(mesh).bones[parentId].children.size();
+    return meshSkeletonsMap.get(mesh).bones[parentId].children.size();
 }
 
 mc::anyType::value assimp::meshBoneChildNode::getValue(mc::vtype::code v, mc::stype::code s, const std::vector<unsigned short>& suffixes) const
@@ -23,7 +23,7 @@ mc::anyType::value assimp::meshBoneChildNode::getValue(mc::vtype::code v, mc::st
     switch (v)
     {
     case mc::vtype::mesh_bone_child:
-        mc::anyType::setValue(va, meshSkeletonsMap.at(mesh).bones[parentId].children[id], s);
+        mc::anyType::setValue(va, meshSkeletonsMap.get(mesh).bones[parentId].children[id], s);
         break;
     default:
         throw std::logic_error("invalid value type");

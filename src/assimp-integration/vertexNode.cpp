@@ -41,10 +41,10 @@ mc::anyType::value assimp::vertexNode::getValue(mc::vtype::code v, mc::stype::co
         mc::anyType::setValue(va, mesh->mColors[suffixes[0]][id][suffixes[1]], s);
         break;
     case mc::vtype::bone_id:
-        mc::anyType::setValue(va, meshWeightsMap.at(mesh).vertices[id].bone_ids[suffixes[0]], s);
+        mc::anyType::setValue(va, meshWeightsMap.get(mesh).vertices[id].bone_ids[suffixes[0]], s);
         break;
     case mc::vtype::bone_weight:
-        mc::anyType::setValue(va, meshWeightsMap.at(mesh).vertices[id].weights[suffixes[0]], s);
+        mc::anyType::setValue(va, meshWeightsMap.get(mesh).vertices[id].weights[suffixes[0]], s);
         break;
     default:
         throw std::logic_error("invalid value type");

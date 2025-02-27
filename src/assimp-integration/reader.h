@@ -5,6 +5,7 @@
 #include <limits>
 #include <array>
 #include <unordered_map>
+#include <shared_mutex>
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -54,8 +55,23 @@ namespace assimp {
         std::vector<bone> bones;
     };
 
-    extern std::unordered_map<const aiMesh*, meshWeights<unsigned int, ai_real, 4U>> meshWeightsMap;
-    extern std::unordered_map<const aiMesh*, skeleton> meshSkeletonsMap;
+    template<typename T>
+    class sharedMeshData {
+    private:
+        std::unordered_map<const aiMesh*, T> data;
+        std::shared_mutex mutex;
+        using reader_lock = std::shared_lock<std::shared_mutex>;
+        using writer_lock = std::unique_lock<std::shared_mutex>;
+    public:
+        T get(const aiMesh* mesh); // thread safe
+        void clear(); // not thread safe
+    };
+
+    using weightsData = sharedMeshData<meshWeights<unsigned int, ai_real, 4U>>;
+    using skeletonData = sharedMeshData<skeleton>;
+
+    extern weightsData meshWeightsMap;
+    extern skeletonData meshSkeletonsMap;
 
 	void readFile(const std::string& pFile, std::function<void(const aiScene*)> process_scene, const unsigned int& pFlags =
         aiProcess_CalcTangentSpace |
@@ -158,5 +174,26 @@ namespace assimp {
                 b.children.push_back(it->second);
             }
         }
+    }
+    template<typename T>
+    inline T sharedMeshData<T>::get(const aiMesh* mesh)
+    {
+        {
+            reader_lock rl(mutex);
+            auto it = data.find(mesh);
+            if (it != data.end()) return it->second;
+        }
+        {
+            writer_lock wl(mutex);
+            if (data.find(mesh) == data.end()) { // check if some other thread managed to insert the data
+				data.insert(std::pair<const aiMesh*, T>(mesh, T(mesh)));
+            }
+			return data.at(mesh);
+        }
+    }
+    template<typename T>
+    inline void sharedMeshData<T>::clear()
+    {
+        data.clear();
     }
 }

@@ -7,10 +7,6 @@
 assimp::meshNode::meshNode(const aiScene* scene_, const aiMesh* mesh_) :
     scene(scene_), mesh(mesh_), mc::Inode(mc::ctype::per_mesh)
 {
-    if (meshWeightsMap.find(mesh_) == meshWeightsMap.end())
-        meshWeightsMap.insert(std::pair<const aiMesh*, meshWeights<unsigned int, ai_real, 4U>>(mesh_, meshWeights<unsigned int, ai_real, 4U>(mesh_)));
-    if (meshSkeletonsMap.find(mesh_) == meshSkeletonsMap.end())
-        meshSkeletonsMap.insert(std::pair<const aiMesh*, skeleton>(mesh_, skeleton(mesh_)));
 }
 
 std::string assimp::meshNode::getName() const
