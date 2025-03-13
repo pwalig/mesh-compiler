@@ -109,9 +109,11 @@ void mc::compilationInfo::compileFile(const std::string& filename, const compila
     if (context.thread && file_units.size() > 1) {
 		assimp::readFile(filename, [this, &base_filename, &context](const aiScene* scene) {
 			std::vector<std::thread> threads;
-			for (fileUnit& fu : file_units) {
-				threads.push_back(std::thread(std::bind(fileUnitJob, fu, scene, context, base_filename)));
+            threads.reserve(file_units.size());
+            for (size_t i = 0; i < file_units.size() - 1; ++i) {
+				threads.push_back(std::thread(std::bind(fileUnitJob, file_units[i], scene, context, base_filename)));
 			}
+            fileUnitJob(file_units.back(), scene, context, base_filename);
 			for (std::thread& t : threads) t.join();
 			});
     }

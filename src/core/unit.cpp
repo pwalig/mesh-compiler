@@ -225,6 +225,7 @@ void mc::fileUnit::compile(const Inode::ptr node, compilationContext context)
         size_t count = node->getChildNodeCount(nodeChild);
         if (context.thread && count > 1) {
 			std::vector<std::thread> threads;
+            threads.reserve(count - 1);
 			for (size_t i = 0; i < count - 1; ++i) {
 				threads.push_back(std::thread(std::bind(&fileUnit::compile, this, node->getChildNodeOfType(nodeChild, i), context)));
 			}
